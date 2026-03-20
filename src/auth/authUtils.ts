@@ -1,21 +1,32 @@
 import { jwtDecode } from "jwt-decode";
 
-// interface JWTType {
-//     exp: number;
-// }
-// export const isTokenValid = (token: string): boolean => {
-//   try {
-//     const { exp } = jwtDecode<JWTType>(token);
-//     return exp * 1000 > Date.now();
-//   } catch {
-//     return false;
-//   }
-// };
+interface JWTType {
+    expiresIn: number;
+    role: string;
+}
+export const isTokenValid = (token: string): boolean => {
+  try {
+    const { expiresIn } = jwtDecode<JWTType>(token);
+    return expiresIn * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+};
+
+export const getTokenExpirationDelay = (token: string): number => {
+  try {
+    const { expiresIn } = jwtDecode<JWTType>(token);
+    const expiresAfter = expiresIn * 1000 - Date.now();
+    return expiresAfter > 0 ? expiresAfter : 0;
+  } catch {
+    return 0;
+  }
+};
 
 export const getUserRoleFromToken = (token: string): string | null => {
   try {
-    const decoded: { role?: string } = jwtDecode(token);
-    return decoded.role || null;
+    const  { role } = jwtDecode<JWTType>(token);
+    return role || null;
   } catch {
     return null;
   }
