@@ -31,3 +31,13 @@ export const getUserRoleFromToken = (token: string): string | null => {
     return null;
   }
 };
+
+export function getIsAuthenticated(allowedRoles?: string[]): boolean {
+  const token = localStorage.getItem("authToken");
+  if (!token || !isTokenValid(token)) return false;
+  if (allowedRoles) {
+    const role = getUserRoleFromToken(token);
+    return role !== null && allowedRoles.includes(role);
+  }
+  return true;
+}

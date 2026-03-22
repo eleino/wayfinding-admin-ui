@@ -14,10 +14,10 @@
   html {
     font-family: "Inter", sans-serif;
     background-color: black;
-    color: #fff;
+    color: var(--color-lab-gray-light);
   }
   a {
-    color: #fff;
+    color: var(--color-lab-gray-light);
     text-decoration: none;
     transition: color 0.2s ease;
   }
