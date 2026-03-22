@@ -16,6 +16,18 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    "baseUrl": "src",
+    "paths": {
+      "@api/*": ["api/*"],
+      "@assets/*": ["assets/*"],
+      "@components/*": ["components/*"],
+      "@utils/*": ["utils/*"],
+      "@auth/*": ["auth/*"],
+      "@hooks/*": ["hooks/*"],
+      "@apptypes/*": ["types/*"],
+      "@views/*": ["views/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

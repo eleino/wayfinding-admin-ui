@@ -1,50 +1,32 @@
 // Using localStorage for storing the token, cookies would be preferred but that would require changes to the backend.
-import React, { createContext, useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   getUserRoleFromToken,
   isTokenValid,
   getTokenExpirationDelay,
 } from "./authUtils";
+import { AuthContext } from "./authContext";
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  userRole: string | null;
-  login: (token: string) => void;
-  logout: () => void;
-}
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
-
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  userRole: null,
-  login: () => {},
-  logout: () => {},
-});
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(() => {
     const storedToken = localStorage.getItem("authToken") || "";
     return isTokenValid(storedToken) ? storedToken : null;
   });
-  const [userRole, setUserRole] = useState<string | null>(() => {
-    return token ? getUserRoleFromToken(token) : null;
-  });
   const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const isAuthenticated = useMemo(() => !!token && isTokenValid(token), [token]);
+  const userRole = useMemo(() => (token ? getUserRoleFromToken(token) : null), [token]);
+
 
   const login = (token: string) => {
     if (isTokenValid(token)) {
-      const expirationDelay = getTokenExpirationDelay(token);
-      logoutTimerRef.current = setTimeout(() => {
-        logout();
-      }, expirationDelay);
       localStorage.setItem("authToken", token);
-      setIsAuthenticated(true);
       setToken(token);
-      setUserRole(getUserRoleFromToken(token));
+      console.log("User logged in successfully.");
     } else {
       console.warn("Attempted to login with an invalid token.");
     }
@@ -55,10 +37,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearTimeout(logoutTimerRef.current);
     }
     setToken(null);
-    setUserRole(null);
     localStorage.removeItem("authToken");
-    setIsAuthenticated(false);
   };
+
+  useEffect(() => {
+    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+    if (token && isTokenValid(token)) {
+      const expirationDelay = getTokenExpirationDelay(token);
+      logoutTimerRef.current = setTimeout(() => {
+        logout();
+      }, expirationDelay);
+    }
+    
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout }}>
