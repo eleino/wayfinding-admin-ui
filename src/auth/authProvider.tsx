@@ -1,29 +1,16 @@
 // Using localStorage for storing the token, cookies would be preferred but that would require changes to the backend.
-import React, { createContext, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   getUserRoleFromToken,
   isTokenValid,
   getTokenExpirationDelay,
 } from "./authUtils";
+import { AuthContext } from "./authContext";
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  userRole: string | null;
-  login: (token: string) => void;
-  logout: () => void;
-}
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
-
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  userRole: null,
-  login: () => {},
-  logout: () => {},
-});
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState(() => {
@@ -45,6 +32,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsAuthenticated(true);
       setToken(token);
       setUserRole(getUserRoleFromToken(token));
+      console.log("User logged in successfully.");
     } else {
       console.warn("Attempted to login with an invalid token.");
     }

@@ -4,12 +4,10 @@ import SideBar from "../SideBar/SideBar";
 
 const RootLayout = () => {
   return (
-    <div className="flex flex-col">
-      <h1>Wayfinding admin UI</h1>
-
-      <div className="flex flex-row">
+    <div className="flex flex-col p-10 w-full h-screen">
+      <div className="flex flex-row h-full">
         <SideBar />
-        <main>
+        <main className="p-5">
           <Outlet />
         </main>
       </div>

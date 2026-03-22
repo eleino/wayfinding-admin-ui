@@ -1,13 +1,13 @@
 import { jwtDecode } from "jwt-decode";
 
 interface JWTType {
-    expiresIn: number;
+    exp: number;
     role: string;
 }
 export const isTokenValid = (token: string): boolean => {
   try {
-    const { expiresIn } = jwtDecode<JWTType>(token);
-    return expiresIn * 1000 > Date.now();
+    const { exp } = jwtDecode<JWTType>(token);
+    return exp * 1000 > Date.now();
   } catch {
     return false;
   }
@@ -15,8 +15,8 @@ export const isTokenValid = (token: string): boolean => {
 
 export const getTokenExpirationDelay = (token: string): number => {
   try {
-    const { expiresIn } = jwtDecode<JWTType>(token);
-    const expiresAfter = expiresIn * 1000 - Date.now();
+    const { exp } = jwtDecode<JWTType>(token);
+    const expiresAfter = exp * 1000 - Date.now();
     return expiresAfter > 0 ? expiresAfter : 0;
   } catch {
     return 0;
