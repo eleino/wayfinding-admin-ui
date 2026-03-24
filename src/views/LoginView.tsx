@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "@auth/authContext";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import type { LoginResultType } from "@apptypes/LoginResultType";
+import type { LoginResultType } from "@apptypes/login-result";
 import { apiLogin } from "@api/login";
 
 type LoginInput = { username: string; password: string };
@@ -33,7 +33,7 @@ export const LoginView = () => {
       <div className="login-form">
         <form onSubmit={handleSubmit}>
           <div className="login-form-group flex flex-col items-center">
-            <h1>Login</h1>
+            <h1>Wayfinding Admin Login</h1>
             <input
               type="text"
               placeholder="Username"
@@ -50,7 +50,7 @@ export const LoginView = () => {
             />
             <button
               type="submit"
-              className="w-half p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200"
+              className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200"
             >
               Login
             </button>
