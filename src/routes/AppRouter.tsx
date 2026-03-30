@@ -38,37 +38,37 @@ const loginRoute = createRoute({
 const ImagesRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/images',
-    component: () => ImagesView,
+    component: () => <ImagesView />,
 });
 
 const LocationsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/locations',
-    component: () => LocationsView,
+    component: () => <LocationsView />,
 });
 
 const PathsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/paths',
-    component: () => PathsView,
+    component: () => <PathsView />,
 });
 
 const QRCodeRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/qrcodes',
-    component: () => QRCodesView,
+    component: () => <QRCodesView />,
 });
 
 const SettingsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/settings',
-    component: () => SettingsView,
+    component: () => <SettingsView />,
 });
 
 const TranslationsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/translations',
-    component: () => TranslationsView,
+    component: () => <TranslationsView />,
 });
 
 const NotFoundRoute = createRoute({
@@ -78,6 +78,6 @@ const NotFoundRoute = createRoute({
 });
 
 
-rootRoute.addChildren([indexRoute, loginRoute, ImagesRoute, LocationsRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute]);
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute]);
 
 export const AppRouter = rootRoute;

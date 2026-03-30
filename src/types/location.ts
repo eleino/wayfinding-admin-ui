@@ -1,5 +1,5 @@
-export interface LocationType {
-    location_id: number;
+export interface Location {
+    id: number;
     name: string;
     building_id: number;
     is_entry_location: boolean;
@@ -9,4 +9,13 @@ export interface LocationType {
     trl_location_name_key: string;
     trl_current_location_msg_key: string;
     trl_location_desc_key: string;
+}
+export interface LocationImage {
+    url: string;
+    overlay: string | null;
+}
+
+export interface LocationWithImage {
+    location: Location;
+    image: LocationImage | null;
 }
