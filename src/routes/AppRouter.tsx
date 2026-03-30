@@ -5,6 +5,12 @@ import { LoginView } from '@views/LoginView';
 import RootLayout from '@components/RootLayout/RootLayout';
 import { getIsAuthenticated } from '@auth/authUtils';
 import { DashboardView } from '@views/DashboardView';
+import ImagesView from '@views/ImagesView';
+import LocationsView from '@views/LocationsView';
+import PathsView from '@views/PathsView';
+import QRCodesView from '@views/QRCodesView';
+import SettingsView from '@views/SettingsView';
+import TranslationsView from '@views/TranslationsView';
 
 const rootRoute = createRootRoute({
     component: RootLayout,
@@ -29,6 +35,49 @@ const loginRoute = createRoute({
     component: () => <LoginView />,
 });
 
-rootRoute.addChildren([indexRoute, loginRoute]);
+const ImagesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/images',
+    component: () => <ImagesView />,
+});
+
+const LocationsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/locations',
+    component: () => <LocationsView />,
+});
+
+const PathsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/paths',
+    component: () => <PathsView />,
+});
+
+const QRCodeRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/qrcodes',
+    component: () => <QRCodesView />,
+});
+
+const SettingsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/settings',
+    component: () => <SettingsView />,
+});
+
+const TranslationsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/translations',
+    component: () => <TranslationsView />,
+});
+
+const NotFoundRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '*',
+    component: () => <div>Not Found</div>,
+});
+
+
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute]);
 
 export const AppRouter = rootRoute;

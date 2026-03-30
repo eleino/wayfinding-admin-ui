@@ -1,31 +1,22 @@
 // LoginView.tsx
 
-import { useContext, useState } from "react";
-import { AuthContext } from "@auth/authContext";
+import { useState } from "react";
+import { useLoginMutation } from "@hooks/useLoginMutation";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
-import type { LoginResultType } from "@apptypes/LoginResultType";
-import { apiLogin } from "@api/login";
-
-type LoginInput = { username: string; password: string };
 
 export const LoginView = () => {
-  const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const mutation = useMutation<LoginResultType, Error, LoginInput>({
-    mutationFn: async ({ username, password }) => apiLogin(username, password),
-    onSuccess: (data) => {
-      login(data.accessToken);
-      navigate({ to: "/" });
-    },
-  });
+  const loginMutation = useLoginMutation();
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutation.mutate({ username, password });
+    loginMutation.mutate(
+      { username, password },
+      { onSuccess: () => navigate({ to: "/" }) },
+    );
   };
 
   return (
@@ -33,7 +24,7 @@ export const LoginView = () => {
       <div className="login-form">
         <form onSubmit={handleSubmit}>
           <div className="login-form-group flex flex-col items-center">
-            <h1>Login</h1>
+            <h1>Wayfinding Admin Login</h1>
             <input
               type="text"
               placeholder="Username"

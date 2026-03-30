@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const userRole = useMemo(() => (token ? getUserRoleFromToken(token) : null), [token]);
 
 
+
   const login = (token: string) => {
     if (isTokenValid(token)) {
       localStorage.setItem("authToken", token);

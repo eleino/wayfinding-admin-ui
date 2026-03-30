@@ -1,11 +1,17 @@
 // root layout, app name on top left, side bar on left, content on right
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useNavigate } from "@tanstack/react-router";
 import SideBar from "../SideBar/SideBar";
 import { useContext } from "react";
 import { AuthContext } from "@auth/authContext";
 
 const RootLayout = () => {
-  const { isAuthenticated, userRole } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { isAuthenticated, userRole, logout } = useContext(AuthContext);
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+    
+  }
 if (!isAuthenticated || (userRole !== 'admin' && userRole !== 'maintainer')) {
     return (
         <main className="p-5">
@@ -15,6 +21,11 @@ if (!isAuthenticated || (userRole !== 'admin' && userRole !== 'maintainer')) {
   }
   return (
     <div className="flex flex-col p-10 w-full h-screen">
+      <div className="place-self-end">
+        <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded">
+          Logout
+        </button>
+      </div>
       <div className="flex flex-row h-full">
         <SideBar />
         <main className="p-5">
