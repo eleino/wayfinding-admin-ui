@@ -1,77 +1,84 @@
 // LocationsSelections.tsx
 // selection component for locations, with dropdowns for org, site, building
-import { useState } from "react";
 import { useGetOrganisations } from "@hooks/useOrganisations";
 import { useGetBuildings } from "@hooks/useBuildings";
 import { useGetSites } from "@hooks/useSites";
 import { ListLocations } from "./ListLocations";
+import { GridView } from "@components/Grid/GridView";
+import type { SearchParams } from "@apptypes/searchParams";
+import { useSelectionStore } from "storage/store";
 
-export const LocationsSelections = () => {
-  const [selectedBuildingId, setSelectedBuildingId] = useState<number | null>(
-    null,
-  );
-  const [selectedSiteId, setSelectedSiteId] = useState<number | null>(null);
-  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
+
+
+export const LocationsSelections = (props: {searchParams : SearchParams}) => {
+  const { searchParams } = props;
+  // fetch orgs, sites, buildings for dropdowns from localStorage
+  // if searchParams has orgId, siteId, buildingId, use those as initial values for dropdowns
+  const queryOrgId = searchParams?.orgId || null;
+  const querySiteId = searchParams?.siteId || null;
+  const queryBuildingId = searchParams?.buildingId || null;
+
   const orgs = useGetOrganisations();
-  const handleOrgChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const orgId = Number(e.target.value);
-    setSelectedOrgId(orgId);
-    setSelectedSiteId(null);
-    setSelectedBuildingId(null);
-  };
-  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const siteId = Number(e.target.value);
-    setSelectedSiteId(siteId);
-    setSelectedBuildingId(null);
-  };
-  const handleBuildingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const buildingId = Number(e.target.value);
-    setSelectedBuildingId(buildingId);
-  };
-  const sites = useGetSites(selectedOrgId, { enabled: !!selectedOrgId });
-  const buildings = useGetBuildings(selectedSiteId, {
-    enabled: !!selectedSiteId
+
+  const sites = useGetSites(queryOrgId, { enabled: !!queryOrgId });
+  const buildings = useGetBuildings(querySiteId, {
+    enabled: !!querySiteId,
   });
+  if (!queryOrgId) {
+    return <div>Please select an organization to view locations.
+      <GridView
+      searchParams={searchParams}
+      type="org"
+        items={orgs.data?.map(org => ({
+          id: Number(org.id),
+          title: org.name,
+          subTitle: "",
+          imageUrl: org.logoUrl || "",
+        })) || []}
+        setSelectedItem={(id) => {
+          useSelectionStore.setState({ orgId: id, siteId: null, buildingId: null });
 
-
+        }}
+      />
+    </div>;
+  }
+  if (!querySiteId) {
+    return <div>Please select a site to view locations.
+      <GridView
+        type="site"
+        searchParams={searchParams}
+        items={sites.data?.map(site => ({
+          id: Number(site.id),
+          title: site.address,
+          subTitle: "",
+          imageUrl: site.image_url || "",
+        })) || []}
+        setSelectedItem={(id) => {
+          useSelectionStore.setState({ siteId: id, buildingId: null });
+        }}
+      />
+    </div>;
+  }
+  if (!queryBuildingId) {
+    return <div>Please select a building to view locations.
+      <GridView
+        type="building"
+        searchParams={searchParams}
+        items={buildings.data?.map(building => ({
+          id: Number(building.id),
+          title: building.name,
+          subTitle: "",
+          imageUrl: building.image_url || "",
+        })) || []}
+        setSelectedItem={(id) => {
+          useSelectionStore.setState({ buildingId: id });
+        }}
+      />
+    </div>;
+  }
   return (
     <div>
-      <div className="selectionForm">
-        <label htmlFor="orgSelect">Organization:</label>
-        <select value={selectedOrgId || ""} onChange={handleOrgChange}>
-          <option value="">Select Organization</option>
-          {orgs.data?.map((org) => (
-            console.log("Org in selection", org),
-            <option key={org.id} value={org.id}>
-              {org.name}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="siteSelect">Site:</label>
-        <select value={selectedSiteId || ""} onChange={handleSiteChange} disabled={!selectedOrgId}>
-          <option value="">Select Site</option>
-          {sites.data?.map((site) => (
-                console.log("Site in selection", site),
-            <option key={site.id} value={site.id}>
-              {site.address}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="buildingSelect">Building:</label>
-        <select value={selectedBuildingId || ""} onChange={handleBuildingChange} disabled={!selectedSiteId && !buildings.isLoading}>
-          <option value="">Select Building</option>
-          { buildings.data?.map((building) => (
-            console.log("Building in selection", building),
-
-            <option key={building.id} value={building.id}>
-              {building.name}
-            </option>
-          ))}
-        </select>
-        <ListLocations buildingId={selectedBuildingId} />
-      </div>
+        <ListLocations buildingId={queryBuildingId} />
     </div>
   );
 };

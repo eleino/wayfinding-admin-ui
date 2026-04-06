@@ -1,11 +1,25 @@
 import { Link } from "@tanstack/react-router";
+import { useSelectionStore } from "storage/store";
 
 // SideBar.tsx
 const SideBar = () => {
+  const savedOrgId = useSelectionStore((state) => state.orgId);
+  const savedSiteId = useSelectionStore((state) => state.siteId);
+  const savedBuildingId = useSelectionStore((state) => state.buildingId);
+  let paramsPath= "";
+  if (savedOrgId) {
+    paramsPath += `?orgId=${savedOrgId}`;
+  }
+  if (savedSiteId) {
+    paramsPath += `${paramsPath ? "&" : "?"}siteId=${savedSiteId}`;
+  }
+  if (savedBuildingId) {
+    paramsPath += `${paramsPath ? "&" : "?"}buildingId=${savedBuildingId}`;
+  }
   const links = [
     { name: "Dashboard", path: "/" },
-    { name: "Locations", path: "/locations" },
-    { name: "Paths", path: "/paths" },
+    { name: "Locations", path: `/locations${paramsPath}` },
+    { name: "Paths", path: `/paths${paramsPath}` },
     { name: "Media/Images", path: "/images" },
     { name: "Translations", path: "/translations" },
     { name: "QR Codes", path: "/qrcodes" },
