@@ -45,6 +45,9 @@ export const LoginView = () => {
             >
               Login
             </button>
+            {loginMutation.isError && (
+              <div className="text-red-500 p-2 w-150">Error logging in: {String(loginMutation.error)}</div>
+            )}
           </div>
         </form>
       </div>
