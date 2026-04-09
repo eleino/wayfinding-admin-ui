@@ -1,4 +1,18 @@
-Notes
+# Wayfinding Admin UI
+
+## Installation
+1. Clone the repository and navigate to the `wayfinding-admin-ui` directory.
+2. Run `npm install` to install the dependencies.
+3. Create a `.env` file in the root of the `wayfinding-admin-ui` directory with the following content:
+   ```
+   VITE_API_BASE_URL=/api/v1
+   ```
+4. Run `npm run dev` to start the development server.
+5. Navigate to `http://localhost:5172` in your browser to access the admin UI.
+6. Log in using the admin credentials.
+
+
+## Notes
 
 - I had to change the default port from 5173 to 5172 because the users' frontend (running in Docker) uses 5173.
 - Because of that, I had to add proxy config to vite.config.ts to get around CORS errors, and use relative API URL (/api/v1) instead of absolute (http://localhost:3000/api/v1).
