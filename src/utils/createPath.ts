@@ -1,5 +1,5 @@
 // creates path params based on saved selections
-export const createPath = (basePath: string, orgId?: number, siteId?: number, buildingId?: number, locationId?: number) => {
+export const createPath = (basePath: string, orgId?: number, siteId?: number, buildingId?: number, locationId?: number, pathId?: number) => {
   let path = basePath;
   const params = new URLSearchParams();
   if (orgId) {
@@ -14,6 +14,10 @@ export const createPath = (basePath: string, orgId?: number, siteId?: number, bu
   if (locationId) {
     params.append("locationId", locationId.toString());
   }
+  if (pathId) {
+    params.append("pathId", pathId.toString());
+  }
+
   const queryString = params.toString();
   if (queryString) {
     path += `?${queryString}`;

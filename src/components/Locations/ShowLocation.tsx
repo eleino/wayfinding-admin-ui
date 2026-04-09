@@ -1,6 +1,6 @@
 import type { SearchParams } from "@apptypes/searchParams";
-import { useFetchLocationById } from "@hooks/useLocations";
-import { useFetchTranslationsEnFi } from "@hooks/useTranslations";
+import { useGetLocationById } from "@hooks/useLocations";
+import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 import {
@@ -13,20 +13,20 @@ export const ShowLocation = (props: {
   searchParams: SearchParams;
 }) => {
   const { locationId, searchParams } = props;
-  const locationData = useFetchLocationById(Number(locationId), {
+  const locationData = useGetLocationById(Number(locationId), {
     enabled: !!locationId,
   });
   const { location, image } = locationData.data || {};
 
   // fetch translations for keys defined in trl_location_name_key, trl_current_location_msg_key, trl_location_desc_key
-  const trl_location_name = useFetchTranslationsEnFi(
+  const trl_location_name = useGetTranslationsEnFi(
     location?.trl_location_name_key,
   );
-  const trl_current_location_msg = useFetchTranslationsEnFi(
+  const trl_current_location_msg = useGetTranslationsEnFi(
     location?.trl_current_location_msg_key,
   );
   // TODO: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests?
-  const trl_location_desc = useFetchTranslationsEnFi(
+  const trl_location_desc = useGetTranslationsEnFi(
     location?.trl_location_desc_key,
   );
 

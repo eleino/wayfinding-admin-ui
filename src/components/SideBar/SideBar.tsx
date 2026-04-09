@@ -1,21 +1,13 @@
+// SideBar.tsx
 import { Link } from "@tanstack/react-router";
+import { createPath } from "@utils/createPath";
 import { useSelectionStore } from "storage/store";
 
-// SideBar.tsx
 const SideBar = () => {
   const savedOrgId = useSelectionStore((state) => state.orgId);
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedBuildingId = useSelectionStore((state) => state.buildingId);
-  let paramsPath= "";
-  if (savedOrgId) {
-    paramsPath += `?orgId=${savedOrgId}`;
-  }
-  if (savedSiteId) {
-    paramsPath += `${paramsPath ? "&" : "?"}siteId=${savedSiteId}`;
-  }
-  if (savedBuildingId) {
-    paramsPath += `${paramsPath ? "&" : "?"}buildingId=${savedBuildingId}`;
-  }
+  const paramsPath = createPath("", savedOrgId || undefined, savedSiteId || undefined, savedBuildingId || undefined);
   const links = [
     { name: "Dashboard", path: "/" },
     { name: "Locations", path: `/locations${paramsPath}` },

@@ -1,11 +1,11 @@
-import { useFetchLocations } from "@hooks/useLocations";
+import { useGetLocations } from "@hooks/useLocations";
 import { useSelectionStore } from "@storage/store";
 import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 
 export const ListLocations = (props: { buildingId: number | null }) => {
     const { buildingId } = props;
-      const locations = useFetchLocations(buildingId, {
+      const locations = useGetLocations(buildingId, {
     enabled: !!buildingId,
   });
   const savedOrgId = useSelectionStore((state) => state.orgId);
@@ -14,8 +14,8 @@ export const ListLocations = (props: { buildingId: number | null }) => {
     return <p>Please select a building to view locations.</p>;
   }
     return (
-        <div>
-            <h2>List of locations:</h2>
+        <div className="bg-sidebar-grey p-2">
+            <h2 className="text-lg font-semibold pe-2">List of locations:</h2>
             {locations.isLoading && <p>Loading locations...</p>}
             {locations.isError && <p>Error loading locations: {String(locations.error)}</p>}
             <ul>
