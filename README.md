@@ -7,9 +7,10 @@
    ```
    VITE_API_BASE_URL=/api/v1
    ```
-4. Run `npm run dev` to start the development server.
+4. Run `npm run dev` to start the development server. The backend needs to be running (in Docker or locally).
 5. Navigate to `http://localhost:5172` in your browser to access the admin UI.
 6. Log in using the admin credentials.
+
 
 
 ## Notes

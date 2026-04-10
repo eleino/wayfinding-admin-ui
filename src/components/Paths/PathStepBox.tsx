@@ -43,6 +43,7 @@ export interface StepApiResponse {
   */
 
 import { useGetStepById } from "@hooks/useSteps";
+import { StepInstructions } from "./StepInstruction";
 
 export const PathStepBox = (props: { stepId: number }) => {
   const { stepId } = props;
@@ -62,6 +63,7 @@ export const PathStepBox = (props: { stepId: number }) => {
     return <p>No step data available.</p>;
   }
   const step = stepQuery.data.step;
+  
 
   return (
     <div className="bg-sidebar-grey p-4 rounded shadow mb-4 border-l-4 border-lab-blue">
@@ -71,13 +73,7 @@ export const PathStepBox = (props: { stepId: number }) => {
       <p className="text-gray-300 mb-1">Video timestamp: {step.video_timestamp_seconds} seconds</p>
       <h4 className="text-md font-semibold mt-2 mb-1">Instructions:</h4>
       {step.instructions.map((instruction, index) => (
-        <div key={index} className="mb-2">
-          <p className="text-gray-300 mb-1">Direction: {instruction.direction}</p>
-          <p className="text-gray-300 mb-1">Translation: {instruction.instructions.translation}</p>
-          {instruction.instructions.image.url && (
-            <img src={instruction.instructions.image.url} alt={`Instruction ${index} image`} className="mt-1 w-50 h-auto" />
-          )}
-        </div>
+       <StepInstructions key={index} instruction={instruction} />
       ))}
     </div>
   );

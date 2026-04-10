@@ -25,7 +25,7 @@ export const GridView = (props: GridViewProps) => {
     <div className="grid grid-cols-2 gap-4">
       {items.map((item) => (
         <Link
-          to={newQueryParams ? `/locations?${newQueryParams}&${props.type}Id=${item.id}` : `/locations?${props.type}Id=${item.id}`}
+          to={newQueryParams ? `${newQueryParams}&${props.type}Id=${item.id}` : `?${props.type}Id=${item.id}`}
           key={item.id}
           className="border cursor-pointer w-120 hover:border-lab-green-dark p-2 rounded"
           onClick={() => setSelectedItem(item.id)}
