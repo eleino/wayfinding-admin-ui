@@ -12,8 +12,7 @@ import { useSelectionStore } from "storage/store";
 
 export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   const { searchParams } = props;
-  // fetch orgs, sites, buildings for dropdowns from localStorage
-  // if searchParams has orgId, siteId, buildingId, use those as initial values for dropdowns
+  // if searchParams has orgId, siteId, buildingId, use those as initial values for selections
   const queryOrgId = searchParams?.orgId || null;
   const querySiteId = searchParams?.siteId || null;
   const queryBuildingId = searchParams?.buildingId || null;

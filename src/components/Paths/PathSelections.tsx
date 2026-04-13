@@ -8,8 +8,6 @@ import { PathList } from "./PathList";
 
 export const PathSelections = (props: { searchParams: SearchParams }) => {
   const { searchParams } = props;
-    // fetch orgs, sites, buildings for dropdowns from localStorage
-    // if searchParams has orgId, siteId, buildingId, use those as initial values for dropdowns
     const queryOrgId = searchParams?.orgId || null;
     const querySiteId = searchParams?.siteId || null;
     const queryBuildingId = searchParams?.buildingId || null;

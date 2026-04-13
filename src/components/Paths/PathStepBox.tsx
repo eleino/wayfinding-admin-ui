@@ -43,7 +43,7 @@ export interface StepApiResponse {
   */
 
 import { useGetStepById } from "@hooks/useSteps";
-import { StepInstructions } from "./StepInstruction";
+import { StepInstructions } from "./StepInstructions";
 
 export const PathStepBox = (props: { stepId: number }) => {
   const { stepId } = props;
