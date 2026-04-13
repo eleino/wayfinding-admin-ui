@@ -3,4 +3,5 @@ export interface SearchParams {
   siteId?: number;
   buildingId?: number;
   locationId?: number;
+  type?: string;
 }
