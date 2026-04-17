@@ -8,6 +8,7 @@
   --color-lab-turquoise: #00c2e5;
   --color-lab-gray-light: #e4e4e4;
   --color-sidebar-grey: #1e1e1e;
+  --color-border-grey: #333333;
 }
 
 @layer base {

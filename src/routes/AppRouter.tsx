@@ -13,7 +13,7 @@ import SettingsView from '@views/SettingsView';
 import TranslationsView from '@views/TranslationsView';
 
 const rootRoute = createRootRoute({
-    component: RootLayout,
+    component: () => <RootLayout />,
     beforeLoad: ({ location }) => {
         if (location.pathname === '/login') return;
         if (!getIsAuthenticated(['admin', 'maintainer'])) {
@@ -47,6 +47,19 @@ const LocationsRoute = createRoute({
     component: () => <LocationsView />,
 });
 
+// route for editing locations
+const EditLocationRoute = createRoute({
+    getParentRoute: () => LocationsRoute,
+    path: '/edit',
+    component: () => <div>Edit Location</div>,
+});
+
+const NewLocationRoute = createRoute({
+    getParentRoute: () => LocationsRoute,
+    path: '/new',
+    component: () => <div>New Location</div>,
+});
+
 const PathsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/paths',
@@ -78,6 +91,6 @@ const NotFoundRoute = createRoute({
 });
 
 
-rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute]);
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, EditLocationRoute, NewLocationRoute]);
 
 export const AppRouter = rootRoute;

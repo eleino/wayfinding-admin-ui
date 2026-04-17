@@ -19,3 +19,8 @@ export interface LocationWithImage {
     location: Location;
     image: LocationImage | null;
 }
+
+export interface ListLocation {
+    id: number;
+    name: string;
+}

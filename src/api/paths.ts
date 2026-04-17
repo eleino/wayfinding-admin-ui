@@ -2,8 +2,9 @@ import type { PathApiResponse, Path } from "@apptypes/path";
 import apiClient from "./client";
 
 
+// TODO: implement pagination
 export const fetchPaths = async (building_id: number): Promise<Path[]> => {
-  const response = await apiClient.get(`buildings/${building_id}/paths`);
+  const response = await apiClient.get(`buildings/${building_id}/paths?page=1&limit=1000`);
   const json: { data: Path[] } = await response.json();
   return json.data;
 }

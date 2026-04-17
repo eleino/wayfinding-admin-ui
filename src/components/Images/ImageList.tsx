@@ -11,106 +11,38 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
     data: images,
     isLoading,
     error,
-  } = useGetAllImagesByType(selectedType);
+  } = useGetAllImagesByType(selectedType, { enabled: !!selectedType });
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
   };
-  if (!selectedType) {
-    return (
-      <div>
-        <p className="text-lg text-gray-500">
-          Select which type of images you want to view.
-        </p>
-        <ul className="list-disc pl-5">
-          <li
-            onClick={() => handleTypeChange("location")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Location
-          </li>
-          <li
-            onClick={() => handleTypeChange("site")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Site
-          </li>
-          <li
-            onClick={() => handleTypeChange("step")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Step
-          </li>
-          <li
-            onClick={() => handleTypeChange("building")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Building
-          </li>
-          <li
-            onClick={() => handleTypeChange("overlay")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Overlay
-          </li>
-          <li
-            onClick={() => handleTypeChange("logo")}
-            className="cursor-pointer inline pr-5 hover:text-blue-500"
-          >
-            Logo
-          </li>
-        </ul>
-      </div>
-    );
-  }
+  const imageTypes = ["location", "site", "step", "building", "overlay", "logo"];
+
+
   return (
     <div className="w-full h-full flex flex-col">
       <p className="text-lg text-gray-500">
         Select which type of images you want to view.
       </p>
       <ul className="list-disc pl-5">
-        <li
-          onClick={() => handleTypeChange("location")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Location
-        </li>
-        <li
-          onClick={() => handleTypeChange("site")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Site
-        </li>
-        <li
-          onClick={() => handleTypeChange("step")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Step
-        </li>
-        <li
-          onClick={() => handleTypeChange("building")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Building
-        </li>
-        <li
-          onClick={() => handleTypeChange("overlay")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Overlay
-        </li>
-        <li
-          onClick={() => handleTypeChange("logo")}
-          className="cursor-pointer inline pr-5 hover:text-blue-500"
-        >
-          Logo
-        </li>
+          {imageTypes.map((type) => (
+            <li
+              key={type}
+              onClick={() => handleTypeChange(type)}
+              className="cursor-pointer inline pr-5 hover:text-blue-500"
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </li>
+          ))}
       </ul>
-
+      {!selectedType && <p className="text-lg text-gray-500">Select which type of images you want to view.</p>}
       {isLoading && <p>Loading...</p>}
       {error && <p>Error loading images.</p>}
       {images && (
         <div>
           <h2 className="text-xl font-bold mb-4">Images</h2>
+          {images.data.length === 0 ? (
+            <p>No images found for type "{selectedType}".</p>
+          ) : (
           <ul className="divide-y-2 divide-lab-blue">
             {images.data.map((image) => (
               <li key={image.key} className="p-2">
@@ -118,11 +50,11 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
                 <img
                   src={image.url}
                   alt={image.key}
-                  className="h-32 object-cover"
+                  className="w-50 object-cover"
                 />
               </li>
             ))}
-          </ul>
+          </ul>)}
         </div>
       )}
     </div>

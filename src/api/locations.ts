@@ -1,17 +1,18 @@
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import apiClient from "./client";
-import type { Location, LocationWithImage } from "@apptypes/location";
+import type { ListLocation, Location, LocationWithImage } from "@apptypes/location";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
 // Fetches locations in a building (GET /buildings/:id/locations)
+// TODO: implement pagination?
 export const fetchLocations = async (
   building_id: number | null,
-): Promise<Location[]> => {
+): Promise<ListLocation[]> => {
   if (!building_id) {
     throw new Error("Building ID is required to fetch locations.");
   }
-  const response = await apiClient.get(`buildings/${building_id}/locations`);
-  const json: { data: Location[] } = await response.json();
+  const response = await apiClient.get(`buildings/${building_id}/locations?page=1&limit=1000`);
+  const json: { data: ListLocation[] } = await response.json();
   return json.data;
 };
 

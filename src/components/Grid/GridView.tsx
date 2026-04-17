@@ -10,7 +10,7 @@ interface GridViewProps {
     id: number;
     title: string;
     subTitle: string;
-    imageUrl: string;
+    imageUrl?: string;
   }[];
 }
 export const GridView = (props: GridViewProps) => {

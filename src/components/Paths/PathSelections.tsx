@@ -62,7 +62,6 @@ export const PathSelections = (props: { searchParams: SearchParams }) => {
               id: Number(building.id),
               title: building.name,
               subTitle: "",
-              imageUrl: building.image_url || "",
             })) || []}
             setSelectedItem={(id) => {
               useSelectionStore.setState({ buildingId: id });
