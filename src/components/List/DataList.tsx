@@ -38,7 +38,7 @@ export const DataList = (props: DataListProps) => {
 
   return (
     <div className="border border-border-grey">
-      <div className={`grid grid-cols-${columns.length} gap-4 bg-lab-blue p-1`} style={{ gridTemplateColumns: gridTemplate }}>
+      <div className={`grid grid-cols-${columns.length} gap-4 bg-sidebar-grey text-lab-turquoise p-1`} style={{ gridTemplateColumns: gridTemplate }}>
         {columns.map((column) => (
           <span key={column.key} className="mb-2">
             <strong>{column.label}</strong>
@@ -51,7 +51,7 @@ export const DataList = (props: DataListProps) => {
         data.map((item, index) => (
           <div
             key={index}
-            className={`bg-sidebar-grey shadow grid grid-cols-${columns.length} gap-4 border-b px-1 border-border-grey pt-1`}
+            className={`shadow grid grid-cols-${columns.length} gap-4 border-b px-1 border-border-grey pt-1`}
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {columns.map((column) => (
@@ -65,7 +65,7 @@ export const DataList = (props: DataListProps) => {
                 ) : column.getLink ? (
                   <Link
                     to={column.getLink(item)}
-                    className="text-blue-500 hover:underline"
+                    className=" hover:underline text-lab-turquoise"
                   >
                     {item[column.key as keyof typeof item] ??
                       `${column.key} is undefined`}

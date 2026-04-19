@@ -11,6 +11,7 @@ import PathsView from '@views/PathsView';
 import QRCodesView from '@views/QRCodesView';
 import SettingsView from '@views/SettingsView';
 import TranslationsView from '@views/TranslationsView';
+import { NewLocationView } from '@views/NewLocationView';
 
 const rootRoute = createRootRoute({
     component: () => <RootLayout />,
@@ -55,9 +56,9 @@ const EditLocationRoute = createRoute({
 });
 
 const NewLocationRoute = createRoute({
-    getParentRoute: () => LocationsRoute,
-    path: '/new',
-    component: () => <div>New Location</div>,
+    getParentRoute: () => rootRoute,
+    path: '/locations/new',
+    component: () => <NewLocationView />,
 });
 
 const PathsRoute = createRoute({
@@ -91,6 +92,7 @@ const NotFoundRoute = createRoute({
 });
 
 
-rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, EditLocationRoute, NewLocationRoute]);
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute]);
+
 
 export const AppRouter = rootRoute;

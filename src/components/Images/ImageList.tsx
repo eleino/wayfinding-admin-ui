@@ -1,21 +1,40 @@
 import type { SearchParams } from "@apptypes/searchParams";
-import { useGetAllImagesByType } from "@hooks/useImages";
+import { useGetImagesByTypeInfinite } from "@hooks/useImages";
 import { useState } from "react";
+import { ImageBox } from "./ImageBox";
+
 // valid image types: location, site, step, building, overlay, logo
 export const ImageList = (props: { searchParams: SearchParams }) => {
   const { searchParams } = props;
+  //const [shownImages, setShownImages] = useState<Image[]>([]);
+  
   const [selectedType, setSelectedType] = useState<string>(
     searchParams.type || "",
   );
+  const imageTypes = [
+    "location",
+    "site",
+    "step",
+    "building",
+    "overlay",
+    "logo",
+  ];
   const {
     data: images,
     isLoading,
     error,
-  } = useGetAllImagesByType(selectedType, { enabled: !!selectedType });
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetImagesByTypeInfinite(selectedType, {
+    enabled: !!selectedType,
+  });
+  const allImages = images?.pages.flatMap((page) => page.data) || [];
+
+  // reset shownImages and page when type changes
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
   };
-  const imageTypes = ["location", "site", "step", "building", "overlay", "logo"];
 
 
   return (
@@ -24,37 +43,47 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
         Select which type of images you want to view.
       </p>
       <ul className="list-disc pl-5">
-          {imageTypes.map((type) => (
-            <li
-              key={type}
-              onClick={() => handleTypeChange(type)}
-              className="cursor-pointer inline pr-5 hover:text-blue-500"
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </li>
-          ))}
+        {imageTypes.map((type) => (
+          <li
+            key={type}
+            onClick={() => handleTypeChange(type)}
+            className="cursor-pointer inline pr-5 hover:text-blue-500"
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </li>
+        ))}
       </ul>
-      {!selectedType && <p className="text-lg text-gray-500">Select which type of images you want to view.</p>}
+      {!selectedType && (
+        <p className="text-lg text-gray-500">
+          Select which type of images you want to view.
+        </p>
+      )}
       {isLoading && <p>Loading...</p>}
       {error && <p>Error loading images.</p>}
-      {images && (
+      {allImages.length > 0 && (
         <div>
           <h2 className="text-xl font-bold mb-4">Images</h2>
-          {images.data.length === 0 ? (
+          {allImages.length === 0 ? (
             <p>No images found for type "{selectedType}".</p>
           ) : (
-          <ul className="divide-y-2 divide-lab-blue">
-            {images.data.map((image) => (
-              <li key={image.key} className="p-2">
-                <p>Key: {image.key}</p>
-                <img
-                  src={image.url}
-                  alt={image.key}
-                  className="w-50 object-cover"
-                />
-              </li>
-            ))}
-          </ul>)}
+            <div className="grid grid-cols-3 gap-4">
+               {
+              allImages.map((image) => (
+                <ImageBox key={image.key} imageUrl={image.url} imageKey={image.key} />
+              ))
+            }</div>
+          )}
+          {isFetchingNextPage && <p>Loading more...</p>}
+          {hasNextPage && (
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Load More
+            </button>
+          )}
+          {!hasNextPage && <p className="mt-4 text-gray-500">No more images to load.</p>}
         </div>
       )}
     </div>

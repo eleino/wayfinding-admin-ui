@@ -13,3 +13,11 @@ export interface ImageResponse {
     data: Image[];
     meta: ImageMeta;
 }
+
+export interface UploadedImage {
+    entity: {
+        image_key: string;
+        file_path: string;
+    },
+    url: string;
+}

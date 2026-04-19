@@ -44,7 +44,7 @@ export const createLocation = async (
   location: CreateLocationDTO,
 ): Promise<Location> => {
   const response = await apiClient.post(`buildings/${building_id}/locations`, {
-    body: JSON.stringify(location),
+    json: location,
   });
   return response.json();
 };
@@ -54,7 +54,7 @@ export const updateLocation = async (
   location: UpdateLocationDTO,
 ): Promise<Location> => {
   const response = await apiClient.put(`locations/${id}`, {
-    body: JSON.stringify(location),
+    json: location,
   });
   return response.json();
 };

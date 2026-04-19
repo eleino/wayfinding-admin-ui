@@ -15,7 +15,7 @@ export const ListLocations = (props: { buildingId: number | null }) => {
     return <p>Please select a building to view locations.</p>;
   }
     return (
-        <div className="p-2">
+        <div className="p-2 mt-4">
             {locations.isLoading && <p>Loading locations...</p>}
             {locations.isError && <p>Error loading locations: {String(locations.error)}</p>}
             <DataList data={locations.data || []} columns={[
