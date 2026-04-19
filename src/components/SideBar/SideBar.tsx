@@ -3,19 +3,21 @@ import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 import { useSelectionStore } from "storage/store";
 
-const SideBar = () => {
+const SideBar = (props: { path: string }) => {
   const savedOrgId = useSelectionStore((state) => state.orgId);
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedBuildingId = useSelectionStore((state) => state.buildingId);
   const paramsPath = createPath("", savedOrgId || undefined, savedSiteId || undefined, savedBuildingId || undefined);
+  const currentPath = props.path;
+  console.log("Current path in SideBar:", currentPath);
   const links = [
-    { name: "Dashboard", path: "/" },
-    { name: "Locations", path: `/locations${paramsPath}` },
-    { name: "Paths", path: `/paths${paramsPath}` },
-    { name: "Media/Images", path: "/images" },
-    { name: "Translations", path: "/translations" },
-    { name: "QR Codes", path: "/qrcodes" },
-    { name: "Settings", path: "/settings" },
+    { name: "Dashboard", path: "/", location: "/" },
+    { name: "Locations", path: `/locations${paramsPath}`, location: `/locations` },
+    { name: "Paths", path: `/paths${paramsPath}`, location: `/paths` },
+    { name: "Media/Images", path: "/images", location: "/images" },
+    { name: "Translations", path: "/translations", location: "/translations" },
+    { name: "QR Codes", path: "/qrcodes", location: "/qrcodes" },
+    { name: "Settings", path: "/settings", location: "/settings" },
   ];
   return (
     <div className="w-50 py-5 bg-sidebar-grey">
@@ -24,7 +26,7 @@ const SideBar = () => {
           <li className="sidebar-link" key={link.path}>
             <Link
               to={link.path}
-              className="pl-5 py-2 w-full h-full block"
+              className={`pl-5 py-2 w-full h-full block ${(currentPath === link.location || currentPath === link.location + "/") ? "text-lab-turquoise font-bold bg-lab-turquoise/10" : ""}`}
               activeProps={{ className: "text-lab-turquoise font-bold bg-lab-turquoise/10" }}
             >
               {link.name}

@@ -1,12 +1,13 @@
 // LocationsSelections.tsx
 // selection component for locations, with dropdowns for org, site, building
-import { useGetOrganisations } from "@hooks/useOrganisations";
+import { useGetOrganisationById, useGetOrganisations } from "@hooks/useOrganisations";
 import { useGetBuildings } from "@hooks/useBuildings";
 import { useGetSites } from "@hooks/useSites";
 import { ListLocations } from "./ListLocations";
 import { GridView } from "@components/Grid/GridView";
 import type { SearchParams } from "@apptypes/searchParams";
 import { useSelectionStore } from "storage/store";
+import { Link } from "@tanstack/react-router";
 
 
 
@@ -20,6 +21,7 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   const orgs = useGetOrganisations();
 
   const sites = useGetSites(queryOrgId, { enabled: !!queryOrgId });
+  const orgSites = useGetOrganisationById(queryOrgId, { enabled: !!queryOrgId });
   const buildings = useGetBuildings(querySiteId, {
     enabled: !!querySiteId,
   });
@@ -43,14 +45,15 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   }
   if (!querySiteId) {
     return <div>Please select a site to view locations.
+      {orgSites.data?.sites.length === 0 && <p>No sites found for this organization.</p>}
       <GridView
         type="site"
         searchParams={searchParams}
-        items={sites.data?.map(site => ({
+        items={orgSites.data?.sites.map(site => ({
           id: Number(site.id),
-          title: site.address,
-          subTitle: "",
-          imageUrl: site.image_url || "",
+          title: site.name,
+          subTitle: `${sites.data?.find((s) => s.id === site.id)?.address || ""}`,
+          imageUrl: sites.data?.find((s) => s.id === site.id)?.image_url || "",
         })) || []}
         setSelectedItem={(id) => {
           useSelectionStore.setState({ siteId: id, buildingId: null });
@@ -60,6 +63,7 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   }
   if (!queryBuildingId) {
     return <div>Please select a building to view locations.
+      {buildings.data?.length === 0 && <p>No buildings found for this site.</p>}
       <GridView
         type="building"
         searchParams={searchParams}
@@ -67,7 +71,6 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
           id: Number(building.id),
           title: building.name,
           subTitle: "",
-          imageUrl: building.image_url || "",
         })) || []}
         setSelectedItem={(id) => {
           useSelectionStore.setState({ buildingId: id });
@@ -77,6 +80,9 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   }
   return (
     <div>
+      <Link to={`/locations/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
+      Add a new location
+      </Link>
         <ListLocations buildingId={queryBuildingId} />
     </div>
   );

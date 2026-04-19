@@ -1,19 +1,23 @@
 import { ShowPath } from "@components/Paths/ShowPath";
 import { PathSelections } from "@components/Paths/PathSelections";
-import { getRouteApi, Link } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 import { useSelectionStore } from "storage/store";
+import { BreadCrumbs } from "@components/List/BreadCrumbs";
 
-const currRoute = getRouteApi("/paths");
+
 const PathsView = () => {
-  const search = currRoute.useSearch();
+  const {search} = useLocation();
   const pathId = search.pathId as number | undefined;
   const searchParams = { ...search };
+  const org = useSelectionStore((state) => state.orgList.find((org) => org.id === Number(searchParams.orgId)));
+  const site = useSelectionStore((state) => state.siteList.find((site) => site.id === Number(searchParams.siteId)));
+  const building = useSelectionStore((state) => state.buildingList.find((building) => building.id === Number(searchParams.buildingId)));
   // show breadcrumbs path at the top of the page based on search params, e.g. "Organization > Site > Building"
   const breadcrumbs = [];
   if (searchParams.orgId) {
     breadcrumbs.push({
-      label: `Organization ${searchParams.orgId}`,
+      label: `${org?.name || `Organization ${searchParams.orgId}`}`,
       link: "/paths",
       onClick: () => {
         useSelectionStore.setState({
@@ -26,7 +30,7 @@ const PathsView = () => {
   }
   if (searchParams.siteId) {
     breadcrumbs.push({
-      label: `Site ${searchParams.siteId}`,
+      label: `${site?.name || `Site ${searchParams.siteId}`}`,
       link: createPath("/paths", searchParams.orgId),
       onClick: () => {
         useSelectionStore.setState({ siteId: null, buildingId: null });
@@ -35,7 +39,7 @@ const PathsView = () => {
   }
   if (searchParams.buildingId) {
     breadcrumbs.push({
-      label: `Building ${searchParams.buildingId}`,
+      label: `${building?.name || `Building ${searchParams.buildingId}`}`,
       link: createPath("/paths", searchParams.orgId, searchParams.siteId),
       onClick: () => {
         useSelectionStore.setState({ buildingId: null });
@@ -45,7 +49,8 @@ const PathsView = () => {
   return (
     <div className="p-5">
       {breadcrumbs.length > 0 && (
-        <div className="mb-4 text-sm text-lab-green">
+        <BreadCrumbs crumbs={breadcrumbs} />
+/*         <div className="mb-4 text-sm text-lab-green">
           {breadcrumbs.map((crumb, index) => (
             <span key={index}>
               <Link
@@ -58,7 +63,7 @@ const PathsView = () => {
               {index < breadcrumbs.length - 1 && " > "}
             </span>
           ))}
-        </div>
+        </div> */
       )}
       <h1>Paths</h1>
 

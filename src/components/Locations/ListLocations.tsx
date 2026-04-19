@@ -1,6 +1,7 @@
+import { DataList } from "@components/List/DataList";
 import { useGetLocations } from "@hooks/useLocations";
 import { useSelectionStore } from "@storage/store";
-import { Link } from "@tanstack/react-router";
+//import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 
 export const ListLocations = (props: { buildingId: number | null }) => {
@@ -14,17 +15,29 @@ export const ListLocations = (props: { buildingId: number | null }) => {
     return <p>Please select a building to view locations.</p>;
   }
     return (
-        <div className="bg-sidebar-grey p-2">
-            <h2 className="text-lg font-semibold pe-2">List of locations:</h2>
+        <div className="p-2 mt-4">
             {locations.isLoading && <p>Loading locations...</p>}
             {locations.isError && <p>Error loading locations: {String(locations.error)}</p>}
-            <ul>
+            <DataList data={locations.data || []} columns={[
+                {
+                    key: "id",
+                    label: "Location ID",
+                    width: "1fr",
+                },
+                {
+                    key: "name",
+                    label: "Location Name",
+                    getLink: (item) => createPath(`/locations`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, Number(item.id)),
+                    width: "3fr",
+                },
+            ]} />
+{/*             <ul>
                 {locations.data?.map((location) => (
                     <li key={location.id}>
                         <Link to={createPath(`/locations`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, location.id)}>{location.name}</Link>
                     </li>
                 ))}
-            </ul>
+            </ul> */}
         </div>
     );
 }

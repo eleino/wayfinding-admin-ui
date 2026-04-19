@@ -25,10 +25,10 @@ export const ShowLocation = (props: {
   const trl_current_location_msg = useGetTranslationsEnFi(
     location?.trl_current_location_msg_key,
   );
-  // TODO: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests?
-  const trl_location_desc = useGetTranslationsEnFi(
+  // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests?
+  /*   const trl_location_desc = useGetTranslationsEnFi(
     location?.trl_location_desc_key,
-  );
+  ); */
 
   if (locationData.isLoading) {
     return <div>Loading location details...</div>;
@@ -61,55 +61,58 @@ export const ShowLocation = (props: {
         >
           &lt; Back to locations list
         </Link>
-        <div className="bg-sidebar-grey p-2">
-          <h2 className="">Location Details:</h2>
+        <div className="bg-sidebar-grey p-2 pl-3 rounded mt-2">
+          <h2 className="text-lab-turquoise font-bold pb-2">Location Details:</h2>
           <div className="flex flex-cols gap-4">
             <div>
-          <p>
-            <strong>Name:</strong> {location.name}
-          </p>
-          <p>
-            <strong>Building ID:</strong> {location.building_id}
-          </p>
-          <p>
-            <strong>Is Entry Location:</strong>{" "}
-            {location.is_entry_location ? "Yes" : "No"}
-          </p>
-          <p>
-            <strong>QR URL:</strong> {location.qr_url || "N/A"}
-          </p>
-          <p>
-            <strong>Image Location Key:</strong> {location.img_location_key}
-          </p>
-          <p>
-            <strong>Floor Number:</strong> {location.floor_number}
-          </p>
-          <p>
-            <strong>Translation Keys:</strong>
-          </p>
-          <ul>
-            <li>{location.trl_location_name_key}
-              <p>En: {trl_location_name.data?.[0]?.text_value}</p>
-              <p>Fi: {trl_location_name.data?.[1]?.text_value}</p>
-            </li>
-            <li>{location.trl_current_location_msg_key}
-              <p>En: {trl_current_location_msg.data?.[0]?.text_value}</p>
-              <p>Fi: {trl_current_location_msg.data?.[1]?.text_value}</p>
-            </li>
+              <p>
+                <strong>Name:</strong> {location.name}
+              </p>
+              <p>
+                <strong>Building ID:</strong> {location.building_id}
+              </p>
+              <p>
+                <strong>Is Entry Location:</strong>{" "}
+                {location.is_entry_location ? "Yes" : "No"}
+              </p>
+              <p>
+                <strong>QR URL:</strong> {location.qr_url || "N/A"}
+              </p>
+              <p>
+                <strong>Image Location Key:</strong> {location.img_location_key}
+              </p>
+              <p>
+                <strong>Floor Number:</strong> {location.floor_number}
+              </p>
+              <p>
+                <strong>Translation Keys:</strong>
+              </p>
+              <ul>
+                <li>
+                  {location.trl_location_name_key}
+                  <p>En: {trl_location_name.data?.[0]?.text_value}</p>
+                  <p>Fi: {trl_location_name.data?.[1]?.text_value}</p>
+                </li>
+                <li>
+                  {location.trl_current_location_msg_key}
+                  <p>En: {trl_current_location_msg.data?.[0]?.text_value}</p>
+                  <p>Fi: {trl_current_location_msg.data?.[1]?.text_value}</p>
+                </li>
+                {/* desc is empty for every location currently, and not used on the users' frontend
             <li>{location.trl_location_desc_key}
               <p>En: {trl_location_desc.data?.[0]?.text_value}</p>
               <p>Fi: {trl_location_desc.data?.[1]?.text_value}</p>
-            </li>
-          </ul>
-          </div>
-          <div>
-            <strong>Image:</strong>{" "}
-            {image && image.url ? (
-              <img src={image.url} alt="Location" className="fit-content" />
-            ) : (
-              "N/A"
-            )}
-          </div>
+            </li> */}
+              </ul>
+            </div>
+            <div>
+              <strong>Image:</strong>{" "}
+              {image && image.url ? (
+                <img src={image.url} alt="Location" className="fit-content w-100" />
+              ) : (
+                "N/A"
+              )}
+            </div>
           </div>
         </div>
       </div>

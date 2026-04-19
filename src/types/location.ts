@@ -1,5 +1,5 @@
 export interface Location {
-    id: number;
+    location_id: number;
     name: string;
     building_id: number;
     is_entry_location: boolean;
@@ -18,4 +18,9 @@ export interface LocationImage {
 export interface LocationWithImage {
     location: Location;
     image: LocationImage | null;
+}
+
+export interface ListLocation {
+    id: number;
+    name: string;
 }

@@ -14,14 +14,14 @@ const TranslationsView = () => {
   return (
     <div className="p-5 bg-sidebar-grey">
       <h1>Translations</h1>
-      <p className="py-3">Here's a list of the generic app translations, see Locations and Paths for their specific translations.</p>
+      <p className="py-3">Here's a list of the app translations, see Locations and Paths for their specific translations.</p>
       {finnishTranslations.data?.fi!.map((translation) => {
         const englishTranslation = englishTranslations.data?.en!.find(
           (en) => en.translation_key === translation.translation_key,
         );
         return (
-          <div key={translation.translation_key} className="mb-4 p-2 border border-gray-300 rounded">
-            <p>
+          <div key={translation.translation_key} className="mb-4 p-2 border border-border-grey rounded bg-black">
+            <p className="text-lab-turquoise">
               <strong>Key:</strong> {translation.translation_key}
             </p>
             <p>
