@@ -53,13 +53,13 @@ export const ShowLocation = (props: {
         <Link
           to={createPath(
             `/locations`,
-            searchParams.orgId,
-            searchParams.siteId,
-            searchParams.buildingId,
+            searchParams.orgId || undefined,
+            searchParams.siteId || undefined,
+            searchParams.buildingId || undefined,
           )}
           className="text-lab-green-dark p-2"
         >
-          &lt; Back to locations list
+          &larr; Back to locations list
         </Link>
         <div className="bg-sidebar-grey p-2 pl-3 rounded mt-2">
           <h2 className="text-lab-turquoise font-bold pb-2">Location Details:</h2>

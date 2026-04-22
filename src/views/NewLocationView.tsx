@@ -268,10 +268,7 @@ export const NewLocationView = () => {
           }}
           className="border border-border-grey w-50 pl-2"
         />
-        <p className="text-sm text-gray-500 col-span-2">
-          Note: Translations will be created with keys LOCATION_{locationId}
-          _NAME and LOCATION_{locationId}_CURRENT_LOCATION_MSG
-        </p>
+        
         <div className="flex flex-col">
         <button
           disabled={!locationId}

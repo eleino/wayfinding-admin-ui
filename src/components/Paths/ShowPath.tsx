@@ -2,6 +2,8 @@ import type { SearchParams } from "@apptypes/searchParams";
 import { useGetPathById } from "@hooks/usePaths";
 import { PathStepBox } from "./PathStepBox";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { createPath } from "@utils/createPath";
 
 export const ShowPath = (props: { pathId: number | null, searchParams: SearchParams }) => {
   const { pathId } = props;
@@ -48,6 +50,10 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
       */
 
   return (
+    <>
+    <Link to={createPath("/paths", props.searchParams.orgId || undefined, props.searchParams.siteId || undefined, props.searchParams.buildingId || undefined)} className="text-lab-green-dark mb-4 inline-block">
+      &larr; Back to paths list
+    </Link>
     <div className="bg-sidebar-grey p-4 rounded shadow">
       <h2 className="text-xl font-bold mb-2">{path.name}</h2>
       <p className="text-gray-300">Start location: {path.start_location_id}</p>
@@ -75,5 +81,6 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
           )}
         </ul>
     </div>
+    </>
   );
 }
