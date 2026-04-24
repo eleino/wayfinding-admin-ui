@@ -1,33 +1,5 @@
 import type { StepInstruction } from "@apptypes/step";
 import { useGetTranslation } from "@hooks/useTranslations";
-/*
-export interface StepInstructionImageOverlay {
-  overlay_image_url: string;
-  position_x_percent: string;
-  position_y_percent: string;
-  overlay_size: number;
-  rotation_deg: number;
-  rotation_x_deg: number;
-}
-
-export interface StepInstructionImage {
-  url: string;
-  overlay: StepInstructionImageOverlay;
-}
-
-export interface StepInstructionDetails {
-  image: StepInstructionImage;
-  translation: string;
-}
-
-export interface StepInstruction {
-  direction: "on_approach" | "to_next" | string;
-  img_key: string;
-  overlay_key: string;
-  trl_instruction_key: string;
-  instructions: StepInstructionDetails;
-}
-*/
 
 export const StepInstructions = (props: {
   instruction: StepInstruction;
@@ -38,11 +10,11 @@ export const StepInstructions = (props: {
   const { overlay } = image;
   const enTranslation = useGetTranslation(instruction.trl_instruction_key, "en");
   return (
-    <div key={props.key} className="mb-2">
-      <p className="text-gray-300 mb-1">Direction: {instruction.direction}</p>
+    <div className="mb-2">
+      <p className="text-lab-turquoise mb-1">Direction: {instruction.direction}</p>
       <p className="text-gray-300 mb-1">Translation key: {instruction.trl_instruction_key}
-        <p>fi: {translation}</p>
-        <p>en: {enTranslation ? enTranslation.data?.text_value : "Translation not available"}</p>
+        <span className="block">fi: {translation}</span>
+        <span className="block">en: {enTranslation ? enTranslation.data?.text_value : "Translation not available"}</span>
       </p>
       <div className="relative w-100 h-auto top-0 left-0">
         <p>Image key: {instruction.img_key}</p>
@@ -50,17 +22,17 @@ export const StepInstructions = (props: {
       {image.url && (
         <img
           src={image.url}
-          alt={`Instruction ${props.key} image`}
-          className="mt-1 relative w-100 h-auto top-0 left-0"
+          alt={`Instruction ${instruction.img_key} image`}
+          className="mt-1 relative w-full h-full top-0 left-0 object-contain"
         />
       )}
       {overlay && (
         <img
           src={overlay.overlay_image_url}
-          alt={`Instruction ${props.key} overlay image`}
+          alt={`Instruction ${instruction.img_key} overlay image`}
           className="mt-1 absolute"
           style={{
-            top: "50%",
+            top: "55%",
             left: "50%",
             width: `${overlay.overlay_size}%`,
             height: "auto",

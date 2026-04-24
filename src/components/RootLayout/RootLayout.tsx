@@ -14,6 +14,9 @@ const RootLayout = () => {
     
   }
 if (!isAuthenticated || (userRole !== 'admin' && userRole !== 'maintainer')) {
+  if (location.pathname !== "/login") {
+    navigate({ to: "/login" });
+  }
     return (
         <main className="p-5">
           <Outlet />

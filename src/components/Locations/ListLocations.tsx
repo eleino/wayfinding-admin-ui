@@ -31,13 +31,6 @@ export const ListLocations = (props: { buildingId: number | null }) => {
                     width: "3fr",
                 },
             ]} />
-{/*             <ul>
-                {locations.data?.map((location) => (
-                    <li key={location.id}>
-                        <Link to={createPath(`/locations`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, location.id)}>{location.name}</Link>
-                    </li>
-                ))}
-            </ul> */}
         </div>
     );
 }

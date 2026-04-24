@@ -7,6 +7,14 @@ import { createPath } from "@utils/createPath";
 import { useSelectionStore } from "@storage/store";
 
 export const NewLocationView = () => {
+  // when adding a new location, we can enter name, is_entry_location, and floor_number.
+  // we will need the buildingId to add a location, include that in searchParams?
+  // we could include adding an image here as well
+  // adding an image requires key (for a location it will be LOCATION_(locationId)_IMG), type (location), locationId, and file (the image itself)
+  // so we would first need to add the location to get the locationId, then we can add the image with the returned locationId
+  // we need to also provide a way to add translations here, similarly to images we need to know the location id, as the translations will follow the format of LOCATION_(locationId)_NAME, LOCATION_(locationId)_DESC, and LOCATION_(locationId)_CURRENT_LOCATION_MSG
+  //
+  // translations to add: location_name, at_location_message (location_desc is not used anywhere currently)
   const { search } = useLocation();
   const [locationId, setLocationId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);

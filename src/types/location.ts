@@ -75,3 +75,16 @@ export interface LocationDestinations {
 // GET /locations/:locationId/qr?pathId=2
 // QR code is returned as image/png content type
 export type LocationQR = Blob | null;
+
+export interface EditLocationInput {
+    name: string;
+    building_id: number;
+    is_entry_location: boolean;
+    floor_number: number;
+    trl_location_name_en: string;
+    trl_location_name_fi: string;
+    trl_current_location_msg_en: string;
+    trl_current_location_msg_fi: string;
+    imageUrl: string | null;
+    imageFile: File | undefined;
+}

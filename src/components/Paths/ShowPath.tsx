@@ -31,23 +31,6 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
   }
   const path = pathQuery.data.path;
   const steps = pathQuery.data.steps;
-  /*
-      path_id: number;
-      name: string;
-      start_location_id: number;
-      end_location_id: number;
-      building_id: number;
-      is_active: boolean;
-      priority: number;
-      elevated_priority_starts_at: Date;
-      elevated_priority_expires_at: Date;
-      distance_meters: number;
-      estimated_time_minutes: number;
-      accessibility_level: number;
-      video_instruction_url: string;
-      trl_path_name_key: string;
-      allowed_organizations: PathOrganization[];
-      */
 
   return (
     <>

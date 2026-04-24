@@ -6,7 +6,7 @@ export interface Metrics {
 }
 
 // GET /metrics/paths?startDate=2025-12-01&endDate=2025-12-31
-export interface PathMetricsSummary {
+export interface PathMetricsList {
     path_id: number;
     usage_count: number;
     finished_count: number;
