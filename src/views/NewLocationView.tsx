@@ -1,11 +1,12 @@
 import { useCreateLocation } from "@hooks/useLocations";
 import { useUploadImage } from "@hooks/useImages";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useCreateTranslation } from "@hooks/useTranslations";
 import { createPath } from "@utils/createPath";
 import { useSelectionStore } from "@storage/store";
 import { LocationForm } from "@components/Locations/LocationForm";
 import type { EditLocationInput } from "@apptypes/location";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const NewLocationView = () => {
   const { search } = useLocation();
@@ -20,6 +21,9 @@ export const NewLocationView = () => {
     savedSiteId || undefined,
     savedBuildingId || undefined,
   );
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   const createLocationMutation = useCreateLocation();
   const uploadImageMutation = useUploadImage();
@@ -36,14 +40,21 @@ export const NewLocationView = () => {
         { buildingId, location },
         {
           onSuccess: async (data) => {
+            let uploadError = null;
+            let translationError = null;
             if (locationData.imageFile && data.location_id) {
               const key = `LOCATION_${data.location_id}_IMG`;
-              uploadImageMutation.mutate({
-                itemType: "location",
-                key,
-                file: locationData.imageFile,
-                itemId: data.location_id,
-              });
+              try {
+                await uploadImageMutation.mutate({
+                  itemType: "location",
+                  key,
+                  file: locationData.imageFile,
+                  itemId: data.location_id,
+                });
+              } catch (error) {
+                console.error("Error uploading image:", error);
+                uploadError = error;
+              }
             }
             if (data.location_id) {
               const nameKey = `LOCATION_${data.location_id}_NAME`;
@@ -77,8 +88,19 @@ export const NewLocationView = () => {
                 ]);
               } catch (error) {
                 console.error("Error creating translations:", error);
+                translationError = error;
               }
             }
+              if (!uploadError && !translationError && data.location_id) {
+                navigate({ to: createPath(
+                  `/locations`,
+                  savedOrgId || undefined,
+                  savedSiteId || undefined,
+                  savedBuildingId || undefined,
+                  data.location_id,
+                )});
+              }
+              queryClient.invalidateQueries({ queryKey: ["locations", buildingId]});
           },
         },
       );

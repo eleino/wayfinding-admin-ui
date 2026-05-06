@@ -1,5 +1,5 @@
 // form for creating and editing locations
-import { Field, Form, useForm } from "@formisch/react"
+import { Field, Form, useForm, setInput } from "@formisch/react";
 import type { EditLocationInput } from "@apptypes/location";
 import * as v from "valibot";
 import { useState } from "react";
@@ -21,6 +21,7 @@ const LocationSchema = v.object({
 export const LocationForm = (props: { locationData?: EditLocationInput | null; handleSubmit: (data: EditLocationInput) => void }) => {
     const { locationData, handleSubmit } = props;
     const [locationName, setLocationName] = useState(locationData ? locationData.location_name : "");
+    const [fiNameDirty, setFiNameDirty] = useState(false);
     const initialValues = locationData || {
         location_name: "",
         is_entry_location: false,
@@ -36,7 +37,9 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
         initialInput: initialValues,
     });
 
-
+    const handleNameChange = (value: string) => {
+        setInput(locationForm, { path: ["trl_location_name_fi"], input: value });
+    }
 
     return (
         <Form of={locationForm} style={{width:'100%'}} onSubmit={(data) => {
@@ -47,6 +50,9 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                     <TextInput label="Internal name" {...field.props} input={field.input} required onChange={event => {
                         field.onChange(event.target.value);
                         setLocationName(event.target.value);
+                        if (!fiNameDirty) {
+                            handleNameChange(event.target.value);
+                        }
                     }} errors={field.errors} />
                 )}
             </Field>
@@ -65,20 +71,21 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                 {(field) => (
                     <div className="flex flex-col gap-1">
                         <label className="ml-1">Floor Number</label>
-                        <input type="number" {...field.props} value={field.input} min="1" max="3" className="border-border-grey w-50 bg-black p-2" />
+                        <input type="number" {...field.props} value={Number(field.input)} min="1" max="3" className="border-border-grey w-50 bg-black p-2" onChange={(e) => field.onChange(Number(e.target.value))} />
                         {field.errors && <div className="text-red-500">{field.errors[0]}</div>}
                     </div>
                 )}
             </Field>
             <Field of={locationForm} path={['trl_location_name_fi']} >
-                {(field) => (
+                {(field) => {
                     
-                    <TextInput label="Location name (fi)" {...field.props} input={field.isDirty || locationData?.trl_location_name_fi ? field.input : locationName} onChange={event => field.onChange(event.target.value)} required errors={field.errors} />
-                )}
+                    return (
+                    <TextInput label="Location name (fi)" {...field.props} input={field.isDirty || locationData?.trl_location_name_fi ? field.input : locationName} onChange={event => {field.onChange(event.target.value); setFiNameDirty(true)}} required errors={field.errors} />
+                )}}
             </Field>
             <Field of={locationForm} path={['trl_location_name_en']} >
                 {(field) => (
-                        <TextInput label="Location name (en)" {...field.props} input={field.isDirty || locationData?.trl_location_name_en ? field.input : locationName} onChange={event => field.onChange(event.target.value)} required errors={field.errors} />
+                        <TextInput label="Location name (en)" {...field.props} input={field.input} onChange={event => field.onChange(event.target.value)} required errors={field.errors} />
                 )}
             </Field>
             <Field of={locationForm} path={['trl_at_current_location_msg_fi']} >
