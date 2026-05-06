@@ -50,6 +50,7 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
       <p className="text-gray-300">Translation key: {path.trl_path_name_key}</p>
         <p className="text-gray-300">Distance: {path.distance_meters} meters</p>
         <p className="text-gray-300">Estimated time: {path.estimated_time_minutes} minutes</p>
+        <p className="text-gray-300">Allowed organisations: {path.allowed_organizations.length !== 0 ? path.allowed_organizations.map((org, idx) => <span key={org.name}>{org.name}{idx < path.allowed_organizations.length - 1 ? ", " : ""}</span>) : "N/A"}</p>
         <h3 className="text-lg font-semibold">Steps:</h3>
         <ul className="list-disc list-inside">
           {steps && steps.length > 0 ? (

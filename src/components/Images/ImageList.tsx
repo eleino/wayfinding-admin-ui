@@ -69,7 +69,7 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
             <div className="grid grid-cols-3 gap-4">
                {
               allImages.map((image) => (
-                <ImageBox key={image.key} imageUrl={image.url} imageKey={image.key} />
+                <ImageBox key={image.key} imageUrl={image.url} imageKey={image.key} type={selectedType} />
               ))
             }</div>
           )}
