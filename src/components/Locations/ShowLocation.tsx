@@ -3,28 +3,18 @@ import { useGetLocationById } from "@hooks/useLocations";
 import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
-import {
-  getRecentLocationIds,
-  saveRecentLocationIds,
-} from "storage/localStorage";
 
-export const ShowLocation = (props: {
-  locationId: number | null;
-  searchParams: SearchParams;
-}) => {
+
+export const ShowLocation = (props: {locationId: number | null; searchParams: SearchParams; }) => {
   const { locationId, searchParams } = props;
-  const locationData = useGetLocationById(Number(locationId), {
-    enabled: !!locationId,
-  });
+  const locationData = useGetLocationById(Number(locationId), { enabled: !!locationId, });
   const { location, image } = locationData.data || {};
 
   // fetch translations for keys defined in trl_location_name_key, trl_current_location_msg_key, trl_location_desc_key
   const trl_location_name = useGetTranslationsEnFi(
     location?.trl_location_name_key,
   );
-  const trl_current_location_msg = useGetTranslationsEnFi(
-    location?.trl_current_location_msg_key,
-  );
+  const trl_current_location_msg = useGetTranslationsEnFi( location?.trl_current_location_msg_key, );
   // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests?
   /*   const trl_location_desc = useGetTranslationsEnFi(
     location?.trl_location_desc_key,
@@ -37,7 +27,8 @@ export const ShowLocation = (props: {
     return <div>Error loading location details.</div>;
   }
 
-  const recentLocationIds = getRecentLocationIds();
+/* TODO: implement saving recent locations, and listing them somewhere for easy access
+   const recentLocationIds = getRecentLocationIds();
   if (locationId) {
     if (recentLocationIds.includes(locationId)) {
       // Move the locationId to the end to mark it as most recently accessed
@@ -46,17 +37,12 @@ export const ShowLocation = (props: {
     }
     recentLocationIds.push(locationId);
     saveRecentLocationIds(recentLocationIds);
-  }
+  } */
   if (locationId && !locationData.isLoading && location) {
     return (
       <div>
         <Link
-          to={createPath(
-            `/locations`,
-            searchParams.orgId || undefined,
-            searchParams.siteId || undefined,
-            searchParams.buildingId || undefined,
-          )}
+          to={createPath( `/locations`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, )}
           className="text-lab-green-dark p-2"
         >
           &larr; Back to locations list
