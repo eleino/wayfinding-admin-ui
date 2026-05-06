@@ -19,7 +19,7 @@ interface SelectionState {
 export const useSelectionStore = create<SelectionState>()(
     persist(
         (set) => ({
-            orgId: null,
+            orgId: 1, // Default to 1: LUT Group, since all sites are under this org
             siteId: null,
             buildingId: null,
             orgList: [],

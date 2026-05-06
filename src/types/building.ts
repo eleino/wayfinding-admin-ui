@@ -1,3 +1,7 @@
+import type { ListLocation } from "./location";
+import type { Path } from "./path";
+import type { AppTranslation } from "./translation";
+
 export interface BuildingType {
   id: number;
   name: string;
@@ -12,10 +16,20 @@ export interface BuildingType {
   }[];
 }
 
-// returned by GET /sites/:siteId/buildings
 export interface ListBuilding {
   id: number;
   name: string;
+}
+
+// returned by GET /sites/:siteId/buildings
+export interface Buildings {
+  data: ListBuilding[];
+  meta: {
+    buildings: {
+      limit: number;
+      total: number;
+    }
+  }
 }
 
 // returned by GET /sites/:siteId/buildings/names
@@ -24,17 +38,35 @@ export interface ListBuildingNamesAPI {
   image_url: string | null;
   trl_building_name_key: string;
   translations: {
-    fi?: [
-      {
-        translation_key: string;
-        text_value: string;
-      }
-    ],
-    en?: [
-      {
-        translation_key: string;
-        text_value: string;
-      }
-    ]
+    fi?: AppTranslation[];
+    en?: AppTranslation[];
   };
 }
+
+// GET /buildings/:buildingId/overview
+export interface BuildingOverview {
+  building: {
+    building_id: number;
+    name: string;
+    site_id: number;
+    total_floors: number;
+    trl_building_name_key: string;
+    trl_building_desc_key: string;
+    allowed_organizations: {
+      organization_id: number;
+      name: string;
+    }[];
+  };
+  locations: ListLocation[];
+  paths: Path[];
+  meta: {
+    locations: {
+      total: number;
+      limit: number;
+    },
+    paths: {
+      total: number;
+      limit: number;
+    }
+  }
+};

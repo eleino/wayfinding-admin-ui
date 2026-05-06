@@ -10,7 +10,7 @@ type UploadImageParams = {
   itemType: string;
   key: string;
   file: File;
-  itemId: number;
+  itemId?: number|null;
 };
 
 export const useGetImagesByType = (type: string, options = {}) => {
@@ -56,7 +56,7 @@ export const useUploadImage = (options = {}) => {
   // itemId is the id of the item the image is associated with, for location images it will be the locationId
   const mutation = useMutation({
     mutationFn: ({ itemType, key, file, itemId }: UploadImageParams) =>
-      uploadImage(itemType, key, file, itemId),
+      uploadImage(itemType, key, file, itemId || null),
     ...options,
   });
   return mutation;

@@ -20,7 +20,7 @@ const TranslationsView = () => {
           (en) => en.translation_key === translation.translation_key,
         );
         return (
-          <div key={translation.translation_key} className="mb-4 p-2 border border-border-grey rounded bg-black">
+          <div key={translation.translation_key} className="mb-1 p-2 border border-border-grey rounded bg-black">
             <p className="text-lab-turquoise">
               <strong>Key:</strong> {translation.translation_key}
             </p>

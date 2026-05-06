@@ -35,7 +35,7 @@ export const fetchAllImagesByType = async (type: string): Promise<ImageResponse>
 }
 
 // posting+uploading image - can also be used to update image? on backend, deletes old image file and replaces with new one if key already exists
-export const uploadImage = async (itemType: string, key: string, file: File, itemId: number): Promise<UploadedImage> => {
+export const uploadImage = async (itemType: string, key: string, file: File, itemId: number|null): Promise<UploadedImage> => {
   if (!itemType || checkImageType(itemType) === false) {
     throw new Error("Type is required to upload image and must be one of: location, site, step, building, overlay, logo.");
   }
@@ -45,10 +45,10 @@ export const uploadImage = async (itemType: string, key: string, file: File, ite
   const formData = new FormData();
   formData.append('key', key);
   formData.append('type', itemType);
-  if (itemType === "logo") formData.append('orgId', itemId.toString());
-  else if (itemType === "site") formData.append('siteId', itemId.toString());
-  else if (itemType === "building") formData.append('buildingId', itemId.toString());
-  else if (itemType === "location") formData.append('locationId', itemId.toString());
+  if (itemType === "logo") formData.append('orgId', itemId?.toString() || '');
+  else if (itemType === "site") formData.append('siteId', itemId?.toString() || '');
+  else if (itemType === "building") formData.append('buildingId', itemId?.toString() || '');
+  else if (itemType === "location") formData.append('locationId', itemId?.toString() || '');
   formData.append('file', file);
 
   const response = await apiClient.post(`images/upload`, { body: formData });

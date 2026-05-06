@@ -36,16 +36,6 @@ export const PathList = (props: { buildingId: number | null }) => {
 
         ]}
       />
-
-{/*       <ul>
-        {paths.data?.map((path) => (
-          <li key={path.id}>
-            <Link to={createPath(`/paths`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, undefined, path.id)}>
-              {path.name}
-            </Link>
-          </li>
-        ))}
-      </ul> */}
     </div>
   );
 }

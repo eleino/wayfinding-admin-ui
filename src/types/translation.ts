@@ -1,8 +1,8 @@
 export interface Translation {
-    key: string;
+    translation_key: string;
     translation_id: number;
     language_code: string;
-    type: string;
+    type: string | null;
     text_value: string;
 }
 

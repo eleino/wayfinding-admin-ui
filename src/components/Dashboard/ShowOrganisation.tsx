@@ -18,7 +18,7 @@ const ShowOrganisation = (props: { orgId: number }) => {
         {sites.data?.map((site) => {
             console.log("Site for org", orgId, site);
             return <li key={site.id}>{site.address}
-            <img src={site.image_url} alt={site.name} />
+            <img src={site.image_url} alt={site.address} />
             </li>;
         })}
       </ul>

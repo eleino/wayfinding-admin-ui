@@ -41,4 +41,10 @@ export interface OrganisationOverview {
     children: ChildOrganisation[];
     sites: SiteListItem[];
     settings: OrgSettings;
+    meta: {
+        sites: {
+            total: number;
+            limit: number;
+        }
+    }
 }
