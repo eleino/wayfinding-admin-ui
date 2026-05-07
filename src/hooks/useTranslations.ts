@@ -1,7 +1,8 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchAllAppTranslations, fetchTranslationByKey, createTranslation } from "@api/translations";
+import { fetchAllAppTranslations, fetchTranslationByKey, createTranslation, updateTranslation } from "@api/translations";
 import type { HTTPError } from "ky";
 import type { CreateTranslationDto } from "@apptypes/dtos/create-translation.dto";
+import type { UpdateTranslationDTO } from "@apptypes/dtos/update-translation.dto";
 
 export const useGetTranslation = (key: string | undefined, lang: string, options = {}) => {
     const query = useQuery({ queryKey: ["translation", key, lang], queryFn: () => fetchTranslationByKey(key, lang), enabled: !!key && !!lang, ...options });
@@ -28,6 +29,14 @@ const retryOn404 = (failureCount: number, error: HTTPError) => {
 export const useCreateTranslation = (options = {}) => {
     const mutation = useMutation({
         mutationFn: (translation: CreateTranslationDto) => createTranslation(translation),
+        ...options,
+    });
+    return mutation;
+}
+
+export const useUpdateTranslation = (options = {}) => {
+    const mutation = useMutation({
+        mutationFn: ({ translationKey, lang, translation }: { translationKey: string; lang: string; translation: UpdateTranslationDTO }) => updateTranslation(translationKey, lang, translation),
         ...options,
     });
     return mutation;

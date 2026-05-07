@@ -20,7 +20,6 @@ const LocationSchema = v.object({
 
 export const LocationForm = (props: { locationData?: EditLocationInput | null; handleSubmit: (data: EditLocationInput) => void }) => {
     const { locationData, handleSubmit } = props;
-    const [locationName, setLocationName] = useState(locationData ? locationData.location_name : "");
     const [fiNameDirty, setFiNameDirty] = useState(false);
     const initialValues = locationData || {
         location_name: "",
@@ -49,8 +48,7 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                 {(field) => (
                     <TextInput label="Internal name" {...field.props} input={field.input} required onChange={event => {
                         field.onChange(event.target.value);
-                        setLocationName(event.target.value);
-                        if (!fiNameDirty) {
+                        if (!fiNameDirty && !locationData?.trl_location_name_fi) {
                             handleNameChange(event.target.value);
                         }
                     }} errors={field.errors} />
@@ -80,7 +78,7 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                 {(field) => {
                     
                     return (
-                    <TextInput label="Location name (fi)" {...field.props} input={field.isDirty || locationData?.trl_location_name_fi ? field.input : locationName} onChange={event => {field.onChange(event.target.value); setFiNameDirty(true)}} required errors={field.errors} />
+                    <TextInput label="Location name (fi)" {...field.props} input={field.input} onChange={event => {field.onChange(event.target.value); setFiNameDirty(true)}} required errors={field.errors} />
                 )}}
             </Field>
             <Field of={locationForm} path={['trl_location_name_en']} >
@@ -102,12 +100,12 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                 {(field) => (
                     <div className="flex flex-col gap-1">
                         <label>Location Image (optional, JPEG or PNG)</label>
-                        <ImageDropBox onFileSelect={(file) => field.onChange(file)} />
+                        <ImageDropBox onFileSelect={(file) => field.onChange(file)} imageUrl={locationData?.imageUrl || undefined} />
                         {field.errors && <div className="text-red-500">{field.errors[0]}</div>}
                     </div>
                 )}
                 </Field>
-                <button type="submit" className="bg-lab-blue rounded w-40 p-1">Save Location</button>
+                <button type="submit" className="bg-lab-blue rounded cursor-pointer w-40 p-1">Save Location</button>
         </Form>
     )
 }

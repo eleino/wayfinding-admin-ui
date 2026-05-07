@@ -47,9 +47,12 @@ export const ShowLocation = (props: {locationId: number | null; searchParams: Se
         >
           &larr; Back to locations list
         </Link>
-        <div className="bg-sidebar-grey p-2 pl-3 rounded mt-2">
-          <h2 className="text-lab-turquoise font-bold pb-2">Location Details:</h2>
-          <div className="flex flex-cols gap-4">
+        <div className="bg-sidebar-grey p-2 pl-3 rounded mt-2 relative">
+          <h2 className="text-lab-turquoise font-bold text-xl pb-2">Location Details</h2>
+            <Link className="bg-lab-blue rounded py-1 px-2 absolute right-4 top-2 no-underline hover:text-lab-turquoise" to={createPath( `/locations/edit`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, locationId, )}>
+              Edit Location
+            </Link>
+          <div className="flex flex-cols gap-4 mt-2">
             <div>
               <p>
                 <strong>Name:</strong> {location.name}
