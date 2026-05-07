@@ -1,9 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLocation } from "@api/locations";
+import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLocation, updateLocation } from "@api/locations";
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
+import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
-// so we need orgid to fetch siteid, and siteid to fetch buildingid, and buildingid to fetch locations
-// so maybe a selection list for org, site, building, and then fetch locations based on building selection?
 export const useGetLocations = (buildingId: number|null, options = {}) => {
     const query = useQuery({ queryKey: ["locations", buildingId], queryFn: () => fetchLocations(buildingId), enabled: !!buildingId, ...options });
     return query;
@@ -22,6 +21,14 @@ export const useGetLocationDestinations = (id: number|null, lang?: string, acces
 export const useCreateLocation = (options = {}) => {
     const mutation = useMutation({
         mutationFn: ({ buildingId, location }: { buildingId: number; location: CreateLocationDTO }) => createLocation(buildingId, location),
+        ...options,
+    });
+    return mutation;
+}
+
+export const useUpdateLocation = (options = {}) => {
+    const mutation = useMutation({
+        mutationFn: ({ locationId, location }: { locationId: number; location: UpdateLocationDTO }) => updateLocation(locationId, location),
         ...options,
     });
     return mutation;

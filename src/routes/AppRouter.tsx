@@ -12,6 +12,7 @@ import QRCodesView from '@views/QRCodesView';
 import SettingsView from '@views/SettingsView';
 import TranslationsView from '@views/TranslationsView';
 import { NewLocationView } from '@views/NewLocationView';
+import { EditLocationView } from '@views/EditLocationView';
 
 const rootRoute = createRootRoute({
     component: () => <RootLayout />,
@@ -50,9 +51,9 @@ const LocationsRoute = createRoute({
 
 // route for editing locations
 const EditLocationRoute = createRoute({
-    getParentRoute: () => LocationsRoute,
-    path: '/edit',
-    component: () => <div>Edit Location</div>,
+    getParentRoute: () => rootRoute,
+    path: '/locations/edit',
+    component: () => <EditLocationView />,
 });
 
 const NewLocationRoute = createRoute({
