@@ -1,7 +1,7 @@
 import ky from 'ky';
 
 const apiClient = ky.create({
-  prefixUrl: `${import.meta.env.VITE_API_BASE_URL}`,
+  prefixUrl: "http://localhost:3000/api/v1",
   hooks: {
     beforeRequest: [
       (request) => {
