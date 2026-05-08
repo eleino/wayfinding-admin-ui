@@ -8,6 +8,7 @@ import { useGetSites } from "@hooks/useSites";
 import { useGetBuildings } from "@hooks/useBuildings";
 import type { SearchParams } from "@apptypes/searchParams";
 import { PathList } from "./PathList";
+import { Link } from "@tanstack/react-router";
 
 export const PathSelections = (props: { searchParams: SearchParams }) => {
   const { searchParams } = props;
@@ -94,5 +95,12 @@ export const PathSelections = (props: { searchParams: SearchParams }) => {
       </div>
     );
   }
-  return <PathList buildingId={Number(queryBuildingId)} />;
+  return (
+    <div>
+      <Link to={`/paths/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
+        Add a new path
+      </Link>
+      <PathList buildingId={Number(queryBuildingId)} />
+    </div>
+  );
 };

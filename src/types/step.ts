@@ -70,3 +70,19 @@ export interface StepListResponse {
   steps: StepListItem[];
   destination: StepListDestination;
 }
+
+// part of the response when posting a new path
+export interface StepCreationResponse {
+  path_step_id: number;
+  path_id: number;
+  location_id: number;
+  step_order: number;
+  distance_to_next_meters: number;
+  video_timestamp_seconds: number;
+  img_on_approach_key: string;
+  img_to_next_key: string;
+  trl_instruction_on_approach_key: string;
+  trl_instruction_to_next_key: string;
+  overlay_on_approach_key: string;
+  overlay_to_next_key: string;
+}

@@ -27,6 +27,7 @@
       "@hooks/*": ["hooks/*"],
       "@apptypes/*": ["types/*"],
       "@views/*": ["views/*"],
+      "@schemas/*": ["schemas/*"],
       "@storage/*": ["storage/*"]
     },
 

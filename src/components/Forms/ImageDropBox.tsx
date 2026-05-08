@@ -33,11 +33,11 @@ export const ImageDropBox = ({ onFileSelect, imageUrl }: ImageDropBoxProps) => {
         onClick={() => inputRef.current?.click()}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className={`border border-dashed border-lab-turquoise rounded h-50 w-100 flex items-center justify-center cursor-pointer bg-black ${preview ? 'p-1' : ''}`}
+        className={`border border-dashed border-lab-turquoise rounded h-50 w-120 flex items-center justify-center cursor-pointer bg-black ${preview ? 'p-1' : ''}`}
         > 
         {preview ? (
             <span className="flex flex-row justify-center items-center gap-2">
-                <img src={preview} alt="Preview" className="max-h-50 max-w-80 p-2" />
+                <img src={preview} alt="Preview" className="max-h-50 max-w-100 p-2" />
                 {preview && preview !== imageUrl && (
                     <span className="text-lab-gray-light/50 border rounded px-1 text-center" onClick={(e) => {
                         e.stopPropagation();
