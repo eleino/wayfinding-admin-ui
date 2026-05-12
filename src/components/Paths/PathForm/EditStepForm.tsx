@@ -1,0 +1,1 @@
+// show a list of EditStep components, list should allow shuffling the order and adding new steps

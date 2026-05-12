@@ -16,11 +16,11 @@ export const fetchBuildings = async (siteId: number|null): Promise<ListBuilding[
 
 // this one is /sites/:id/buildings/names and also returns image url and translations
 // TODO: implement pagination if the number of buildings can grow larger, returns 10 by default
-export const fetchBuildingNames = async (siteId: number|null, lang?: string): Promise<ListBuildingNamesAPI[]> => {
+export const fetchBuildingNames = async (siteId: number|null, lang = "fi"): Promise<ListBuildingNamesAPI[]> => {
     if (!siteId) {
         throw new Error("Site ID is required to fetch building names.");
     }
-    const response = await apiClient.get(`sites/${siteId}/buildings/names` + (lang ? `?lang=${lang}` : ''));
+    const response = await apiClient.get(`sites/${siteId}/buildings/names?lang=${lang}`);
     const json: { data: ListBuildingNamesAPI[] } = await response.json();
     return json.data;
 }

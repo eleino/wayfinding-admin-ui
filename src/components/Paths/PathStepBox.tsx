@@ -3,7 +3,7 @@ import { StepInstructions } from "./StepInstructions";
 
 export const PathStepBox = (props: { stepId: number }) => {
   const { stepId } = props;
-  const stepQuery = useGetStepById(stepId, {
+  const stepQuery = useGetStepById(stepId, "fi", {
     enabled: !!stepId,
   });
 

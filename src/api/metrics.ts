@@ -2,7 +2,6 @@ import type { Metrics, PathMetricsList } from '@apptypes/metrics';
 import apiClient from './client';
 
 // GET /metrics/paths?startDate=2025-12-01&endDate=2025-12-31
-// ok, maybe metrics needs to be updated to return by org, site, or building rather than all paths
 export const fetchAllPathMetrics = async (buildingId: number, startDate: string, endDate: string): Promise<PathMetricsList[]> => {
     if (!startDate || !endDate) {
         throw new Error("Start date and end date are required to fetch path metrics summaries.");

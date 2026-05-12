@@ -13,6 +13,7 @@ import SettingsView from '@views/SettingsView';
 import TranslationsView from '@views/TranslationsView';
 import { NewLocationView } from '@views/NewLocationView';
 import { EditLocationView } from '@views/EditLocationView';
+import { NewPathView } from '@views/NewPathView';
 
 const rootRoute = createRootRoute({
     component: () => <RootLayout />,
@@ -20,13 +21,15 @@ const rootRoute = createRootRoute({
         if (location.pathname === '/login') return;
         if (!getIsAuthenticated(['admin', 'maintainer'])) {
             throw redirect({to: '/login'});
+        } else if (location.pathname === '/') {
+            throw redirect({to: '/dashboard'});
         }
     }
 });
 
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/',
+    path: '/dashboard',
     component: () => <DashboardView />,
 });
 
@@ -68,6 +71,12 @@ const PathsRoute = createRoute({
     component: () => <PathsView />,
 });
 
+const NewPathRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/paths/new',
+    component: () => <NewPathView />,
+});
+
 const QRCodeRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/qrcodes',
@@ -93,7 +102,7 @@ const NotFoundRoute = createRoute({
 });
 
 
-rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute]);
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute, NewPathRoute]);
 
 
 export const AppRouter = rootRoute;

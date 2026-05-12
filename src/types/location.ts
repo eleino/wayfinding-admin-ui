@@ -23,6 +23,7 @@ export interface LocationWithImage {
     image: LocationImage | null;
 }
 
+// GET /buildings/:buildingId/locations
 export interface ListLocation {
     id: number;
     name: string;

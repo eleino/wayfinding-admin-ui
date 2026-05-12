@@ -25,7 +25,7 @@ export const TextInput = ({ ...props }: TextInputProps) => {
         required={required}
         aria-invalid={!!errors}
         aria-errormessage={`${normalizeString(name)}-error`}
-        className="w-80 p-2 border border-border-grey rounded bg-black"
+        className="w-120 p-2 border border-border-grey rounded bg-black"
       />
       {errors && <div className="text-red-500">{errors[0]}</div>}
     </div>
