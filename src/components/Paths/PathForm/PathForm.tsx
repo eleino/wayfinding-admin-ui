@@ -47,53 +47,55 @@ export const PathForm = (props: {
             }} errors={field.errors} />
           )}
         </Field>
+        <div className="flex flex-row gap-10 py-2"><div>
         <Field of={pathForm} path={['priority']} >
           {(field) => (
-            <div>
-            <label className="ml-1">Priority</label>
+            <div className="flex flex-col">
+            <label className="ml-1">Priority<span className="text-red-500">*</span></label>
             <input type="number" {...field.props} value={field.input} required onChange={event => {
               field.onChange(Number(event.target.value));
-            }}/>
+            }}
+            className="ml-1 w-30 pl-2 p-1 border border-border-grey rounded bg-black"
+            />
             {field.errors && <p className="text-red-500">{field.errors}</p>}
             </div>
           )}
         </Field>
           <Field of={pathForm} path={['estimated_time_minutes']} >
           {(field) => (
-            <div>
+            <div className="flex flex-col">
             <label className="ml-1">Estimated time (minutes)</label>
             <input type="number" {...field.props} value={field.input || ""} onChange={event => {
               const value = event.target.value;
               field.onChange(value === "" ? undefined : Number(value));
-            }}/>
+            }}
+            className="ml-1 w-30 pl-2 p-1 border border-border-grey rounded bg-black"
+            />
             {field.errors && <p className="text-red-500">{field.errors}</p>}
             </div>
           )}
         </Field>
         <Field of={pathForm} path={['accessibility_level']} >
           {(field) => (
-            <div>
-            <label className="ml-1">Accessibility level</label>
+            <div className="flex flex-col">
+            <label className="ml-1">Accessibility level <span className="text-red-500">*</span></label>
             <input type="number" {...field.props} value={field.input} required onChange={event => {
               field.onChange(Number(event.target.value));
-            }}/>
+            }}
+            className="ml-1 w-30 pl-2 p-1 border border-border-grey rounded bg-black"
+            />
             {field.errors && <p className="text-red-500">{field.errors}</p>}
             </div>
           )}
         </Field>
-        <Field of={pathForm} path={['video_instruction_url']} >
-          {(field) => (
-            <TextInput label="Video instruction URL" {...field.props} input={field.input} onChange={event => {
-              field.onChange(event.target.value);
-            }} errors={field.errors} />
-          )}
-        </Field>
+        </div>
+        <div className="">
         <Field of={pathForm} path={['organizations']} >
           {(field) => (
             <div>
               <label className="ml-1">Allowed organizations</label>
               {orgList.isLoading ? <p>Loading organizations...</p> :
-              <div className="flex flex-col">
+              <div className="flex flex-col ml-4">
                 {orgList.data?.map(org => (
                   <label key={org.id} className="inline-flex items-center">
                     <input
@@ -117,9 +119,50 @@ export const PathForm = (props: {
             </div>
           )}
         </Field>
+        </div>
+        </div>
+        <Field of={pathForm} path={['video_instruction_url']} >
+          {(field) => (
+            <TextInput label="Video instruction URL" {...field.props} input={field.input} required onChange={event => {
+              field.onChange(event.target.value);
+            }} errors={field.errors} />
+          )}
+        </Field>
+        {isEditMode && 
+        <div>
+          <Field of={pathForm} path={['elevated_priority_starts_at']}>
+          {(field) => (
+            <div className="flex flex-col">
+              <label className="ml-1">Elevated priority starts at</label>
+              <input type="date" {...field.props} value={field.input ? new Date(field.input).toISOString().split('T')[0] : ""} onChange={event => {
+                const value = event.target.value;
+                field.onChange(value === "" ? undefined : new Date(value));
+              }}
+              className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
+              />
+              {field.errors && <p className="text-red-500">{field.errors}</p>}
+            </div>
+          )}
+        </Field>
+        <Field of={pathForm} path={['elevated_priority_expires_at']}>
+          {(field) => (
+            <div className="flex flex-col">
+              <label className="ml-1">Elevated priority expires at</label>
+              <input type="date" {...field.props} value={field.input ? new Date(field.input).toISOString().split('T')[0] : ""} onChange={event => {
+                const value = event.target.value;
+                field.onChange(value === "" ? undefined : new Date(value));
+              }}
+              className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
+              />
+              {field.errors && <p className="text-red-500">{field.errors}</p>}
+            </div>
+          )}
+        </Field>
+        </div>}
+        
         {!isEditMode &&
         <CreateStepList form={pathForm as FormStore<typeof CreatePathSchema>} />}
-        <button type="submit" className="px-4 py-2 bg-lab-blue text-white rounded absolute right-5 bottom-5">
+        <button type="submit" className="px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 bottom-5">
           Save Path
         </button>
       </Form>

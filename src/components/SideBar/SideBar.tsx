@@ -11,7 +11,7 @@ const SideBar = (props: { path: string }) => {
   const currentPath = props.path;
   console.log("Current path in SideBar:", currentPath);
   const links = [
-    { name: "Dashboard", path: "/", location: "/" },
+    { name: "Dashboard", path: "/dashboard", location: "/dashboard" },
     { name: "Locations", path: `/locations${paramsPath}`, location: `/locations` },
     { name: "Paths", path: `/paths${paramsPath}`, location: `/paths` },
     { name: "Media/Images", path: "/images", location: "/images" },
@@ -26,7 +26,7 @@ const SideBar = (props: { path: string }) => {
           <li className="sidebar-link" key={link.path}>
             <Link
               to={link.path}
-              className={`pl-5 py-2 w-full h-full block ${(currentPath === link.location || currentPath === link.location + "/") ? "text-lab-turquoise font-bold bg-lab-turquoise/10" : ""}`}
+              className={`pl-5 py-2 w-full h-full block ${(currentPath.startsWith(link.location)) ? "text-lab-turquoise font-bold bg-lab-turquoise/10" : ""}`}
               activeProps={{ className: "text-lab-turquoise font-bold bg-lab-turquoise/10" }}
             >
               {link.name}

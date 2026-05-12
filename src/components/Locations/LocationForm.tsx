@@ -41,6 +41,7 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
     }
 
     return (
+        <div className="relative pb-10">
         <Form of={locationForm} style={{width:'100%'}} onSubmit={(data) => {
             handleSubmit(data);
         }} className="space-y-4">
@@ -105,7 +106,8 @@ export const LocationForm = (props: { locationData?: EditLocationInput | null; h
                     </div>
                 )}
                 </Field>
-                <button type="submit" className="bg-lab-blue rounded cursor-pointer w-40 p-1">Save Location</button>
+                <button type="submit" className="bg-lab-green-dark rounded cursor-pointer w-40 p-1 absolute right-0 bottom-0">Save Location</button>
         </Form>
+        </div>
     )
 }

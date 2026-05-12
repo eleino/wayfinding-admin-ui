@@ -21,13 +21,15 @@ const rootRoute = createRootRoute({
         if (location.pathname === '/login') return;
         if (!getIsAuthenticated(['admin', 'maintainer'])) {
             throw redirect({to: '/login'});
+        } else if (location.pathname === '/') {
+            throw redirect({to: '/dashboard'});
         }
     }
 });
 
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/',
+    path: '/dashboard',
     component: () => <DashboardView />,
 });
 
