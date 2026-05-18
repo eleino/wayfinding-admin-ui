@@ -1,22 +1,12 @@
 // form for creating and editing locations
 import { Field, Form, useForm, setInput } from "@formisch/react";
 import type { EditLocationInput } from "@apptypes/location";
-import * as v from "valibot";
 import { useState } from "react";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
+import { LocationSchema } from "@schemas/location.schema";
 
-const LocationSchema = v.object({
-    location_name: v.pipe(v.string(), v.nonEmpty("Name cannot be empty")),
-    is_entry_location: v.boolean(),
-    floor_number: v.pipe(v.number("Floor number is required and must be a number between 1 and 3"), v.integer(), v.toMinValue(1), v.toMaxValue(3)),
-    trl_location_name_fi: v.pipe(v.string(), v.nonEmpty("Finnish name cannot be empty")),
-    trl_location_name_en: v.pipe(v.string(), v.nonEmpty("English name cannot be empty")),
-    trl_at_current_location_msg_fi: v.pipe(v.string(), v.nonEmpty("Finnish message cannot be empty")),
-    trl_at_current_location_msg_en: v.pipe(v.string(), v.nonEmpty("English message cannot be empty")),
-    imageFile: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
-});
 
 export const LocationForm = (props: { locationData?: EditLocationInput | null; handleSubmit: (data: EditLocationInput) => void }) => {
     const { locationData, handleSubmit } = props;

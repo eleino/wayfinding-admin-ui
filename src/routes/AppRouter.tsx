@@ -14,6 +14,7 @@ import TranslationsView from '@views/TranslationsView';
 import { NewLocationView } from '@views/NewLocationView';
 import { EditLocationView } from '@views/EditLocationView';
 import { NewPathView } from '@views/NewPathView';
+import { EditPathView } from '@views/EditPathView';
 
 const rootRoute = createRootRoute({
     component: () => <RootLayout />,
@@ -71,6 +72,12 @@ const PathsRoute = createRoute({
     component: () => <PathsView />,
 });
 
+const EditPathRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/paths/edit',
+    component: () => <EditPathView />,
+});
+
 const NewPathRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/paths/new',
@@ -102,7 +109,7 @@ const NotFoundRoute = createRoute({
 });
 
 
-rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute, NewPathRoute]);
+rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute, NewPathRoute, EditPathRoute]);
 
 
 export const AppRouter = rootRoute;

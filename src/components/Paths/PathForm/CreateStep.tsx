@@ -6,21 +6,24 @@ import { useState } from "react";
 import { LocationModal } from "@components/Locations/LocationModal";
 import { useLocation } from "@tanstack/react-router";
 import { createPortal } from "react-dom";
+import { DeleteDialog } from "@components/Forms/DeleteDialog";
 
 type CreateStepProps = {
   form: FormStore<typeof CreatePathSchema>;
   stepIndex: number;
   locationList: ListLocation[] | undefined;
   calcPathLength: () => void;
+  onRemove: () => void;
 };
 export const CreateStep = (props: CreateStepProps) => {
-  const { form, stepIndex, locationList, calcPathLength } = props;
+  const { form, stepIndex, locationList, calcPathLength, onRemove } = props;
   const [stepError, setStepError] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const {search} = useLocation();
   const buildingId = search.buildingId;
   return (
-    <div className={`mb-2 p-1 py-2 border ${stepError ? 'border-red-500' : 'border-lab-green-dark'} shadow-xl/30 rounded bg-sidebar-grey flex flex-row`}>
+    <div className={`mb-2 p-1 py-2 border ${stepError ? 'border-red-500' : 'border-lab-green-dark'} shadow-xl/30 rounded bg-sidebar-grey flex flex-row relative`}>
       <Field of={form} path={["steps", stepIndex, "step_order"]}>
         {(field) => {
           if (field.input !== stepIndex + 1) {
@@ -45,7 +48,12 @@ export const CreateStep = (props: CreateStepProps) => {
                 {/* <label className="p-1 pl-0">Step location: <span className="text-red-500">*</span></label> */}
                 <div>Select a location below or <button type="button" onClick={() => setIsLocationModalOpen(true)} className="bg-lab-blue text-white p-1 px-2 mb-1 rounded">
                   Add new location
-                </button>
+                </button><span className="text-red-500 cursor-pointer w-6 h-6 text-4xl absolute right-2 outline-3 outline-red-500 rounded text-center" onClick={() => setShowDeleteConfirm(true)}><span className="relative bottom-2">&times;</span></span>
+                {showDeleteConfirm && (<DeleteDialog itemName={`Step ${stepIndex + 1}`} onConfirm={() => {
+                  onRemove();
+                  setShowDeleteConfirm(false);
+                }}
+                onCancel={() => setShowDeleteConfirm(false)} />)}
                 {isLocationModalOpen && (
                     createPortal(<LocationModal 
                       buildingId={buildingId || null}

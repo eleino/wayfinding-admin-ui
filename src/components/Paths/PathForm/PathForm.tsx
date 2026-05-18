@@ -5,6 +5,7 @@ import { useGetOrganisations } from "@hooks/useOrganisations";
 import { CreatePathSchema, EditPathSchema } from "@schemas/path.schema";
 import { useLocation } from "@tanstack/react-router";
 import { CreateStepList } from "./CreateStepList";
+import { EditStepList } from "./EditStepList";
 
 export const PathForm = (props: {
   pathData?: EditPathInput | null;
@@ -36,7 +37,7 @@ export const PathForm = (props: {
     return <p>Loading organizations...</p>;
   }
   return (
-    <div className="relative w-150 bg-sidebar-grey rounded p-2">
+    <div className="relative w-150 bg-sidebar-grey rounded p-2 pb-10">
       <Form of={pathForm} onSubmit={(data) => {
         handleSubmit(data);
       }} className="space-y-4">
@@ -129,7 +130,7 @@ export const PathForm = (props: {
           )}
         </Field>
         {isEditMode && 
-        <div>
+        <div className="flex flex-col gap-4">
           <Field of={pathForm} path={['elevated_priority_starts_at']}>
           {(field) => (
             <div className="flex flex-col">
@@ -158,14 +159,30 @@ export const PathForm = (props: {
             </div>
           )}
         </Field>
+        <Field of={pathForm} path={['trl_path_name_fi']} >
+          {(field) => (
+            <TextInput label="Path name (fi)" {...field.props} input={field.input} required onChange={event => {
+              field.onChange(event.target.value);
+            }} errors={field.errors} />
+          )}
+        </Field>
+        <Field of={pathForm} path={['trl_path_name_en']} >
+          {(field) => (
+            <TextInput label="Path name (en)" {...field.props} input={field.input} required onChange={event => {
+              field.onChange(event.target.value);
+            }} errors={field.errors} />
+          )}
+        </Field>
         </div>}
         
         {!isEditMode &&
         <CreateStepList form={pathForm as FormStore<typeof CreatePathSchema>} />}
-        <button type="submit" className="px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 bottom-5">
+        <button type="submit" className={`px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 ${isEditMode ? '' : 'bottom-5'}`}>
           Save Path
         </button>
       </Form>
+      {isEditMode &&
+      <EditStepList pathData={pathData} />}
     </div>
   );
 };

@@ -81,7 +81,7 @@ export const EditLocationView = () => {
       );
     }
     if (updatedLocationData.imageFile) {
-      const key = `LOCATION_${locationId}_IMG`;
+      const key = locationData.data?.location.img_location_key || `LOCATION_${locationId}_IMG`;
       promises.push(
         uploadImageMutation.mutateAsync({
           itemType: "location",
@@ -91,8 +91,8 @@ export const EditLocationView = () => {
         }),
       );
     }
-    const nameKey = `LOCATION_${locationId}_NAME`;
-    const atCurrentLocationMsgKey = `CURRENT_LOCATION_${locationId}_MSG`;
+    const nameKey = locationData.data?.location.trl_location_name_key || `LOCATION_${locationId}_NAME`;
+    const atCurrentLocationMsgKey = locationData.data?.location.trl_current_location_msg_key || `CURRENT_LOCATION_${locationId}_MSG`;
     // check whether translation has changed before trying to update
     // also, if the translation keys didn't exist before, we need to create translations instead of updating
     if (

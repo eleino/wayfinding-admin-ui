@@ -1,4 +1,4 @@
-import { FieldArray, insert, move, getInput } from "@formisch/react";
+import { FieldArray, insert, move, getInput, remove } from "@formisch/react";
 import type { FormStore } from "@formisch/react";
 import { useGetLocations } from "@hooks/useLocations";
 import { CreatePathSchema } from "@schemas/path.schema";
@@ -67,6 +67,7 @@ export const CreateStepList = (props: CreateStepListProps) => {
                               stepIndex={stepIndex}
                               locationList={locationList.data}
                               calcPathLength={calcPathLength}
+                              onRemove={() => remove(form, { path: ["steps"], at: stepIndex })}
                             />
                           </div>
                         )}

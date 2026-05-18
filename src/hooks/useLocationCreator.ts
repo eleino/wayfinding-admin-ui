@@ -57,7 +57,7 @@ export const useLocationCreator = () => {
         });
         let imageResult: UploadedImage | null = null;
         if (locationData.imageFile && locationResult.location_id) {
-          const key = `LOCATION_${locationResult.location_id}_IMG`;
+          const key = locationResult.img_location_key;
           setLoadingMessage("Uploading image...");
           imageResult = await uploadImageMutation.mutateAsync({
             itemType: "location",
@@ -77,8 +77,8 @@ export const useLocationCreator = () => {
           },
         };
         if (locationResult.location_id) {
-          const nameKey = `LOCATION_${locationResult.location_id}_NAME`;
-          const atLocationMsgKey = `CURRENT_LOCATION_${locationResult.location_id}_MSG`;
+          const nameKey = locationResult.trl_location_name_key;
+          const atLocationMsgKey = locationResult.trl_current_location_msg_key;
           setLoadingMessage("Creating translations...");
           const [enName, fiName, enMsg, fiMsg] = await Promise.all([
             createTranslationMutation.mutateAsync({
