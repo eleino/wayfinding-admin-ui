@@ -30,13 +30,13 @@ export interface ListLocation {
 }
 
 // GET /buildings/:buildingId/enterances?lang=fi
-export interface EntranceLocations {
+export interface EntranceLocation {
     location_id: number;
     image_url: string;
     trl_location_name_key: string;
     translations: {
-        fi?: AppTranslation;
-        en?: AppTranslation;
+        fi?: AppTranslation[];
+        en?: AppTranslation[];
     }
 }
 

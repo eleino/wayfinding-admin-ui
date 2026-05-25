@@ -1,6 +1,6 @@
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import apiClient from "./client";
-import type { ListLocation, Location, LocationWithImage } from "@apptypes/location";
+import type { EntranceLocation, ListLocation, Location, LocationWithImage } from "@apptypes/location";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
 // Fetches locations in a building (GET /buildings/:id/locations)
@@ -36,6 +36,16 @@ export const fetchLocationDestinations = async (
   const response = await apiClient.get(
     `locations/${id}/available-destinations?lang=${lang}&accessibility_level=${accessibility_level}`,
   );
+  return response.json();
+};
+
+export const fetchEntryLocations = async (
+  building_id: number | null, lang = "fi"
+): Promise<EntranceLocation[]> => {
+  if (!building_id) {
+    throw new Error("Building ID is required to fetch entry locations.");
+  }
+  const response = await apiClient.get(`buildings/${building_id}/enterances?lang=${lang}`);
   return response.json();
 };
 

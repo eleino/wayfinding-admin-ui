@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 
 export const ShowPath = (props: { pathId: number | null, searchParams: SearchParams }) => {
-  const { pathId } = props;
+  const { pathId, searchParams } = props;
   const pathQuery = useGetPathById(pathId, {
     enabled: !!pathId,
   });
@@ -37,8 +37,11 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
     <Link to={createPath("/paths", props.searchParams.orgId || undefined, props.searchParams.siteId || undefined, props.searchParams.buildingId || undefined)} className="text-lab-green-dark mb-4 inline-block">
       &larr; Back to paths list
     </Link>
-    <div className="bg-sidebar-grey p-4 rounded shadow">
+    <div className="bg-sidebar-grey p-4 rounded shadow relative w-180">
       <h2 className="text-xl font-bold mb-2">{path.name}</h2>
+                  <Link className="bg-lab-blue rounded py-1 px-2 absolute right-4 top-2 no-underline hover:text-lab-turquoise" to={createPath( `/paths/edit`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, undefined, pathId! )}>
+              Edit Path
+            </Link>
       <p className="text-gray-300">Start location: {path.start_location_id}</p>
       <p className="text-gray-300">End location: {path.end_location_id}</p>
       <p className="text-gray-300">Active: {path.is_active ? "Yes" : "No"}</p>

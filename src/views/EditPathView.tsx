@@ -1,52 +1,72 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import { useGetPathById, useUpdatePath } from "@hooks/usePaths";
 import { PathForm } from "@components/Paths/PathForm/PathForm";
 import type { EditPathInput } from "@apptypes/path";
+import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
 export const EditPathView = () => {
     const { search } = useLocation();
     const pathId = search.pathId;
-    const buildingId = search.buildingId;
+    // const buildingId = search.buildingId;
+    const created = search.created;
     const pathDataQuery = useGetPathById(pathId ? parseInt(pathId) : null);
-    const pathData = {
-        path_name: pathDataQuery.data?.path.name || "",
-        priority: pathDataQuery.data?.path.priority || 1,
-        estimated_time_minutes: pathDataQuery.data?.path.estimated_time_minutes || undefined,
-        accessibility_level: pathDataQuery.data?.path.accessibility_level || 0,
-        video_instruction_url: pathDataQuery.data?.path.video_instruction_url || "",
-        organizations: pathDataQuery.data?.path.allowed_organizations.map(org => org.organization_id) || [],
+    const path = pathDataQuery.data?.path;
+    const initPathData = {
+        path_name: path?.name || "",
+        priority: path?.priority || 1,
+        estimated_time_minutes: path?.estimated_time_minutes || 0,
+        accessibility_level: path?.accessibility_level || 0,
+        video_instruction_url: path?.video_instruction_url || "",
+
+        elevated_priority_starts_at: path?.elevated_priority_starts_at ? new Date(path.elevated_priority_starts_at) : undefined,
+
+        elevated_priority_expires_at: path?.elevated_priority_expires_at ? new Date(path.elevated_priority_expires_at) : undefined,
+
+        organizations: path?.allowed_organizations.map(org => org.organization_id) || [],
+
         steps: pathDataQuery.data?.steps?.map(step => ({
             id: step.id,
-            name: step.name, // for now, we display only location name in the overview, get the actual location id in edit mode for the step
+            name: step.name, // the location's name
             step_order: step.order,
-            location_id: 0, // TODO change backend to provide location ids in path overview
-            distance_to_next_meters: 0, // perhaps this data as well if we want to actually show it in the list of steps
+            location_id: step.location_id,
+            distance_to_next_meters: step.distance_to_next_meters,
         })) || [],
     }
     const updatePathMutation = useUpdatePath();
-    const navigate = useNavigate();
 
     const handleSubmit = (updatedPathData: EditPathInput) => {
         if (!pathId) return;
-        // updatePathMutation.mutate({ pathId: parseInt(pathId), updatedPathData }, {
-        //     onSuccess: () => {
-        //         navigate(`/paths?buildingId=${pathData?.building_id}`);
-        //     },
-        //     onError: (error) => {
-        //         console.error("Error updating path:", error);
-        //     }
-        // });
+        const pathData: UpdatePathDTO = {
+            priority: updatedPathData.priority,
+            estimated_time_minutes: updatedPathData.estimated_time_minutes,
+            accessibility_level: updatedPathData.accessibility_level,
+            video_instruction_url: updatedPathData.video_instruction_url,
+            organizations: updatedPathData.organizations,
+            elevated_priority_starts_at: updatedPathData.elevated_priority_starts_at,
+            elevated_priority_expires_at: updatedPathData.elevated_priority_expires_at,
+        }
+        // only send name if it has changed to avoid name conflict on backend
+        if (updatedPathData.path_name !== initPathData.path_name) {
+            pathData["name"] = updatedPathData.path_name;
+        }
+
+        updatePathMutation.mutate({ pathId: parseInt(pathId), pathData }, {
+            onError: (error) => {
+                console.error("Error updating path:", error);
+            }
+        });
     }
 
     if (pathDataQuery.isLoading) {
         return <p>Loading path data...</p>;
     }
-    if (pathDataQuery.isError || !pathData) {
+    if (pathDataQuery.isError || !initPathData) {
         return <p className="text-red-500">Error loading path data</p>;
     }
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Edit Path</h1>
-            <PathForm pathData={pathData} handleSubmit={handleSubmit} />
+            {created && <p className="text-lab-green-dark mb-4">Path created successfully! You can now edit the path details and step instructions.</p>}
+            <PathForm pathData={pathDataQuery.data} handleSubmit={handleSubmit} pathError={updatePathMutation.error} />
         </div>
     );
 }

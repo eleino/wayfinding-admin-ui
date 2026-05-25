@@ -29,7 +29,7 @@ interface DataType {
 export const useLocationCreator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [error, setError] = useState<HTTPError | TimeoutError | null>(null);
+  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(null);
   const [data, setData] = useState<DataType | null>(null);
   const queryClient = useQueryClient();
   const createLocationMutation = useCreateLocation();
@@ -137,7 +137,7 @@ export const useLocationCreator = () => {
         if (error instanceof HTTPError || error instanceof TimeoutError) {
           setError(error);
         } else {
-          setError(new Error("An unknown error occurred") as HTTPError);
+          setError(new Error("An unknown error occurred"));
         }
         return { error };
       }

@@ -1,11 +1,12 @@
 import { FieldArray, insert, move, getInput, remove } from "@formisch/react";
 import type { FormStore } from "@formisch/react";
-import { useGetLocations } from "@hooks/useLocations";
+import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { CreatePathSchema } from "@schemas/path.schema";
 import { useLocation } from "@tanstack/react-router";
 import { CreateStep } from "./CreateStep";
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
+import { PathCreateStepsProvider } from "../PathContext/PathCreateStepsContext";
 
 type CreateStepListProps = {
   form: FormStore<typeof CreatePathSchema>;
@@ -16,6 +17,7 @@ export const CreateStepList = (props: CreateStepListProps) => {
   const { search } = useLocation();
   const buildingId = search.buildingId;
   const locationList = useGetLocations(buildingId);
+  const entryLocations = useGetEntryLocations(buildingId);
   const [pathLength, setPathLength] = useState(0);
 
   const calcPathLength = () => {
@@ -28,17 +30,19 @@ export const CreateStepList = (props: CreateStepListProps) => {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-2">Steps</h3>
-      {/* <p className="text-red-500 py-1"><strong>Important! After the path is saved</strong>, you cannot change the order of the steps or the location associated with a step anymore.</p> */}
-      <p>Total path length: {pathLength.toFixed(2)} meters</p>
+      <p>Total path length: <span className="font-bold text-lab-turquoise">{pathLength} meters</span></p>
+      <p>Note: the first step should be an entry location.</p>
       {locationList.isLoading ? (
         <p>Loading locations...</p>
       ) : (
         <div className="p-4">
+          <PathCreateStepsProvider value={{ form, locationList: locationList.data, entryLocations: entryLocations.data, calcPathLength }}>
+
         <FieldArray of={form} path={["steps"]}>
           {(stepArray) => (
             <DragDropContext
               onDragEnd={(result) => {
-                if (!result.destination) return;
+                if (!result.destination || result.source.index === 0 || result.destination.index === 0) return; // prevent dragging the first step which must be an entry location
                 move(form, {
                   path: ["steps"],
                   from: result.source.index,
@@ -54,23 +58,30 @@ export const CreateStepList = (props: CreateStepListProps) => {
                         key={stepItem}
                         draggableId={stepItem}
                         index={stepIndex}
+                        isDragDisabled={stepIndex === 0}
                       >
-                        {(dragProvided) => (
+                        {(dragProvided) => {
+                          const providedStyle = dragProvided.draggableProps.style;
+                          const style = {
+                            ...providedStyle,
+                            // disable transform/transition for the first step to prevent it from moving when other steps are dragged on top of it
+                            transform: stepIndex === 0 ? "none" : providedStyle?.transform,
+                            transition: stepIndex === 0 ? "none" : providedStyle?.transition,
+                          }
+                        return (
                           <div
                             ref={dragProvided.innerRef}
                             {...dragProvided.draggableProps}
                             {...dragProvided.dragHandleProps}
+                            style={style}
                           >
                             <CreateStep
                               key={stepItem}
-                              form={form}
                               stepIndex={stepIndex}
-                              locationList={locationList.data}
-                              calcPathLength={calcPathLength}
                               onRemove={() => remove(form, { path: ["steps"], at: stepIndex })}
                             />
                           </div>
-                        )}
+                        )}}
                       </Draggable>
                     ))}
                     {dropProvided.placeholder}
@@ -80,7 +91,9 @@ export const CreateStepList = (props: CreateStepListProps) => {
               {stepArray.errors && <p className="text-red-500">{stepArray.errors}</p>}
             </DragDropContext>
           )}
+          
         </FieldArray>
+        </PathCreateStepsProvider>
         </div>
       )}
       <button

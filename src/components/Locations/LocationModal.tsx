@@ -9,8 +9,9 @@ export const LocationModal = (props: {
   closeModal: () => void;
   setLocationId: (id: number) => void;
   heading: string;
+  isEntryLocation?: boolean;
 }) => {
-  const { locationData, buildingId, closeModal, setLocationId, heading } =
+  const { locationData, buildingId, closeModal, setLocationId, heading, isEntryLocation } =
     props;
   const locationCreator = useLocationCreator();
   const handleSubmit = async (data: EditLocationInput) => {
@@ -33,6 +34,7 @@ export const LocationModal = (props: {
         <h2 className="text-xl font-bold mb-4">{heading}</h2>
         <LocationForm
           locationData={locationData}
+          isEntryLocation={isEntryLocation}
           handleSubmit={(data) => {
             handleSubmit(data);
           }}

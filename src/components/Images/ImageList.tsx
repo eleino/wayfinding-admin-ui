@@ -7,7 +7,7 @@ import { ImageBox } from "./ImageBox";
 export const ImageList = (props: { searchParams: SearchParams }) => {
   const { searchParams } = props;
   //const [shownImages, setShownImages] = useState<Image[]>([]);
-  
+
   const [selectedType, setSelectedType] = useState<string>(
     searchParams.type || "",
   );
@@ -25,17 +25,17 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
     error,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useGetImagesByTypeInfinite(selectedType, {
     enabled: !!selectedType,
   });
   const allImages = images?.pages.flatMap((page) => page.data) || [];
+  console.log("Fetched images:", allImages);
 
   // reset shownImages and page when type changes
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
   };
-
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -53,26 +53,25 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
           </li>
         ))}
       </ul>
-      {!selectedType && (
-        <p className="text-lg text-gray-500">
-          Select which type of images you want to view.
-        </p>
-      )}
+
       {isLoading && <p>Loading...</p>}
       {error && <p>Error loading images.</p>}
-      {allImages.length > 0 && (
+      {allImages.length === 0 ? (selectedType && !isLoading) && (
+        <p className="text-gray-500 mt-1">No images found for type "{selectedType}".</p>
+      ) : (
         <div>
           <h2 className="text-xl font-bold mb-4">Images</h2>
-          {allImages.length === 0 ? (
-            <p>No images found for type "{selectedType}".</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-4">
-               {
-              allImages.map((image) => (
-                <ImageBox key={image.key} imageUrl={image.url} imageKey={image.key} type={selectedType} />
-              ))
-            }</div>
-          )}
+
+          <div className="grid grid-cols-3 gap-4">
+            {allImages.map((image) => (
+              <ImageBox
+                key={image.key}
+                imageUrl={image.url}
+                imageKey={image.key}
+                type={selectedType}
+              />
+            ))}
+          </div>
           {isFetchingNextPage && <p>Loading more...</p>}
           {hasNextPage && (
             <button
@@ -83,7 +82,9 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
               Load More
             </button>
           )}
-          {!hasNextPage && <p className="mt-4 text-gray-500">No more images to load.</p>}
+          {!hasNextPage && (
+            <p className="mt-4 text-gray-500">No more images to load.</p>
+          )}
         </div>
       )}
     </div>

@@ -26,6 +26,7 @@ export const StepArraySchema =
   });
 
 export const OverlaySchema = v.object({
+  // overlay and image keys are required but not entered by user.
   // overlay_key: v.string(), // e.g. FROM_30_AT_5_TO_14
   // overlay_image_key: v.string(), // e.g. OVERLAY_LEFT_ARROW
   position_x_percent: v.number(),
@@ -35,17 +36,12 @@ export const OverlaySchema = v.object({
   overlay_size: v.number(),
 });
 
-export const EditStepSchema = v.intersect([
-  StepSchema,
-  v.object({
-    location_id: v.number(),
-    step_order: v.number(),
-    distance_to_next_meters: v.pipe(v.number(), v.integer()),
-    video_timestamp_seconds: v.optional(v.number()),
-    trl_instruction_on_approach_fi: v.pipe(v.string(), v.nonEmpty("Instruction on approach (Finnish) is missing")),
-    trl_instruction_on_approach_en: v.pipe(v.string(), v.nonEmpty("Instruction on approach (English) is missing")),
-    trl_instruction_to_next_fi: v.pipe(v.string(), v.nonEmpty("Instruction to next (Finnish) is missing")),
-    trl_instruction_to_next_en: v.pipe(v.string(), v.nonEmpty("Instruction to next (English) is missing")),
+// instructions are optional, user frontend displays a step's approach/to next instruction+image(+overlay) based on whether text instruction for it is present
+export const EditStepSchema = v.object({
+    trl_instruction_on_approach_fi: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction on approach (Finnish) is missing"))),
+    trl_instruction_on_approach_en: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction on approach (English) is missing"))),
+    trl_instruction_to_next_fi: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction to next (Finnish) is missing"))),
+    trl_instruction_to_next_en: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction to next (English) is missing"))),
     image_on_approach_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     image_to_next_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     overlay_on_approach: v.optional(
@@ -54,5 +50,4 @@ export const EditStepSchema = v.intersect([
     overlay_to_next: v.optional(
       OverlaySchema
     ),
-  }),
-]);
+  });
