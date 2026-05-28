@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { EditStepModal } from "./EditStepModal";
 import { EditStepLocation } from "./EditStepLocation";
 import { usePathEditSteps } from "../PathContext/PathEditStepsContext";
+import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 
 export const EditStep = (props: {
   stepIndex: number;
@@ -30,7 +31,7 @@ export const EditStep = (props: {
   const currentStepInstructionsEn = pathInstructionsEn?.steps.find(
     (step) => step.step_order === stepNro,
   );
-
+  
   const stepInstructions = {
     distance_to_next_meters:
       currentStepInstructionsFi?.distance_to_next_meters || 0,
@@ -80,6 +81,8 @@ export const EditStep = (props: {
       image: currentStepInstructionsFi?.img_to_next || null,
     },
   };
+    const firstApproachText = useGetTranslationsEnFi(stepInstructions.approach.fi.key, {enabled: stepIndex === 0});
+
   return (
     <div className={`border p-4 mb-4 bg-sidebar-grey rounded relative ${stepError ? "border-red-500" : "border-lab-green-dark"} `}>
       <div className="flex flex-row">
@@ -99,12 +102,14 @@ export const EditStep = (props: {
           <button
             className={`bg-${allowRearranging ? "gray-300 border border-border-grey" : "lab-blue cursor-pointer"} text-white px-4 py-1 rounded`}
             onClick={() => setIsInstructionModalOpen(true)}
+            type="button"
           >
             Edit Step Instructions
           </button>
           {isInstructionModalOpen &&
             createPortal(
               <EditStepModal
+                stepIndex={stepIndex}
                 stepId={currentStep?.id || 0}
                 stepInstructionsEn={currentStepInstructionsEn}
                 closeModal={() => setIsInstructionModalOpen(false)}
@@ -260,9 +265,9 @@ export const EditStep = (props: {
               )}
             </div>
             <p>
-              FI: {stepInstructions.approach.fi.text || "N/A"}
+              FI: {stepIndex === 0 && firstApproachText.data ? firstApproachText.data[1].text_value : stepInstructions.approach.fi.text || "N/A"}
               <br />
-              EN: {stepInstructions.approach.en.text || "N/A"}
+              EN: {stepIndex === 0 && firstApproachText.data ? firstApproachText.data[0].text_value : stepInstructions.approach.en.text || "N/A"}
             </p>
           </div>
         </div>

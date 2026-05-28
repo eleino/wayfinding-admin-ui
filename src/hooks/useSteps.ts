@@ -1,6 +1,6 @@
 import { fetchStepById, fetchPathInstructions, updateSteps } from "@api/steps";
 import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetStepById = (id: number | null, lang?: string, options = {}) => {
   if (!id) {
@@ -19,8 +19,17 @@ export const useGetPathInstructions = (id: number | null, lang: string = "fi", f
 }
 
 export const useUpdateSteps = (options = {}) => {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: ({ pathId, stepsData }: { pathId: number, stepsData: UpdateStepDTO[] }) => updateSteps(pathId, stepsData),
+    onSuccess: (data) => {
+      const pathId = data.length > 0 ? data[0].path_id : null;
+      if (pathId) {
+        queryClient.invalidateQueries({ queryKey: ["path", pathId] });
+        queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, "fi"] });
+        queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, "en"] });
+      }
+    },
     ...options
   });
   return mutation;

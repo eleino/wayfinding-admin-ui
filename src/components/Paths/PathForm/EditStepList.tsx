@@ -81,9 +81,8 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       { pathId, stepsData },
       {
         onSuccess: () => {
-          console.log("Steps updated successfully");
+          console.log("Steps updated successfully.");
           setUnsavedChanges(false);
-          // update the list of steps with the data returned from backend here + invalidate the path overview query used in parent (instructions do not contain step ids so they will be fine)? Editing step data causes backend to delete and recreate all steps in a path, so the step ids will have changed.
         },
         onError: (error) => {
           console.error("Error updating steps:", error);

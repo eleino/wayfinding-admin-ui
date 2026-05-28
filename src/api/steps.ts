@@ -1,4 +1,4 @@
-import type { StepApiResponse, StepInstructionsList } from "@apptypes/step";
+import type { StepApiResponse, StepCreationResponse, StepInstructionsList } from "@apptypes/step";
 import apiClient from "./client";
 import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
 
@@ -15,6 +15,7 @@ export const fetchPathInstructions = async (id: number, lang: string, fromLocati
   return response.json();
 }
 
-export const updateSteps = async (pathId: number, stepsData: UpdateStepDTO[]): Promise<void> => {
-  await apiClient.put(`paths/${pathId}/steps`, { json: stepsData });
+export const updateSteps = async (pathId: number, stepsData: UpdateStepDTO[]): Promise<StepCreationResponse[]> => {
+  const response = await apiClient.put(`paths/${pathId}/steps`, { json: stepsData });
+  return response.json();
 }

@@ -39,3 +39,7 @@
     transition: color 0.2s ease;
   }
 }
+
+@utility writing-* {
+  writing-mode: --value('horizontal-tb', 'vertical-lr', 'vertical-rl', 'sideways-lr', 'sideways-rl');
+}

@@ -40,13 +40,15 @@ export const EditPathView = () => {
             estimated_time_minutes: updatedPathData.estimated_time_minutes,
             accessibility_level: updatedPathData.accessibility_level,
             video_instruction_url: updatedPathData.video_instruction_url,
-            organizations: updatedPathData.organizations,
             elevated_priority_starts_at: updatedPathData.elevated_priority_starts_at,
             elevated_priority_expires_at: updatedPathData.elevated_priority_expires_at,
         }
         // only send name if it has changed to avoid name conflict on backend
         if (updatedPathData.path_name !== initPathData.path_name) {
-            pathData["name"] = updatedPathData.path_name;
+            pathData.name = updatedPathData.path_name;
+        }
+        if (updatedPathData.organizations !== initPathData.organizations) {
+            pathData.organizations = updatedPathData.organizations;
         }
 
         updatePathMutation.mutate({ pathId: parseInt(pathId), pathData }, {

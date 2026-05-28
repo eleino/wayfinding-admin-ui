@@ -40,6 +40,7 @@ export const PathForm = (props: {
   return (
     <div className="relative w-200 bg-sidebar-grey rounded p-2 pb-10">
       <Form of={pathForm} onSubmit={(data) => {
+        if (!pathForm.isDirty) return; // no changes, nothing to submit. maybe add an alertdialog here
         handleSubmit(data);
       }} className="space-y-4">
         <Field of={pathForm} path={['path_name']} >
