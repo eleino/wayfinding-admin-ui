@@ -2,13 +2,14 @@
 const turn_range = {
   x: [
     { size: 10, min: -500, max: 400 },
-    { size: 20, min: -260, max: 160 },
-    { size: 30, min: -180, max: 80 },
+    { size: 15, min: -335, max: 235 },
+    { size: 20, min: -250, max: 150 },
+    { size: 30, min: -170, max: 70 },
   ],
   y: [
     { size: 10, min: -350, max: 250 },
     { size: 20, min: -170, max: 70 },
-    { size: 30, min: -115, max: 15 },
+    { size: 30, min: -135, max: 15 },
   ],
 };
 
@@ -19,9 +20,9 @@ const straight_range = {
     { size: 30, min: -180, max: 80 },
   ],
   y: [
-    { size: 10, min: -180, max: 70 },
-    { size: 20, min: -90, max: -10 },
-    { size: 30, min: -65, max: -40 },
+    { size: 10, min: -180, max: 90 },
+    { size: 20, min: -100, max: 0 },
+    { size: 30, min: -80, max: -50 },
   ],
 };
 
