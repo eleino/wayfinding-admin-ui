@@ -170,7 +170,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
             <img
               src={previewImage}
               alt="Preview"
-              className="relative w-full h-fullobject-contain"
+              className="relative w-full h-full top-0 left-0 object-contain"
             />
             {selectedOverlay && (
               <img

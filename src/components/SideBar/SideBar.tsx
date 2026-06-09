@@ -20,7 +20,7 @@ const SideBar = (props: { path: string }) => {
     { name: "Settings", path: "/settings", location: "/settings" },
   ];
   return (
-    <div className="w-50 py-5 bg-sidebar-grey">
+    <div className="w-50 py-5 bg-sidebar-grey flex-none">
       <ul className="list-none w-full">
         {links.map((link) => (
           <li className="sidebar-link" key={link.path}>

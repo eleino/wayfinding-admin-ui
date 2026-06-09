@@ -34,7 +34,7 @@ export const LocationForm = (props: {
   };
 
   return (
-    <div className="relative pb-10">
+    <div>
       <Form
         of={locationForm}
         style={{ width: "100%" }}
@@ -164,12 +164,14 @@ export const LocationForm = (props: {
             </div>
           )}
         </Field>
+        <div className="flex justify-end my-5">
         <button
           type="submit"
-          className="bg-lab-green-dark rounded cursor-pointer w-40 p-1 absolute right-0 bottom-0"
+          className="bg-lab-green-dark rounded cursor-pointer w-40 p-1"
         >
           Save Location
         </button>
+        </div>
       </Form>
     </div>
   );

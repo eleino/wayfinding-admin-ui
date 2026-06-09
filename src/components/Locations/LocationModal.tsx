@@ -11,8 +11,14 @@ export const LocationModal = (props: {
   heading: string;
   isEntryLocation?: boolean;
 }) => {
-  const { locationData, buildingId, closeModal, setLocationId, heading, isEntryLocation } =
-    props;
+  const {
+    locationData,
+    buildingId,
+    closeModal,
+    setLocationId,
+    heading,
+    isEntryLocation,
+  } = props;
   const locationCreator = useLocationCreator();
   const handleSubmit = async (data: EditLocationInput) => {
     if (!buildingId) return;
@@ -23,14 +29,16 @@ export const LocationModal = (props: {
     }
   };
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-sidebar-grey rounded p-6 w-150 relative">
-        <button
-          onClick={closeModal}
-          className="absolute top-2 right-2 text-white cursor-pointer border border-border-grey rounded w-10 h-10 text-2xl"
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-20">
+      <div className="bg-sidebar-grey rounded p-6 w-150 relative h-[90vh] overflow-y-auto scrollbar-thin">
+        <div className="sticky w-full top-0 left-0 flex justify-end">
+          <button
+            onClick={closeModal}
+            className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl hover:border-lab-turquoise hover:text-lab-turquoise transition-colors z-50"
+          >
+            &times;
+          </button>
+        </div>
         <h2 className="text-xl font-bold mb-4">{heading}</h2>
         <LocationForm
           locationData={locationData}
