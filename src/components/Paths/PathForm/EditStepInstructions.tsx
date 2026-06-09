@@ -91,20 +91,19 @@ export const EditStepInstructions = (props: {
       // also need overlay_key and image_key when sending data to backend
       image_key: approachOverlayKey,
       position_x_percent: Number(overlay_on_approach?.position_x_percent) || 0,
-      position_y_percent:
-        Number(overlay_on_approach?.position_y_percent) || -20,
+      position_y_percent: Number(overlay_on_approach?.position_y_percent ?? -20),
       rotation_deg: Number(overlay_on_approach?.rotation_deg) || 0,
       rotation_x_deg: Number(overlay_on_approach?.rotation_x_deg) || 0,
-      overlay_size: Number(overlay_on_approach?.overlay_size) || 20,
+      overlay_size: Number(overlay_on_approach?.overlay_size) || 15,
     },
 
     overlay_to_next: overlay_to_next && {
       image_key: toNextOverlayKey,
       position_x_percent: Number(overlay_to_next?.position_x_percent) || 0,
-      position_y_percent: Number(overlay_to_next?.position_y_percent) || -20,
+      position_y_percent: Number(overlay_to_next?.position_y_percent ?? -20),
       rotation_deg: Number(overlay_to_next?.rotation_deg) || 0,
       rotation_x_deg: Number(overlay_to_next?.rotation_x_deg) || 0,
-      overlay_size: Number(overlay_to_next?.overlay_size) || 20,
+      overlay_size: Number(overlay_to_next?.overlay_size) || 15,
     },
   };
 

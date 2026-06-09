@@ -60,9 +60,9 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
         <p className="text-gray-500 mt-1">No images found for type "{selectedType}".</p>
       ) : (
         <div>
-          <h2 className="text-xl font-bold mb-4">Images</h2>
+          <h2 className="text-xl font-bold my-2">{selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} images</h2>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-[1fr_1fr_1fr] gap-4">
             {allImages.map((image) => (
               <ImageBox
                 key={image.key}
