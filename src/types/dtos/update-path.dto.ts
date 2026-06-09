@@ -5,6 +5,6 @@ export interface UpdatePathDTO {
     accessibility_level?: number;
     video_instruction_url?: string;
     organizations?: number[];
-    elevated_priority_starts_at?: string;
-    elevated_priority_expires_at?: string;
+    elevated_priority_starts_at?: Date;
+    elevated_priority_expires_at?: Date;
 }

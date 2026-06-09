@@ -2,8 +2,8 @@ import type { AppTranslation } from "./translation";
 
 export interface StepInstructionImageOverlay {
   overlay_image_url: string;
-  position_x_percent: string;
-  position_y_percent: string;
+  position_x_percent: number;
+  position_y_percent: number;
   overlay_size: number;
   rotation_deg: number;
   rotation_x_deg: number;
@@ -42,7 +42,7 @@ export interface StepApiResponse {
   step: StepDetailResponse;
 }
 
-export interface StepListItem {
+export interface StepInstructionsItem {
   step_order: number;
   distance_to_next_meters: number;
   video_instruction_url: string;
@@ -53,22 +53,22 @@ export interface StepListItem {
   translations: {
     fi?: AppTranslation[];
     en?: AppTranslation[];
-  }
+  };
 }
 
-export interface StepListDestination {
+export interface StepInstructionsDestination {
   location_id: number;
   trl_location_name_key: string;
   translations: {
     fi?: AppTranslation[];
     en?: AppTranslation[];
-  }
+  };
 }
 
 // GET /paths/:pathId/instructions?lang=fi
-export interface StepListResponse {
-  steps: StepListItem[];
-  destination: StepListDestination;
+export interface StepInstructionsList {
+  steps: StepInstructionsItem[];
+  destination: StepInstructionsDestination;
 }
 
 // part of the response when posting a new path
@@ -85,4 +85,27 @@ export interface StepCreationResponse {
   trl_instruction_to_next_key: string;
   overlay_on_approach_key: string;
   overlay_to_next_key: string;
+}
+
+export interface EditStepOverlay {
+  // overlay_key: string; // e.g. FROM_30_AT_5_TO_14
+  image_key: string; // e.g. OVERLAY_LEFT_ARROW
+  position_x_percent: number;
+  position_y_percent: number;
+  overlay_size: number;
+  rotation_deg: number;
+  rotation_x_deg: number;
+}
+
+export interface EditStepInput {
+  image_on_approach_url?: string;
+  image_on_approach_file?: File;
+  image_to_next_url?: string;
+  image_to_next_file?: File;
+  trl_instruction_on_approach_fi?: string;
+  trl_instruction_on_approach_en?: string;
+  trl_instruction_to_next_fi?: string;
+  trl_instruction_to_next_en?: string;
+  overlay_on_approach?: EditStepOverlay;
+  overlay_to_next?: EditStepOverlay;
 }

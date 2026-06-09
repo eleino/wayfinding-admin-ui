@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLocation, updateLocation } from "@api/locations";
+import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLocation, updateLocation, fetchEntryLocations } from "@api/locations";
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
@@ -10,6 +10,11 @@ export const useGetLocations = (buildingId: number|null, options = {}) => {
 
 export const useGetLocationById = (id: number|null, options = {}) => {
     const query = useQuery({ queryKey: ["location", id], queryFn: () => fetchLocationById(id), enabled: !!id, ...options });
+    return query;
+}
+
+export const useGetEntryLocations = (buildingId: number|null, lang = "fi", options = {}) => {
+    const query = useQuery({ queryKey: ["entryLocations", buildingId, lang], queryFn: () => fetchEntryLocations(buildingId, lang), enabled: !!buildingId, ...options });
     return query;
 }
 

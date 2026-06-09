@@ -41,9 +41,18 @@ export const NewPathView = () => {
     createPathMutation.mutate(
       { buildingId, pathData },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          const newPathId = data.path_id;
+          const editNewPathUrl = createPath(
+            "/paths/edit",
+            savedOrgId || undefined,
+            savedSiteId || undefined,
+            savedBuildingId || undefined,
+            undefined,
+            newPathId,
+          );
           queryClient.invalidateQueries({ queryKey: ["paths"] });
-          navigate({ to: pathBack });
+          navigate({ to: editNewPathUrl + "&created=true", replace: true });
         },
       },
     );
@@ -57,6 +66,14 @@ export const NewPathView = () => {
       </div>
       <h1 className="text-2xl font-bold mb-4">Create New Path</h1>
       <PathForm handleSubmit={handleSubmit} />
+      {createPathMutation.isError && (
+        <p className="text-red-500 mt-2">
+          Error creating path: {createPathMutation.error.message || "Unknown error"}
+        </p>
+      )}
+      <p className="text-sm text-gray-600">
+        Once the path is created, you can edit its details and steps.
+      </p>
     </div>
   );
 };

@@ -1,29 +1,31 @@
-import type { EditPathInput } from "@apptypes/path";
+import type { EditPathInput, PathApiResponse } from "@apptypes/path";
 import { Field, Form, useForm, type FormStore } from "@formisch/react";
 import { TextInput } from "@components/Forms/TextInput";
 import { useGetOrganisations } from "@hooks/useOrganisations";
 import { CreatePathSchema, EditPathSchema } from "@schemas/path.schema";
 import { useLocation } from "@tanstack/react-router";
 import { CreateStepList } from "./CreateStepList";
+import { EditStepList } from "./EditStepList";
 
 export const PathForm = (props: {
-  pathData?: EditPathInput | null;
+  pathData?: PathApiResponse | null;
   handleSubmit: (updatedPathData: EditPathInput) => void;
+  pathError?: Error | null;
 }) => {
   const { search } = useLocation();
   const buildingId = search.buildingId;
-  const { pathData, handleSubmit } = props;
+  const { pathData, handleSubmit, pathError } = props;
   const isEditMode = !!pathData;
   const schema = isEditMode ? EditPathSchema : CreatePathSchema;
   const orgList = useGetOrganisations();
-  const initialValues = pathData || {
-    path_name: "",
-    priority: 1,
-    estimated_time_minutes: undefined,
-    accessibility_level: 0,
-    video_instruction_url: "",
-    organizations: orgList ? orgList.data?.map(org => Number(org.id)) : [],
-    steps: [],
+  const initialValues = {
+    path_name: pathData?.path.name || "",
+    priority: pathData?.path.priority || 0,
+    estimated_time_minutes: pathData?.path.estimated_time_minutes || 0,
+    accessibility_level: pathData?.path.accessibility_level || 0,
+    video_instruction_url: pathData?.path.video_instruction_url || "",
+    organizations: pathData?.path.allowed_organizations ? pathData?.path.allowed_organizations.map(org => Number(org.organization_id)) : orgList.data ? orgList.data?.map(org => Number(org.id)) : [],
+    steps: [] // always initially empty in Create mode, handled separately in Edit mode
   };
   const pathForm = useForm({
     schema,
@@ -36,8 +38,9 @@ export const PathForm = (props: {
     return <p>Loading organizations...</p>;
   }
   return (
-    <div className="relative w-150 bg-sidebar-grey rounded p-2">
+    <div className="relative w-200 bg-sidebar-grey rounded p-2 pb-10">
       <Form of={pathForm} onSubmit={(data) => {
+        if (!pathForm.isDirty) return; // no changes, nothing to submit. maybe add an alertdialog here
         handleSubmit(data);
       }} className="space-y-4">
         <Field of={pathForm} path={['path_name']} >
@@ -64,11 +67,12 @@ export const PathForm = (props: {
           <Field of={pathForm} path={['estimated_time_minutes']} >
           {(field) => (
             <div className="flex flex-col">
-            <label className="ml-1">Estimated time (minutes)</label>
+            <label className="ml-1">Estimated time (minutes) <span className="text-red-500">*</span></label>
             <input type="number" {...field.props} value={field.input || ""} onChange={event => {
               const value = event.target.value;
               field.onChange(value === "" ? undefined : Number(value));
             }}
+            required
             className="ml-1 w-30 pl-2 p-1 border border-border-grey rounded bg-black"
             />
             {field.errors && <p className="text-red-500">{field.errors}</p>}
@@ -129,7 +133,7 @@ export const PathForm = (props: {
           )}
         </Field>
         {isEditMode && 
-        <div>
+        <div className="flex flex-col gap-4">
           <Field of={pathForm} path={['elevated_priority_starts_at']}>
           {(field) => (
             <div className="flex flex-col">
@@ -158,14 +162,32 @@ export const PathForm = (props: {
             </div>
           )}
         </Field>
+{/* path name translations are not currently used
+        <Field of={pathForm} path={['trl_path_name_fi']} >
+          {(field) => (
+            <TextInput label="Path name (fi)" {...field.props} input={field.input} required onChange={event => {
+              field.onChange(event.target.value);
+            }} errors={field.errors} />
+          )}
+        </Field>
+        <Field of={pathForm} path={['trl_path_name_en']} >
+          {(field) => (
+            <TextInput label="Path name (en)" {...field.props} input={field.input} required onChange={event => {
+              field.onChange(event.target.value);
+            }} errors={field.errors} />
+          )}
+        </Field> */}
         </div>}
         
         {!isEditMode &&
         <CreateStepList form={pathForm as FormStore<typeof CreatePathSchema>} />}
-        <button type="submit" className="px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 bottom-5">
+        <button type="submit" className={`px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 ${isEditMode ? '' : 'bottom-5'}`}>
           Save Path
         </button>
+        {pathError && <p className="text-red-500">{pathError.message}</p>}
       </Form>
+      {isEditMode &&
+      <EditStepList pathData={pathData} />}
     </div>
   );
 };

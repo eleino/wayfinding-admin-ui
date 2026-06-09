@@ -25,9 +25,13 @@ export const createTranslation = async (translation: CreateTranslationDto): Prom
   return response.json();
 }
 
-export const updateTranslation = async (translationKey: string, lang: string, translation: UpdateTranslationDTO): Promise<Translation> => {
+export const updateTranslation = async (translationKey: string, translation: UpdateTranslationDTO, lang: string): Promise<Translation> => {
   const response = await apiClient.put(`translations/${translationKey}?lang=${lang}`, {
     json: translation,
   });
   return response.json();
+}
+
+export const deleteTranslation = async (translationKey: string, lang: string): Promise<void> => {
+  await apiClient.delete(`translations/${translationKey}?lang=${lang}`);
 }

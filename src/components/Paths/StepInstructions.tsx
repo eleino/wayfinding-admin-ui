@@ -16,9 +16,10 @@ export const StepInstructions = (props: {
         <span className="block">fi: {translation}</span>
         <span className="block">en: {enTranslation ? enTranslation.data?.text_value : "Translation not available"}</span>
       </p>
-      <div className="relative w-100 h-auto top-0 left-0">
+      <div className="">
         <p>Image key: {instruction.img_key}</p>
         <p>Overlay key: {instruction.overlay_key}</p>
+        <div className="relative w-100 h-auto top-0 left-0">
       {image.url && (
         <img
           src={image.url}
@@ -30,9 +31,9 @@ export const StepInstructions = (props: {
         <img
           src={overlay.overlay_image_url}
           alt={`Instruction ${instruction.img_key} overlay image`}
-          className="mt-1 absolute"
+          className="absolute"
           style={{
-            top: "55%",
+            top: "50%",
             left: "50%",
             width: `${overlay.overlay_size}%`,
             height: "auto",
@@ -47,6 +48,7 @@ export const StepInstructions = (props: {
           }}
         />
       )}
+      </div>
       </div>
     </div>
   );

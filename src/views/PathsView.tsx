@@ -50,20 +50,6 @@ const PathsView = () => {
     <div className="p-5">
       {breadcrumbs.length > 0 && (
         <BreadCrumbs crumbs={breadcrumbs} />
-/*         <div className="mb-4 text-sm text-lab-green">
-          {breadcrumbs.map((crumb, index) => (
-            <span key={index}>
-              <Link
-                to={crumb.link}
-                onClick={crumb.onClick}
-                className="text-lab-green-dark"
-              >
-                {crumb.label}
-              </Link>
-              {index < breadcrumbs.length - 1 && " > "}
-            </span>
-          ))}
-        </div> */
       )}
       <h1>Paths</h1>
 

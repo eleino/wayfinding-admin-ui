@@ -1,4 +1,4 @@
-// Using localStorage for storing the token, cookies would be preferred but that would require changes to the backend.
+// Using localStorage for storing the token, http-only cookies would be preferred but that would require changes to the backend.
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   getUserRoleFromToken,

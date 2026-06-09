@@ -16,10 +16,6 @@ export const fetchPathById = async (id: number): Promise<PathApiResponse> => {
   return response.json();
 }
 
-export const fetchPathInstructions = async (id: number, lang: string, fromLocation?: number): Promise<PathApiResponse> => {
-  const response = await apiClient.get(`paths/${id}/instructions?lang=${lang}${fromLocation ? `&fromLocation=${fromLocation}` : ''}`);
-  return response.json();
-}
 
 export const createPath = async (building_id: number, pathData: CreatePathDTO): Promise<CreatePathResponse> => {
   const response = await apiClient.post(`buildings/${building_id}/paths`, { json: pathData });

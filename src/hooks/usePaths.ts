@@ -15,7 +15,7 @@ export const useGetPathById = (id: number | null, options = {}) => {
   if (!id) {
     throw new Error("Path ID is required to fetch a specific path.");
   }
-  const query = useQuery({ queryKey: ["paths", id], queryFn: () => fetchPathById(id), ...options });
+  const query = useQuery({ queryKey: ["path", id], queryFn: () => fetchPathById(id), ...options });
   return query;
 }
 

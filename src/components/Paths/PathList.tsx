@@ -16,7 +16,7 @@ export const PathList = (props: { buildingId: number | null }) => {
     return <p>Please select a building to view paths.</p>;
   }
   return (
-    <div className="p-2">
+    <div className="p-2 mt-4">
       {paths.isLoading && <p>Loading paths...</p>}
       {paths.isError && <p>Error loading paths: {String(paths.error)}</p>}
       <DataList
