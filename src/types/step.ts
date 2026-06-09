@@ -88,8 +88,8 @@ export interface StepCreationResponse {
 }
 
 export interface EditStepOverlay {
-  overlay_key: string; // e.g. FROM_30_AT_5_TO_14
-  overlay_image_key: string; // e.g. OVERLAY_LEFT_ARROW
+  // overlay_key: string; // e.g. FROM_30_AT_5_TO_14
+  image_key: string; // e.g. OVERLAY_LEFT_ARROW
   position_x_percent: number;
   position_y_percent: number;
   overlay_size: number;
@@ -98,18 +98,14 @@ export interface EditStepOverlay {
 }
 
 export interface EditStepInput {
-  location_id: number;
-  step_order: number;
-  distance_to_next_meters: number;
-  video_timestamp_seconds?: number;
-  img_on_approach_url?: string;
-  img_on_approach_file?: File;
-  img_to_next_url?: string;
-  img_to_next_file?: File;
-  trl_instruction_on_approach_fi: string;
-  trl_instruction_on_approach_en: string;
-  trl_instruction_to_next_fi: string;
-  trl_instruction_to_next_en: string;
+  image_on_approach_url?: string;
+  image_on_approach_file?: File;
+  image_to_next_url?: string;
+  image_to_next_file?: File;
+  trl_instruction_on_approach_fi?: string;
+  trl_instruction_on_approach_en?: string;
+  trl_instruction_to_next_fi?: string;
+  trl_instruction_to_next_en?: string;
   overlay_on_approach?: EditStepOverlay;
   overlay_to_next?: EditStepOverlay;
 }

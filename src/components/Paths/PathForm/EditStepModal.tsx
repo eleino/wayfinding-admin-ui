@@ -32,7 +32,7 @@ export const EditStepModal = (props: {
     stepOverview.isLoading ||
     overlayImages.isLoading ||
     (stepIndex === 0 && firstApproachEn.isLoading);
-  const hasData = stepOverview.data && overlayImages.data;
+  const hasData = stepData && overlayImages.data;
 
   if (isLoading)
     return (
@@ -56,7 +56,6 @@ export const EditStepModal = (props: {
         locationName={locationName}
         stepIndex={props.stepIndex}
         stepInstructionsEn={props.stepInstructionsEn}
-        stepId={props.stepId}
         overlayImages={overlayImages.data}
       />
     </ModalWrapper>
@@ -75,7 +74,7 @@ const ModalWrapper = ({
       <div className="sticky w-full top-0 left-0 flex justify-end ">
         <button
           onClick={closeModal}
-          className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl"
+          className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl hover:border-lab-turquoise hover:text-lab-turquoise transition-colors"
         >
           &times;
         </button>

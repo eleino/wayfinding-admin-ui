@@ -21,7 +21,7 @@ const straight_range = {
   ],
   y: [
     { size: 10, min: -180, max: 90 },
-    { size: 20, min: -100, max: 0 },
+    { size: 20, min: -100, max: -10 },
     { size: 30, min: -80, max: -50 },
   ],
 };

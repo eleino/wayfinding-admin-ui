@@ -66,7 +66,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
     return "0";
   };
 
-  const handleSubmit = (data: { steps: UpdateStepDTO[] }) => {
+  const handleStepsSubmit = (data: { steps: UpdateStepDTO[] }) => {
     const stepsData = data.steps.map((step) => ({
       location_id: step.location_id,
       step_order: step.step_order,
@@ -183,7 +183,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           necessary.
         </p>
       </div>
-      <Form of={form} onSubmit={handleSubmit}>
+      <Form of={form} onSubmit={handleStepsSubmit}>
         <p>Total path length: {calcPathLength()} meters</p>
         <PathEditStepsProvider
           value={{

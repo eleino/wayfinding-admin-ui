@@ -37,7 +37,7 @@ export const useGetImagesByTypeInfinite = (
   options = {},
 ) => {
   return useInfiniteQuery({
-    queryKey: ["images", type],
+    queryKey: ["imagesInfinite", type],
     queryFn: ({pageParam = 1}) => fetchImagesByTypeAndPage(type, pageParam),
     enabled: !!type,
     initialPageParam: 1,

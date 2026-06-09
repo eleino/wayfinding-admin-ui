@@ -2,6 +2,7 @@ export interface Image {
     key: string;
     url: string;
 }
+
 export interface ImageMeta {
     images: {
         limit: string;
@@ -9,11 +10,13 @@ export interface ImageMeta {
     }
 }
 
+// response from GET /images/:type
 export interface ImageResponse {
     data: Image[];
     meta: ImageMeta;
 }
 
+// response from POST /images/upload
 export interface UploadedImage {
     entity: {
         image_key: string;

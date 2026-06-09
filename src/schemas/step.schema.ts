@@ -28,20 +28,20 @@ export const StepArraySchema =
 export const OverlaySchema = v.object({
   // overlay and image keys are required but not entered by user.
   // overlay_key: v.string(), // e.g. FROM_30_AT_5_TO_14
-  // overlay_image_key: v.string(), // e.g. OVERLAY_LEFT_ARROW
-  position_x_percent: v.number(),
-  position_y_percent: v.number(),
-  rotation_deg: v.number(),
-  rotation_x_deg: v.number(),
-  overlay_size: v.number(),
+  image_key: v.string("must be a string"), // e.g. OVERLAY_LEFT_ARROW
+  position_x_percent: v.number("x percent must be a number"),
+  position_y_percent: v.number("y percent must be a number"),
+  rotation_deg: v.number("rotation must be a number"),
+  rotation_x_deg: v.number("x rotation must be a number"),
+  overlay_size: v.number("overlay size must be a number"),
 });
 
 // instructions are optional, user frontend displays a step's approach/to next instruction+image(+overlay) based on whether text instruction for it is present
 export const EditStepSchema = v.object({
-    trl_instruction_on_approach_fi: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction on approach (Finnish) is missing"))),
-    trl_instruction_on_approach_en: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction on approach (English) is missing"))),
-    trl_instruction_to_next_fi: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction to next (Finnish) is missing"))),
-    trl_instruction_to_next_en: v.optional(v.pipe(v.string(), v.nonEmpty("Instruction to next (English) is missing"))),
+    trl_instruction_on_approach_fi: v.optional(v.string()),
+    trl_instruction_on_approach_en: v.optional(v.string()),
+    trl_instruction_to_next_fi: v.optional(v.string()),
+    trl_instruction_to_next_en: v.optional(v.string()),
     image_on_approach_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     image_to_next_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     overlay_on_approach: v.optional(

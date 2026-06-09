@@ -1,5 +1,5 @@
 
-// response to POST /overlays
+// response to POST /overlays, and PUT /overlays/:key
 export interface OverlayResponse {
     image_overlay_id: number;
     overlay_key: string;

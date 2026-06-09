@@ -48,7 +48,8 @@ export const uploadImage = async (itemType: string, key: string, file: File, ite
   if (itemType === "logo") formData.append('orgId', itemId?.toString() || '');
   else if (itemType === "site") formData.append('siteId', itemId?.toString() || '');
   else if (itemType === "building") formData.append('buildingId', itemId?.toString() || '');
-  else if (itemType === "location") formData.append('locationId', itemId?.toString() || '');
+  else if (itemType === "location" || itemType === "step") formData.append('locationId', itemId?.toString() || '');
+ 
   formData.append('file', file);
 
   const response = await apiClient.post(`images/upload`, { body: formData });
