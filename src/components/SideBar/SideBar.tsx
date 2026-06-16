@@ -16,7 +16,7 @@ const SideBar = (props: { path: string }) => {
     { name: "Paths", path: `/paths${paramsPath}`, location: `/paths` },
     { name: "Media/Images", path: "/images", location: "/images" },
     { name: "Translations", path: "/translations", location: "/translations" },
-    { name: "QR Codes", path: "/qrcodes", location: "/qrcodes" },
+    { name: "QR Codes", path: `/qrcodes${paramsPath}`, location: "/qrcodes" },
     { name: "Settings", path: "/settings", location: "/settings" },
   ];
   return (

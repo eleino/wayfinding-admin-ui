@@ -5,7 +5,7 @@ export const PathBaseSchema = v.object({
   path_name: v.pipe(v.string(), v.nonEmpty("Name cannot be empty")),
   priority: v.pipe(v.number(), v.integer("Priority must be an integer")),
   estimated_time_minutes: v.pipe(v.number(), v.minValue(0, "Estimated time must be a positive number"), v.integer("Estimated time must be an integer")),
-  accessibility_level: v.pipe(v.number(), v.integer("Accessibility level must be an integer")),
+  accessibility_level: v.pipe(v.number(), v.integer("Accessibility level must be an integer between 0 and 2"), v.minValue(0, "Accessibility level must be between 0 and 2"), v.maxValue(2, "Accessibility level must be between 0 and 2")),
   video_instruction_url: v.pipe(v.string(), v.url("Video instruction URL must be a valid URL")),
   organizations: v.optional(v.array(v.number())),
 });

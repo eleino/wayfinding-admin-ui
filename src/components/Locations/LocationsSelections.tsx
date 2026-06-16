@@ -11,8 +11,8 @@ import { Link } from "@tanstack/react-router";
 
 
 
-export const LocationsSelections = (props: {searchParams : SearchParams}) => {
-  const { searchParams } = props;
+export const LocationsSelections = (props: {searchParams : SearchParams, page: string}) => {
+  const { searchParams, page } = props;
   // if searchParams has orgId, siteId, buildingId, use those as initial values for selections
   const queryOrgId = searchParams?.orgId || null;
   const querySiteId = searchParams?.siteId || null;
@@ -80,10 +80,12 @@ export const LocationsSelections = (props: {searchParams : SearchParams}) => {
   }
   return (
     <div>
-      <Link to={`/locations/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
-      Add a new location
-      </Link>
-        <ListLocations buildingId={queryBuildingId} />
+      {page !== "qrcodes" && (
+        <Link to={`/locations/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
+          Add a new location
+        </Link>
+      )}
+      <ListLocations buildingId={queryBuildingId} page={page} />
     </div>
   );
 };

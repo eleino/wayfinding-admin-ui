@@ -4,8 +4,8 @@ import { useSelectionStore } from "@storage/store";
 //import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 
-export const ListLocations = (props: { buildingId: number | null }) => {
-    const { buildingId } = props;
+export const ListLocations = (props: { buildingId: number | null, page: string }) => {
+    const { buildingId, page } = props;
       const locations = useGetLocations(buildingId, {
     enabled: !!buildingId,
   });
@@ -27,7 +27,7 @@ export const ListLocations = (props: { buildingId: number | null }) => {
                 {
                     key: "name",
                     label: "Location Name",
-                    getLink: (item) => createPath(`/locations`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, Number(item.id)),
+                    getLink: (item) => createPath(`${page ? `/${page}` : "/locations"}`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, Number(item.id)),
                     width: "3fr",
                 },
             ]} />

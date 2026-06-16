@@ -58,22 +58,24 @@ export const NewPathView = () => {
     );
   };
   return (
-    <div>
+    <div className="pb-4">
       <div>
         <Link to={pathBack} className="text-lab-green-dark p-2">
           ← Back to paths list
         </Link>
       </div>
       <h1 className="text-2xl font-bold mb-4">Create New Path</h1>
+      <div className="bg-sidebar-grey  p-2 rounded shadow-md">
       <PathForm handleSubmit={handleSubmit} />
       {createPathMutation.isError && (
         <p className="text-red-500 mt-2">
           Error creating path: {createPathMutation.error.message || "Unknown error"}
         </p>
       )}
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-400 px-2">
         Once the path is created, you can edit its details and steps.
       </p>
+      </div>
     </div>
   );
 };

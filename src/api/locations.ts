@@ -1,6 +1,6 @@
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import apiClient from "./client";
-import type { EntranceLocation, ListLocation, Location, LocationWithImage } from "@apptypes/location";
+import type { EntranceLocation, ListLocation, Location, LocationDestinations, LocationWithImage } from "@apptypes/location";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
 // Fetches locations in a building (GET /buildings/:id/locations)
@@ -28,13 +28,13 @@ export const fetchLocationDestinations = async (
   id: number | null,
   lang?: string,
   accessibility_level?: string,
-): Promise<Location[]> => {
+): Promise<LocationDestinations> => {
   if (!id) {
     throw new Error("Location ID is required to fetch available destinations.");
   }
   // parameters are lang, accessibility_level, and optionally org_id
   const response = await apiClient.get(
-    `locations/${id}/available-destinations?lang=${lang}&accessibility_level=${accessibility_level}`,
+    `locations/${id}/destinations?lang=${lang}&accessibility_level=${accessibility_level}`,
   );
   return response.json();
 };
