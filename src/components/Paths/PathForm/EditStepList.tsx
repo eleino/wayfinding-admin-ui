@@ -6,6 +6,7 @@ import {
   move,
   Form,
   remove,
+  insert,
 } from "@formisch/react";
 import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { useLocation } from "@tanstack/react-router";
@@ -266,8 +267,26 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
             )}
           </FieldArray>
         </PathEditStepsProvider>
-        <div className="flex justify-end mt-4">
-          <button type="submit" className="px-4 py-2 bg-lab-green-dark text-white rounded">
+        <div className="flex justify-between mt-4">
+                <button
+                  type="button"
+                  className={`px-4 py-2 ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded`}
+                  disabled={!allowRearranging}
+                  onClick={() => {
+                    insert(form, {
+                      path: ["steps"],
+                      initialInput: {
+                        step_order: 0,
+                        location_id: undefined,
+                        distance_to_next_meters: 0,
+                        video_timestamp_seconds: 0,
+                      },
+                    });
+                  }}
+                >
+                  Add Step
+                </button>
+          <button type="submit" className={`px-4 py-2 bg-lab-green-dark text-white rounded`} disabled={!unsavedChanges}>
             Save Steps
           </button>
         </div>

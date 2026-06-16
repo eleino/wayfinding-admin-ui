@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DeleteDialog } from "@components/Forms/DeleteDialog";
 import { Field } from "@formisch/react";
 import { createPortal } from "react-dom";
@@ -25,19 +25,20 @@ export const EditStep = (props: {
   const { form, locationList, entryLocations, pathData, pathInstructionsFi, pathInstructionsEn, allowRearranging } = usePathEditSteps();
   const stepNro = stepIndex + 1;
   const currentStep = pathData.steps?.[stepIndex];
-  const currentStepInstructionsFi = pathInstructionsFi?.steps.find(
-    (step) => step.step_order === stepNro,
+  const currentStepInstructionsFi = useMemo(() => pathInstructionsFi?.steps.find(
+    (step) => step.step_order === stepNro), [pathInstructionsFi, stepNro]
   );
-  const currentStepInstructionsEn = pathInstructionsEn?.steps.find(
-    (step) => step.step_order === stepNro,
+  const currentStepInstructionsEn = useMemo(() => pathInstructionsEn?.steps.find(
+    (step) => step.step_order === stepNro), [pathInstructionsEn, stepNro]
   );
   
-  const stepInstructions = {
-    distance_to_next_meters:
-      currentStepInstructionsFi?.distance_to_next_meters || 0,
-    name: currentStep?.name || `Step ${stepNro}`,
-    approach: {
-      fi: {
+  const stepInstructions = useMemo(() => {
+    return {
+      distance_to_next_meters:
+        currentStepInstructionsFi?.distance_to_next_meters || 0,
+      name: currentStep?.name || `Step ${stepNro}`,
+      approach: {
+        fi: {
         key: currentStepInstructionsFi?.trl_instruction_on_approach_key,
         text:
           currentStepInstructionsFi?.translations?.fi?.find(
@@ -80,7 +81,8 @@ export const EditStep = (props: {
       overlay: currentStepInstructionsFi?.img_to_next?.overlay || null,
       image: currentStepInstructionsFi?.img_to_next || null,
     },
-  };
+  }}, [currentStep, currentStepInstructionsFi, currentStepInstructionsEn, stepNro]);
+
     const firstApproachText = useGetTranslationsEnFi(stepInstructions.approach.fi.key, {enabled: stepIndex === 0});
 
   return (
@@ -102,6 +104,7 @@ export const EditStep = (props: {
           <button
             className={`bg-${allowRearranging ? "gray-300 border border-border-grey" : "lab-blue cursor-pointer"} text-white px-4 py-1 rounded`}
             onClick={() => setIsInstructionModalOpen(true)}
+            disabled={allowRearranging}
             type="button"
           >
             Edit Step Instructions
@@ -173,7 +176,7 @@ export const EditStep = (props: {
                       min="0"
                       onChange={(event) => {
                         field.onChange(Number(event.target.value));
-                        //setUnsavedChanges(true); // maybe not necessary?
+                        setUnsavedChanges(true);
                       }}
                       className="w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />
@@ -202,7 +205,7 @@ export const EditStep = (props: {
                         field.onChange(
                           value === "" ? undefined : Number(value),
                         );
-                        // setUnsavedChanges(true);
+                        setUnsavedChanges(true);
                       }}
                       className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />

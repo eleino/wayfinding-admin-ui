@@ -56,7 +56,7 @@ const LocationsView = () => {
       {locationId ? (
         <ShowLocation locationId={locationId} searchParams={searchParams} />
       ) : (
-        <LocationsSelections searchParams={searchParams} />
+        <LocationsSelections searchParams={searchParams} page="locations" />
       )}
     </div>
   );

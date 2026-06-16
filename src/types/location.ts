@@ -50,8 +50,8 @@ export interface EndLocation {
     is_exit: boolean;
     trl_location_name_key: string;
     translations: {
-        fi?: AppTranslation;
-        en?: AppTranslation;
+        fi?: AppTranslation[];
+        en?: AppTranslation[];
     }
 }
 
@@ -64,18 +64,12 @@ export interface LocationDestinations {
         image_url: string;
         trl_current_location_msg_key: string;
         translations: {
-            fi?: AppTranslation;
-            en?: AppTranslation;
+            fi?: AppTranslation[];
+            en?: AppTranslation[];
         }
     };
     end_locations: EndLocation[];
 }
-
-// GET /locations/:locationId/qr
-// or
-// GET /locations/:locationId/qr?pathId=2
-// QR code is returned as image/png content type
-export type LocationQR = Blob | null;
 
 export interface EditLocationInput {
     location_name: string;

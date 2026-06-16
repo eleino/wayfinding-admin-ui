@@ -113,7 +113,7 @@ export const CreateStepList = (props: CreateStepListProps) => {
       >
         Add Step
       </button>
-      <p className="pt-5 text-sm text-gray-500 w-100">
+      <p className="pt-5 text-sm text-gray-400 w-100">
         Hint: You can drag and drop steps to reorder them.<br />
         You will be able to add images and instructions to steps once the path is saved.
       </p>
