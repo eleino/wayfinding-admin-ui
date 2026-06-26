@@ -1,20 +1,20 @@
 // AppRouter.tsx
 // using Tanstack Router
 import { createRootRoute, createRoute, redirect } from '@tanstack/react-router'
-import { LoginView } from '@views/LoginView';
+import { LoginView } from '@views/Login/LoginView';
 import RootLayout from '@components/RootLayout/RootLayout';
 import { getIsAuthenticated } from '@auth/authUtils';
-import { DashboardView } from '@views/DashboardView';
-import ImagesView from '@views/ImagesView';
-import LocationsView from '@views/LocationsView';
-import PathsView from '@views/PathsView';
-import QRCodesView from '@views/QRCodesView';
-import SettingsView from '@views/SettingsView';
-import TranslationsView from '@views/TranslationsView';
-import { NewLocationView } from '@views/NewLocationView';
-import { EditLocationView } from '@views/EditLocationView';
-import { NewPathView } from '@views/NewPathView';
-import { EditPathView } from '@views/EditPathView';
+import { DashboardView } from '@views/Dashboard/DashboardView';
+import ImagesView from '@views/Images/ImagesView';
+import LocationsView from '@views/Locations/LocationsView';
+import PathsView from '@views/Paths/PathsView';
+import QRCodesView from '@views/QRCodes/QRCodesView';
+import SettingsView from '@views/Settings/SettingsView';
+import TranslationsView from '@views/Translations/TranslationsView';
+import { NewLocationView } from '@views/Locations/NewLocationView';
+import { EditLocationView } from '@views/Locations/EditLocationView';
+import { NewPathView } from '@views/Paths/NewPathView';
+import { EditPathView } from '@views/Paths/EditPathView';
 
 const rootRoute = createRootRoute({
     component: () => <RootLayout />,

@@ -51,11 +51,26 @@ export const StepOverlay = (props: StepOverlayProps) => {
     handleOverlayChange({ image_key: overlayKey || "" });
   };
 
+  const makeDefaultOverlay = (): EditStepOverlay => ({
+  image_key: selectedOverlay.key ?? "",
+  position_x_percent: 0,
+  position_y_percent: -20,
+  rotation_deg: 0,
+  rotation_x_deg: 0,
+  overlay_size: 20,
+});
+
   const handleOverlayChange = (changes: Partial<EditStepOverlay>) => {
-    overlayField.onChange({
-      ...overlayField.input,
-      ...changes,
-    });
+  const current = overlayField.input ?? makeDefaultOverlay();
+
+  overlayField.onChange({
+    image_key: changes.image_key ?? current.image_key,
+    position_x_percent: changes.position_x_percent ?? current.position_x_percent,
+    position_y_percent: changes.position_y_percent ?? current.position_y_percent,
+    rotation_deg: changes.rotation_deg ?? current.rotation_deg,
+    rotation_x_deg: changes.rotation_x_deg ?? current.rotation_x_deg,
+    overlay_size: changes.overlay_size ?? current.overlay_size,
+  });
   };
 
   const handleOverlayRemove = () => {
@@ -144,7 +159,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
             
             <NumberSlider
               label="Rotation X"
-              value={overlayField.input.rotation_x_deg!}
+              value={overlayField.input!.rotation_x_deg!}
               onChange={(value) =>
                 handleOverlayChange({ rotation_x_deg: value })
               }
@@ -154,12 +169,12 @@ export const StepOverlay = (props: StepOverlayProps) => {
             />
             <NumberSlider
               label="Position Y"
-              value={overlayField.input.position_y_percent!}
+              value={overlayField.input!.position_y_percent!}
               onChange={(value) =>
                 handleOverlayChange({ position_y_percent: value })
               }
               range={interpolateRangeY(
-                overlayField.input.overlay_size!,
+                overlayField.input!.overlay_size!,
                 selectedOverlay.key === "OVERLAY_STRAIGHT_ARROW",
               )}
               orientation="vertical-lr"
@@ -180,13 +195,13 @@ export const StepOverlay = (props: StepOverlayProps) => {
                 style={{
                   top: "50%",
                   left: "50%",
-                  width: `${overlayField.input.overlay_size}%`,
+                  width: `${overlayField.input!.overlay_size!}%`,
                   height: "auto",
                   transform: `
-                translate(${overlayField.input.position_x_percent}%, ${overlayField.input.position_y_percent}%)
+                translate(${overlayField.input!.position_x_percent!}%, ${overlayField.input!.position_y_percent!}%)
                 perspective(6cm)
-                rotateX(${overlayField.input.rotation_x_deg}deg) 
-                rotate(${overlayField.input.rotation_deg}deg)
+                rotateX(${overlayField.input!.rotation_x_deg!}deg) 
+                rotate(${overlayField.input!.rotation_deg!}deg)
             `,
                   pointerEvents: "none",
                   zIndex: 100,
@@ -198,7 +213,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
           <div className="flex flex-col justify-center gap-8">
             <NumberSlider
               label="Overlay size"
-              value={overlayField.input.overlay_size!}
+              value={overlayField.input!.overlay_size!}
               onChange={(value) => handleOverlayChange({ overlay_size: value })}
               min={10}
               max={30}
@@ -215,18 +230,18 @@ export const StepOverlay = (props: StepOverlayProps) => {
           <div className="col-start-2 flex flex-row gap-2 justify-center">
             <NumberSlider
               label="Position X"
-              value={overlayField.input.position_x_percent!}
+              value={overlayField.input!.position_x_percent!}
               onChange={(value) =>
                 handleOverlayChange({ position_x_percent: value })
               }
               range={interpolateRangeX(
-                overlayField.input.overlay_size!,
+                overlayField.input!.overlay_size!,
                 selectedOverlay.key === "OVERLAY_STRAIGHT_ARROW",
               )}
             />
             <NumberSlider
               label="Rotation"
-              value={overlayField.input.rotation_deg!}
+              value={overlayField.input!.rotation_deg!}
               onChange={(value) => handleOverlayChange({ rotation_deg: value })}
               min={-180}
               max={180}
