@@ -9,7 +9,7 @@ const SideBar = (props: { path: string }) => {
   const savedBuildingId = useSelectionStore((state) => state.buildingId);
   const paramsPath = createPath("", savedOrgId || undefined, savedSiteId || undefined, savedBuildingId || undefined);
   const currentPath = props.path;
-  console.log("Current path in SideBar:", currentPath);
+  
   const links = [
     { name: "Dashboard", path: "/dashboard", location: "/dashboard" },
     { name: "Locations", path: `/locations${paramsPath}`, location: `/locations` },

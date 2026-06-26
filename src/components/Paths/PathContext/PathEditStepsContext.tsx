@@ -5,7 +5,7 @@ import type { EntranceLocation, ListLocation } from "@apptypes/location";
 import type { PathApiResponse } from "@apptypes/path";
 import type { StepInstructionsList } from "@apptypes/step";
 
-type PathEditStepsContextValue = {
+export type PathEditStepsContextValue = {
   form: FormStore<typeof StepArraySchema>;
   locationList?: ListLocation[];
   entryLocations?: EntranceLocation[];
