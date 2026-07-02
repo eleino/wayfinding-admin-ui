@@ -57,6 +57,7 @@ export const EditLocationView = () => {
     imageUrl: image?.url || null,
   };
 
+  // TODO: move this functionality to its own hook to simplify this component
   const handleUpdateLocation = async (
     updatedLocationData: EditLocationInput,
   ) => {

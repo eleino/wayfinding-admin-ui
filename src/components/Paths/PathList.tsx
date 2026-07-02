@@ -6,7 +6,7 @@ import { createPath } from "@utils/createPath";
 
 export const PathList = (props: { buildingId: number | null }) => {
   const { buildingId } = props;
-  console.log("test", buildingId);
+  
   const paths = useGetPaths(buildingId, {
     enabled: !!buildingId,
   });

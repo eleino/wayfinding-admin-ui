@@ -4,18 +4,24 @@ import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
 import { createPath } from "@utils/createPath";
 
-
-export const ShowLocation = (props: {locationId: number | null; searchParams: SearchParams; }) => {
+export const ShowLocation = (props: {
+  locationId: number | null;
+  searchParams: SearchParams;
+}) => {
   const { locationId, searchParams } = props;
-  const locationData = useGetLocationById(Number(locationId), { enabled: !!locationId, });
+  const locationData = useGetLocationById(Number(locationId), {
+    enabled: !!locationId,
+  });
   const { location, image } = locationData.data || {};
 
   // fetch translations for keys defined in trl_location_name_key, trl_current_location_msg_key, trl_location_desc_key
   const trl_location_name = useGetTranslationsEnFi(
     location?.trl_location_name_key,
   );
-  const trl_current_location_msg = useGetTranslationsEnFi( location?.trl_current_location_msg_key, );
-  // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests?
+  const trl_current_location_msg = useGetTranslationsEnFi(
+    location?.trl_current_location_msg_key,
+  );
+  // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests? It's also not shown to users in the wayfinding app, so no reason to include it
   /*   const trl_location_desc = useGetTranslationsEnFi(
     location?.trl_location_desc_key,
   ); */
@@ -27,7 +33,7 @@ export const ShowLocation = (props: {locationId: number | null; searchParams: Se
     return <div>Error loading location details.</div>;
   }
 
-/* TODO: implement saving recent locations, and listing them somewhere for easy access
+  /* TODO: implement saving recent locations, and listing them somewhere for easy access
    const recentLocationIds = getRecentLocationIds();
   if (locationId) {
     if (recentLocationIds.includes(locationId)) {
@@ -42,62 +48,97 @@ export const ShowLocation = (props: {locationId: number | null; searchParams: Se
     return (
       <div>
         <Link
-          to={createPath( `/locations`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, )}
+          to={createPath(
+            `/locations`,
+            searchParams.orgId || undefined,
+            searchParams.siteId || undefined,
+            searchParams.buildingId || undefined,
+          )}
           className="text-lab-green-dark p-2"
         >
           &larr; Back to locations list
         </Link>
-        <div className="bg-sidebar-grey p-2 pl-3 rounded mt-2 relative">
-          <h2 className="text-lab-turquoise font-bold text-xl pb-2">Location Details</h2>
-            <Link className="bg-lab-blue rounded py-1 px-2 absolute right-4 top-2 no-underline hover:text-lab-turquoise" to={createPath( `/locations/edit`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, locationId, )}>
-              Edit Location
-            </Link>
-          <div className="flex flex-cols gap-4 mt-2">
-            <div>
-              <p>
-                <strong>Name:</strong> {location.name}
-              </p>
-              <p>
-                <strong>Building ID:</strong> {location.building_id}
-              </p>
-              <p>
-                <strong>Is Entry Location:</strong>{" "}
-                {location.is_entry_location ? "Yes" : "No"}
-              </p>
-              <p>
-                <strong>QR URL:</strong> {location.qr_url || "N/A"}
-              </p>
-              <p>
-                <strong>Image Location Key:</strong> {location.img_location_key}
-              </p>
-              <p>
-                <strong>Floor Number:</strong> {location.floor_number}
-              </p>
-              <p>
-                <strong>Translation Keys:</strong>
-              </p>
-              <ul>
-                <li>
-                  {location.trl_location_name_key}
-                  <p>En: {trl_location_name.data?.[0]?.text_value}</p>
-                  <p>Fi: {trl_location_name.data?.[1]?.text_value}</p>
-                </li>
-                <li>
-                  {location.trl_current_location_msg_key}
-                  <p>En: {trl_current_location_msg.data?.[0]?.text_value}</p>
-                  <p>Fi: {trl_current_location_msg.data?.[1]?.text_value}</p>
-                </li>
-                {/* desc is empty for every location currently, and not used on the users' frontend
+        <div className="bg-sidebar-grey p-4 pl-3 rounded mt-2 relative">
+          <div className="flex flex-row justify-between">
+            <h2 className="text-lab-turquoise font-bold text-xl pb-2">
+              Location Details
+            </h2><span className="font-sm text-gray-400">Location ID: {locationId}</span>
+            <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
+              <Link
+                to={createPath(
+                  `/locations/edit`,
+                  searchParams.orgId || undefined,
+                  searchParams.siteId || undefined,
+                  searchParams.buildingId || undefined,
+                  locationId,
+                )}
+              >
+                Edit Location
+              </Link>
+            </button>
+          </div>
+          <div className="flex flex-row gap-10 mt-2">
+            <div className="flex flex-col gap-4 mt-2">
+              <div className="grid grid-cols-[auto_1fr] gap-x-4">
+                <span>
+                  <strong>Name:</strong>
+                </span>
+                <span>{location.name}</span>
+                <span>
+                  <strong>Building ID:</strong>
+                </span>
+                <span>{location.building_id}</span>
+                                <span>
+                  <strong>Floor Number:</strong>
+                </span>
+                <span>{location.floor_number}</span>
+
+                <span>
+                  <strong>Is Entry Location:</strong>
+                </span>
+                <span>{location.is_entry_location ? "Yes" : "No"}</span>
+                <span>
+                  <strong>Image Key:</strong>
+                </span>
+                <span>{location.img_location_key}</span>
+              </div>
+              <div>
+                <span>
+                  <strong>Translations:</strong>
+                </span>
+                <div className="grid grid-cols-[auto_1fr] gap-1">
+                  <h3 className="col-span-2 ">
+                    {location.trl_location_name_key}
+                  </h3>
+                  <span className="text-lab-turquoise font-bold">En:</span>
+                  <span>{trl_location_name.data?.[0]?.text_value}</span>
+                  <span className="text-lab-turquoise font-bold">Fi:</span>
+                  <span>{trl_location_name.data?.[1]?.text_value}</span>
+
+                  <h3 className="col-span-2 mt-2">
+                    {location.trl_current_location_msg_key}
+                  </h3>
+                  <span className="text-lab-turquoise font-bold">En:</span>
+                  <span>{trl_current_location_msg.data?.[0]?.text_value}</span>
+                  <span className="text-lab-turquoise font-bold">Fi:</span>
+                  <span>{trl_current_location_msg.data?.[1]?.text_value}</span>
+
+                  {/* desc is empty for every location currently, and not used on the users' frontend
             <li>{location.trl_location_desc_key}
               <p>En: {trl_location_desc.data?.[0]?.text_value}</p>
               <p>Fi: {trl_location_desc.data?.[1]?.text_value}</p>
             </li> */}
-              </ul>
+                </div>
+              </div>
             </div>
-            <div>
-              <strong>Image:</strong>{" "}
+            <div className="flex flex-col gap-2 mt-2">
+              <strong>Image:</strong>
               {image && image.url ? (
-                <img src={image.url} alt="Location" className="fit-content w-100" />
+                <img
+                  src={image.url}
+                  alt="Location"
+                  className="fit-content w-100"
+                />
               ) : (
                 "N/A"
               )}
@@ -108,5 +149,5 @@ export const ShowLocation = (props: {locationId: number | null; searchParams: Se
     );
   }
 
-  return <div></div>;
+  return <div>There was a problem loading the location details.</div>;
 };

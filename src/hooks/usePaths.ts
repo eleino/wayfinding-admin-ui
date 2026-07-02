@@ -37,7 +37,7 @@ export const useUpdatePath = (options = {}) => {
 
 export const useDeletePath = (options = {}) => {
   const mutation = useMutation({
-    mutationFn: (pathId: number) => deletePath(pathId),
+    mutationFn: (pathId: number | null) => deletePath(pathId),
     ...options
   });
   return mutation;

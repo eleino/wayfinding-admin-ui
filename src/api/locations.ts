@@ -69,6 +69,8 @@ export const updateLocation = async (
   return response.json();
 };
 
+// TODO: need to implement endpoints on backend for fetching deletion impact for a location, and for deleting a location + overlay, image, translation entries that would become orphaned when the location is deleted.
+// currently only path/path-steps are deleted via cascade when a location is deleted. Image files are also deleted since the location's folder is deleted, but not the image entries in the db.
 export const deleteLocation = async (id: number): Promise<void> => {
   await apiClient.delete(`locations/${id}`);
 };
