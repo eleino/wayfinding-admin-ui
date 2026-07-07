@@ -49,6 +49,7 @@ export const createTestRouter = (
   const TestRoute = createRoute({
     getParentRoute: () => rootRoute,
     path,
+    validateSearch: (search: Record<string, unknown>) => search,
     component: () => ui,
   });
 
@@ -64,7 +65,7 @@ export const createTestRouter = (
   });
 };
 
-// for rendering components that need Tanstack query hooks in tests
+// for rendering components that need Tanstack query hooks or the router in tests
 export const renderWithQuery = async (
   ui: ReactElement,
   options?: RenderWithRouterOptions,
@@ -74,9 +75,11 @@ export const renderWithQuery = async (
 
   const router = createTestRouter(ui, searchParams, path);
 
+  // ensure router is loaded before rendering the component
   await act(async () => {
     await router.load();
   });
+
   function Wrapper() {
     return (
       <QueryClientProvider client={queryClient}>
@@ -86,7 +89,7 @@ export const renderWithQuery = async (
   }
   return {
     ...render(<></>, { wrapper: Wrapper, ...restOptions }),
-    queryClient,
+    queryClient, router,
   };
 };
 
@@ -117,6 +120,6 @@ export const renderWithPathEditStepsProvider = async (
   }
   return {
     ...render(<></>, { wrapper: Wrapper, ...restOptions }),
-    queryClient,
+    queryClient, router,
   };
 };

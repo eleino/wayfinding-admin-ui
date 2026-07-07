@@ -1,23 +1,24 @@
 // SideBar.tsx
-import { Link } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
+import type { SearchParams } from "@schemas/router.schema";
+import { Link, useSearch } from "@tanstack/react-router";
 import { useSelectionStore } from "storage/store";
 
-const SideBar = (props: { path: string }) => {
+const SideBar = () => {
   const savedOrgId = useSelectionStore((state) => state.orgId);
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedBuildingId = useSelectionStore((state) => state.buildingId);
-  const paramsPath = createPath("", savedOrgId || undefined, savedSiteId || undefined, savedBuildingId || undefined);
-  const currentPath = props.path;
+  
+  const currentSearch = useSearch({ from: '__root__'}) as SearchParams;
+  const { orgId, siteId, buildingId} = currentSearch;
   
   const links = [
-    { name: "Dashboard", path: "/dashboard", location: "/dashboard" },
-    { name: "Locations", path: `/locations${paramsPath}`, location: `/locations` },
-    { name: "Paths", path: `/paths${paramsPath}`, location: `/paths` },
-    { name: "Media/Images", path: "/images", location: "/images" },
-    { name: "Translations", path: "/translations", location: "/translations" },
-    { name: "QR Codes", path: `/qrcodes${paramsPath}`, location: "/qrcodes" },
-    { name: "Settings", path: "/settings", location: "/settings" },
+    { name: "Dashboard", path: "/dashboard", search: {}},
+    { name: "Locations", path: `/locations`, search:{ orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: buildingId || savedBuildingId }},
+    { name: "Paths", path: `/paths`, search: { orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: buildingId || savedBuildingId }},
+    { name: "Media/Images", path: "/images", search: {}},
+    { name: "Translations", path: "/translations", search: {}},
+    { name: "QR Codes", path: `/qrcodes`, search: { orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: buildingId || savedBuildingId }},
+    { name: "Settings", path: "/settings", search: {}},
   ];
   return (
     <div className="w-50 py-5 bg-sidebar-grey flex-none">
@@ -26,7 +27,9 @@ const SideBar = (props: { path: string }) => {
           <li className="sidebar-link" key={link.path}>
             <Link
               to={link.path}
-              className={`pl-5 py-2 w-full h-full block ${(currentPath.startsWith(link.location)) ? "text-lab-turquoise font-bold bg-lab-turquoise/10" : ""}`}
+              search={link.search}
+              activeOptions={{ exact: false, includeHash: false, includeSearch: false }}
+              className={`pl-5 py-2 w-full h-full block [&.active]:text-lab-turquoise [&.active]:font-bold [&.active]:bg-lab-turquoise/10`}
               activeProps={{ className: "text-lab-turquoise font-bold bg-lab-turquoise/10" }}
             >
               {link.name}

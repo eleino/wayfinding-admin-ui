@@ -27,7 +27,7 @@ export const updatePath = async (path_id: number, pathData: UpdatePathDTO): Prom
   return response.json();
 }
 
-export const deletePath = async (path_id: number | null): Promise<void> => {
+export const deletePath = async (path_id: number | undefined): Promise<void> => {
   if (!path_id) return;
   await apiClient.delete(`paths/${path_id}`);
 }

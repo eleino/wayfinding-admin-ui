@@ -6,7 +6,7 @@ import {
 } from "@hooks/useOrganisations";
 import { useGetSites } from "@hooks/useSites";
 import { useGetBuildings } from "@hooks/useBuildings";
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { PathList } from "./PathList";
 import { Link } from "@tanstack/react-router";
 
@@ -43,8 +43,8 @@ export const PathSelections = (props: { searchParams: SearchParams }) => {
           setSelectedItem={(id) => {
             useSelectionStore.setState({
               orgId: id,
-              siteId: null,
-              buildingId: null,
+              siteId: undefined,
+              buildingId: undefined,
             });
           }}
         />
@@ -68,7 +68,7 @@ export const PathSelections = (props: { searchParams: SearchParams }) => {
             })) || []
           }
           setSelectedItem={(id) => {
-            useSelectionStore.setState({ siteId: id, buildingId: null });
+            useSelectionStore.setState({ siteId: id, buildingId: undefined });
           }}
         />
       </div>
@@ -97,7 +97,7 @@ export const PathSelections = (props: { searchParams: SearchParams }) => {
   }
   return (
     <div>
-      <Link to={`/paths/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
+      <Link to="/paths/new" search={{ orgId: queryOrgId, siteId: querySiteId, buildingId: queryBuildingId }} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
         Add a new path
       </Link>
       <PathList buildingId={Number(queryBuildingId)} />

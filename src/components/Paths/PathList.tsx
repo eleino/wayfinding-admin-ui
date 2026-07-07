@@ -1,10 +1,11 @@
 // PathList.tsx
 import { DataList } from "@components/List/DataList";
 import { useGetPaths } from "@hooks/usePaths";
+import type { SearchParams } from "@schemas/router.schema";
 import { useSelectionStore } from "@storage/store";
-import { createPath } from "@utils/createPath";
+import { useSearch } from "@tanstack/react-router";
 
-export const PathList = (props: { buildingId: number | null }) => {
+export const PathList = (props: { buildingId: number | undefined }) => {
   const { buildingId } = props;
   
   const paths = useGetPaths(buildingId, {
@@ -12,11 +13,13 @@ export const PathList = (props: { buildingId: number | null }) => {
   });
   const savedOrgId = useSelectionStore((state) => state.orgId);
   const savedSiteId = useSelectionStore((state) => state.siteId);
+  const search = useSearch({ from: '__root__'}) as SearchParams;
+  const {orgId, siteId} = search;
   if (!buildingId) {
     return <p>Please select a building to view paths.</p>;
   }
   return (
-    <div className="p-2 mt-4">
+    <div className="p-2">
       {paths.isLoading && <p>Loading paths...</p>}
       {paths.isError && <p>Error loading paths: {String(paths.error)}</p>}
       <DataList
@@ -30,7 +33,9 @@ export const PathList = (props: { buildingId: number | null }) => {
           {
             key: "name",
             label: "Path Name",
-            getLink: (item) => createPath(`/paths`, savedOrgId || undefined, savedSiteId || undefined, buildingId || undefined, undefined, Number(item.id)),
+            page: "paths",
+            idName: "pathId",
+            search: { orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: buildingId },
             width: "3fr",
           },
 

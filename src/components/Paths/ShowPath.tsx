@@ -1,14 +1,13 @@
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { useGetPathById } from "@hooks/usePaths";
 import { PathStepBox } from "./PathStepBox";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
 import { DeleteDialog } from "@components/Forms/DeleteDialog";
 import { useDeletePath } from "@hooks/usePaths";
 import { useQueryClient } from "@tanstack/react-query";
 
-export const ShowPath = (props: { pathId: number | null, searchParams: SearchParams }) => {
+export const ShowPath = (props: { pathId: number | undefined, searchParams: SearchParams }) => {
   const { pathId, searchParams } = props;
   const pathQuery = useGetPathById(pathId, {
     enabled: !!pathId,
@@ -27,11 +26,10 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
         // navigate back to paths list after deletion, maybe after timeout so we can show a success message
         queryClient.invalidateQueries({ queryKey: ["paths", pathQuery.data?.path.building_id] });
         setTimeout(() => {
-          const pathListUrl = createPath("/paths", props.searchParams.orgId || undefined, props.searchParams.siteId || undefined, props.searchParams.buildingId || undefined);
-        navigate({ to: pathListUrl, replace: true });
-      }, 1000);
-    },
-    onError: (error: Error) => {
+          navigate({ to: "/paths", search: {orgId: searchParams.orgId, siteId: searchParams.siteId, buildingId: searchParams.buildingId}, replace: true });
+        }, 1000);
+      },
+      onError: (error: Error) => {
       console.error("Error deleting path:", error);
     },
   });
@@ -69,7 +67,7 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
 
   return (
     <>
-    <Link to={createPath("/paths", props.searchParams.orgId || undefined, props.searchParams.siteId || undefined, props.searchParams.buildingId || undefined)} className="text-lab-green-dark mb-4 inline-block">
+    <Link to="/paths" search={{ orgId: searchParams.orgId, siteId: searchParams.siteId, buildingId: searchParams.buildingId }} className="text-lab-green-dark mb-4 inline-block">
       &larr; Back to paths list
     </Link>
     <div className="bg-sidebar-grey p-4 rounded shadow relative w-180">
@@ -78,7 +76,7 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
                     <button className="bg-red-500 rounded py-1 px-2 text-white cursor-pointer hover:bg-red-600" onClick={() => setShowDeleteDialog(true)}>
                       Delete Path
                     </button>
-                    <button className="bg-lab-blue rounded py-1 px-2 no-underline cursor-pointer hover:text-lab-turquoise"><Link to={createPath( `/paths/edit`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, undefined, pathId! )}>
+                    <button className="bg-lab-blue rounded py-1 px-2 no-underline cursor-pointer hover:text-lab-turquoise"><Link to="/paths/edit" search={{...props.searchParams, pathId: pathId!}}>
               Edit Path
             </Link></button></div></div>
             {showDeleteDialog && (

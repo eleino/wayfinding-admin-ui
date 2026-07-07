@@ -1,14 +1,15 @@
-import { useLocation } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import { useGetPathById, useUpdatePath } from "@hooks/usePaths";
 import { PathForm } from "@components/Paths/PathForm/PathForm";
 import type { EditPathInput } from "@apptypes/path";
 import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
+import type { SearchParams } from "@schemas/router.schema";
 export const EditPathView = () => {
-    const { search } = useLocation();
+    const search = useSearch({ from: '__root__' }) as SearchParams;
     const pathId = search.pathId;
     // const buildingId = search.buildingId;
     const created = search.created;
-    const pathDataQuery = useGetPathById(pathId ? parseInt(pathId) : null);
+    const pathDataQuery = useGetPathById(pathId);
     const path = pathDataQuery.data?.path;
     const initPathData = {
         path_name: path?.name || "",
@@ -51,7 +52,7 @@ export const EditPathView = () => {
             pathData.organizations = updatedPathData.organizations;
         }
 
-        updatePathMutation.mutate({ pathId: parseInt(pathId), pathData }, {
+        updatePathMutation.mutate({ pathId:pathId, pathData }, {
             onError: (error) => {
                 console.error("Error updating path:", error);
             }
@@ -66,7 +67,7 @@ export const EditPathView = () => {
     }
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Edit Path</h1>
+            <h1 className="">Edit Path</h1>
             {created && <p className="text-lab-green-dark mb-4">Path created successfully! You can now edit the path details and step instructions.</p>}
             <PathForm pathData={pathDataQuery.data} handleSubmit={handleSubmit} pathError={updatePathMutation.error} />
         </div>

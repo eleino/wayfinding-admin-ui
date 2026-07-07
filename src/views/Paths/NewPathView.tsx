@@ -3,7 +3,6 @@ import type { EditPathInput } from "@apptypes/path";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelectionStore } from "@storage/store";
-import { createPath } from "@utils/createPath";
 import { useCreatePath } from "@hooks/usePaths";
 
 export const NewPathView = () => {
@@ -13,12 +12,7 @@ export const NewPathView = () => {
     useSelectionStore((state) => state.buildingId) || buildingId;
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedOrgId = useSelectionStore((state) => state.orgId);
-  const pathBack = createPath(
-    "/paths",
-    savedOrgId || undefined,
-    savedSiteId || undefined,
-    savedBuildingId || undefined,
-  );
+
   const createPathMutation = useCreatePath();
   const queryClient = useQueryClient();
 
@@ -43,38 +37,47 @@ export const NewPathView = () => {
       {
         onSuccess: (data) => {
           const newPathId = data.path_id;
-          const editNewPathUrl = createPath(
-            "/paths/edit",
-            savedOrgId || undefined,
-            savedSiteId || undefined,
-            savedBuildingId || undefined,
-            undefined,
-            newPathId,
-          );
           queryClient.invalidateQueries({ queryKey: ["paths"] });
-          navigate({ to: editNewPathUrl + "&created=true", replace: true });
+          navigate({
+            to: "/paths/edit",
+            search: {
+              orgId: savedOrgId,
+              siteId: savedSiteId,
+              buildingId: savedBuildingId,
+              pathId: newPathId,
+              created: true,
+            },
+            replace: true,
+          });
         },
       },
     );
   };
   return (
-    <div className="pb-4">
-      <div>
-        <Link to={pathBack} className="text-lab-green-dark p-2">
-          ← Back to paths list
-        </Link>
-      </div>
-      <h1 className="text-2xl font-bold mb-4">Create New Path</h1>
+    <div className="p-4">
+      <h1 className="">Create New Path</h1>
+      <Link
+        to="/paths"
+        search={{
+          orgId: savedOrgId,
+          siteId: savedSiteId,
+          buildingId: savedBuildingId,
+        }}
+        className="text-lab-green-dark p-2"
+      >
+        ← Back to paths list
+      </Link>
       <div className="bg-sidebar-grey  p-2 rounded shadow-md">
-      <PathForm handleSubmit={handleSubmit} />
-      {createPathMutation.isError && (
-        <p className="text-red-500 mt-2">
-          Error creating path: {createPathMutation.error.message || "Unknown error"}
+        <PathForm handleSubmit={handleSubmit} />
+        {createPathMutation.isError && (
+          <p className="text-red-500 mt-2">
+            Error creating path:{" "}
+            {createPathMutation.error.message || "Unknown error"}
+          </p>
+        )}
+        <p className="text-sm text-gray-400 px-2">
+          Once the path is created, you can edit its details and steps.
         </p>
-      )}
-      <p className="text-sm text-gray-400 px-2">
-        Once the path is created, you can edit its details and steps.
-      </p>
       </div>
     </div>
   );

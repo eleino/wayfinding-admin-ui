@@ -1,8 +1,7 @@
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { useGetLocationById } from "@hooks/useLocations";
 import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
 
 export const ShowLocation = (props: {
   locationId: number | null;
@@ -48,12 +47,8 @@ export const ShowLocation = (props: {
     return (
       <div>
         <Link
-          to={createPath(
-            `/locations`,
-            searchParams.orgId || undefined,
-            searchParams.siteId || undefined,
-            searchParams.buildingId || undefined,
-          )}
+          to="/locations"
+          search={{ orgId: searchParams.orgId, siteId: searchParams.siteId, buildingId: searchParams.buildingId }}
           className="text-lab-green-dark p-2"
         >
           &larr; Back to locations list
@@ -65,13 +60,8 @@ export const ShowLocation = (props: {
             </h2><span className="font-sm text-gray-400">Location ID: {locationId}</span>
             <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
               <Link
-                to={createPath(
-                  `/locations/edit`,
-                  searchParams.orgId || undefined,
-                  searchParams.siteId || undefined,
-                  searchParams.buildingId || undefined,
-                  locationId,
-                )}
+                to="/locations/edit"
+                search={{...searchParams, locationId: Number(locationId)}}
               >
                 Edit Location
               </Link>

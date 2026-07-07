@@ -2,11 +2,12 @@ import { FieldArray, insert, move, getInput, remove } from "@formisch/react";
 import type { FormStore } from "@formisch/react";
 import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { CreatePathSchema } from "@schemas/path.schema";
-import { useLocation } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import { CreateStep } from "./CreateStep";
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
 import { PathCreateStepsProvider } from "../PathContext/PathCreateStepsContext";
+import type { SearchParams } from "@schemas/router.schema";
 
 type CreateStepListProps = {
   form: FormStore<typeof CreatePathSchema>;
@@ -14,8 +15,7 @@ type CreateStepListProps = {
 
 export const CreateStepList = (props: CreateStepListProps) => {
   const { form } = props;
-  const { search } = useLocation();
-  const buildingId = search.buildingId;
+  const {buildingId} = useSearch({from: '__root__'}) as SearchParams;
   const locationList = useGetLocations(buildingId);
   const entryLocations = useGetEntryLocations(buildingId);
   const [pathLength, setPathLength] = useState(0);

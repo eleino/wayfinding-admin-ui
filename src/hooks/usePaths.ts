@@ -3,7 +3,7 @@ import type { CreatePathDTO } from "@apptypes/dtos/create-path.dto";
 import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetPaths = (buildingId: number | null, options = {}) => {
+export const useGetPaths = (buildingId: number | undefined, options = {}) => {
     if (!buildingId) {
         throw new Error("Building ID is required to fetch paths.");
     }
@@ -11,7 +11,7 @@ export const useGetPaths = (buildingId: number | null, options = {}) => {
   return query;
 }
 
-export const useGetPathById = (id: number | null, options = {}) => {
+export const useGetPathById = (id: number | undefined, options = {}) => {
   if (!id) {
     throw new Error("Path ID is required to fetch a specific path.");
   }
@@ -37,7 +37,7 @@ export const useUpdatePath = (options = {}) => {
 
 export const useDeletePath = (options = {}) => {
   const mutation = useMutation({
-    mutationFn: (pathId: number | null) => deletePath(pathId),
+    mutationFn: (pathId: number | undefined) => deletePath(pathId),
     ...options
   });
   return mutation;
