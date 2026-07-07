@@ -1,16 +1,39 @@
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { useGetPathById } from "@hooks/usePaths";
 import { PathStepBox } from "./PathStepBox";
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { DeleteDialog } from "@components/Forms/DeleteDialog";
+import { useDeletePath } from "@hooks/usePaths";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const ShowPath = (props: { pathId: number | null, searchParams: SearchParams }) => {
+export const ShowPath = (props: { pathId: number | undefined, searchParams: SearchParams }) => {
   const { pathId, searchParams } = props;
   const pathQuery = useGetPathById(pathId, {
     enabled: !!pathId,
   });
   const [expandedStepIds, setExpandedStepIds] = useState<number[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const navigate = useNavigate();
+
+  const deletePathMutation = useDeletePath()
+  const queryClient = useQueryClient();
+  
+  const handleDeletePath = () => {
+    deletePathMutation.mutate(pathId, {
+      onSuccess: () => {
+        setShowDeleteDialog(false);
+        // navigate back to paths list after deletion, maybe after timeout so we can show a success message
+        queryClient.invalidateQueries({ queryKey: ["paths", pathQuery.data?.path.building_id] });
+        setTimeout(() => {
+          navigate({ to: "/paths", search: {orgId: searchParams.orgId, siteId: searchParams.siteId, buildingId: searchParams.buildingId}, replace: true });
+        }, 1000);
+      },
+      onError: (error: Error) => {
+      console.error("Error deleting path:", error);
+    },
+  });
+}
 
   const toggleStepExpansion = (stepId: number) => {
     setExpandedStepIds((prev) =>
@@ -23,25 +46,46 @@ export const ShowPath = (props: { pathId: number | null, searchParams: SearchPar
   }
 
   if (pathQuery.isError) {
-    return <p>Error loading path details: {pathQuery.error.message}</p>;
+    return <p className="text-red-500">Error loading path details: {pathQuery.error.message}</p>;
   }
 
   if (!pathQuery.data) {
     return <p>No path data available.</p>;
+  }
+  if (deletePathMutation.isPending) {
+    return <p>Deleting path...</p>;
+  }
+
+  if (deletePathMutation.isError) {
+    return <p className="text-red-500">Error deleting path: {deletePathMutation.error.message}</p>;
+  }
+  if (deletePathMutation.isSuccess) {
+    return <p className="text-lab-green-dark">Path deleted successfully. Redirecting to paths list...</p>;
   }
   const path = pathQuery.data.path;
   const steps = pathQuery.data.steps;
 
   return (
     <>
-    <Link to={createPath("/paths", props.searchParams.orgId || undefined, props.searchParams.siteId || undefined, props.searchParams.buildingId || undefined)} className="text-lab-green-dark mb-4 inline-block">
+    <Link to="/paths" search={{ orgId: searchParams.orgId, siteId: searchParams.siteId, buildingId: searchParams.buildingId }} className="text-lab-green-dark mb-4 inline-block">
       &larr; Back to paths list
     </Link>
     <div className="bg-sidebar-grey p-4 rounded shadow relative w-180">
-      <h2 className="text-xl font-bold mb-2">{path.name}</h2>
-                  <Link className="bg-lab-blue rounded py-1 px-2 absolute right-4 top-2 no-underline hover:text-lab-turquoise" to={createPath( `/paths/edit`, searchParams.orgId || undefined, searchParams.siteId || undefined, searchParams.buildingId || undefined, undefined, pathId! )}>
+      <div className="flex flex-row justify-between"><h2 className="text-xl font-bold mb-2">{path.name}</h2>
+                  <div className="flex flex-row gap-2 text-center">
+                    <button className="bg-red-500 rounded py-1 px-2 text-white cursor-pointer hover:bg-red-600" onClick={() => setShowDeleteDialog(true)}>
+                      Delete Path
+                    </button>
+                    <button className="bg-lab-blue rounded py-1 px-2 no-underline cursor-pointer hover:text-lab-turquoise"><Link to="/paths/edit" search={{...props.searchParams, pathId: pathId!}}>
               Edit Path
-            </Link>
+            </Link></button></div></div>
+            {showDeleteDialog && (
+              <DeleteDialog
+                itemName={path.name}
+                onConfirm={() => handleDeletePath()}
+                onCancel={() => setShowDeleteDialog(false)}
+              />
+            )}
       <p className="text-gray-300">Start location: {path.start_location_id}</p>
       <p className="text-gray-300">End location: {path.end_location_id}</p>
       <p className="text-gray-300">Active: {path.is_active ? "Yes" : "No"}</p>

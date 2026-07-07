@@ -3,22 +3,22 @@ import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLoc
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
-export const useGetLocations = (buildingId: number|null, options = {}) => {
+export const useGetLocations = (buildingId: number|undefined, options = {}) => {
     const query = useQuery({ queryKey: ["locations", buildingId], queryFn: () => fetchLocations(buildingId), enabled: !!buildingId, ...options });
     return query;
 }
 
-export const useGetLocationById = (id: number|null, options = {}) => {
+export const useGetLocationById = (id: number|undefined, options = {}) => {
     const query = useQuery({ queryKey: ["location", id], queryFn: () => fetchLocationById(id), enabled: !!id, ...options });
     return query;
 }
 
-export const useGetEntryLocations = (buildingId: number|null, lang = "fi", options = {}) => {
+export const useGetEntryLocations = (buildingId: number|undefined, lang = "fi", options = {}) => {
     const query = useQuery({ queryKey: ["entryLocations", buildingId, lang], queryFn: () => fetchEntryLocations(buildingId, lang), enabled: !!buildingId, ...options });
     return query;
 }
 
-export const useGetLocationDestinations = (id: number|null, lang?: string, accessibility_level?: string, options = {}) => {
+export const useGetLocationDestinations = (id: number|undefined, lang?: string, accessibility_level?: string, options = {}) => {
     const query = useQuery({ queryKey: ["locationDestinations", id, lang, accessibility_level], queryFn: () => fetchLocationDestinations(id, lang, accessibility_level), enabled: !!id, ...options });
     return query;
 }

@@ -1,10 +1,12 @@
 import { useGetQRCode } from "@hooks/useQRCodes";
 import { useEffect, useMemo, useState } from "react";
+import {AlertDialog, type AlertDialogType } from "@components/Forms/AlertDialog";
 
 export const QRCode = (props: { locationId: number; pathId?: number }) => {
   const { locationId, pathId } = props;
   const qrCodeQuery = useGetQRCode(locationId, pathId); // returns blob
-  const [QRCodeText, setQRCodeText] = useState<string>("");
+  const [QRCodeText, setQRCodeText] = useState<string>("Scan QR");
+  const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
 
   const MAX_CHARACTERS = 60;
   const PREVIEW_SCALE = 0.3;
@@ -94,6 +96,21 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
     }
   };
 
+  const handleCopyImage = () => {
+    if (!imgUrl) return;
+    fetch(imgUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const item = new ClipboardItem({ "image/png": blob });
+        navigator.clipboard.write([item]);
+        setShowAlert({ title: "Qr Code copied", description: "QR code image copied to clipboard!" });
+      })
+      .catch((err) => {
+        console.error("Failed to copy image: ", err);
+        setShowAlert({ title: "Error", description: "Failed to copy QR code image." });
+      });
+  };
+
   if (qrCodeQuery.isLoading) {
     return <p>Loading QR code...</p>;
   }
@@ -115,7 +132,9 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
         value={QRCodeText}
         maxLength={MAX_CHARACTERS}
         onChange={(e) => setQRCodeText(e.target.value)}
+        onFocus={(e) => e.target.select()}
       />
+      <div className="relative">
       <span className="mt-2 text-sm text-gray-400 ml-1">Preview (approximate):</span>
       <div className="border border-border-grey shadow-lg overflow-hidden flex justify-center p-6 bg-sidebar-grey">
         <div
@@ -157,12 +176,28 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
         </div>
       </div>
 
-      <button
-        onClick={handlePrint}
-        className="mt-2 p-2 bg-lab-blue text-white rounded w-40 self-center"
-      >
-        Print QR Code
-      </button>
+      <div className="flex gap-2 mt-2 justify-center">
+        {showAlert && (
+          <AlertDialog
+            title={showAlert.title}
+            description={showAlert.description}
+            onConfirm={() => setShowAlert(null)}
+          />
+        )}
+        <button
+          onClick={handlePrint}
+          className="p-2 bg-lab-blue text-white rounded w-40 self-center cursor-pointer"
+        >
+          Print QR Code
+        </button>
+        <button
+          onClick={handleCopyImage}
+          className="p-2 bg-lab-blue text-white rounded w-40 self-center cursor-pointer"
+        >
+          Copy QR Code
+        </button>
+      </div>
+      </div>
     </div>
   );
 };

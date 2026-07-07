@@ -1,7 +1,7 @@
 // GridView.tsx
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { Link } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
+
 interface GridViewProps {
   setSelectedItem: (id: number) => void;
   type?: "org" | "site" | "building" | "location";
@@ -15,17 +15,15 @@ interface GridViewProps {
 }
 export const GridView = (props: GridViewProps) => {
   const { items, setSelectedItem, searchParams } = props;
-  const queryOrgId = searchParams?.orgId;
-  const querySiteId = searchParams?.siteId;
-  const queryBuildingId = searchParams?.buildingId;
-  const newQueryParams = createPath("", queryOrgId, querySiteId, queryBuildingId);
+  const { orgId, siteId, buildingId } = searchParams || {};
 
   if (props)
   return (
     <div className="grid grid-cols-2 gap-4">
       {items.map((item) => (
         <Link
-          to={newQueryParams ? `${newQueryParams}&${props.type}Id=${item.id}` : `?${props.type}Id=${item.id}`}
+          to=""
+          search={{ orgId, siteId, buildingId, [props.type + "Id"]: item.id }}
           key={item.id}
           className="border cursor-pointer w-120 hover:border-lab-green-dark p-2 rounded"
           onClick={() => setSelectedItem(item.id)}

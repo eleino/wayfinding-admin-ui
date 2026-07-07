@@ -17,16 +17,9 @@ interface DataListProps {
     label: string;
     width: string; // e.g "1fr" or "100px"
     type?: string; // e.g image or link, default is text
-    linkTo?: string; // displayed link if not defined with getLink instead
-    getLink?: (
-      item:
-        ListLocation
-        | BuildingType
-        | Path
-        | Site
-        | OrganisationType
-        | PathStep,
-    ) => string; // function to generate link for the item, used if linkTo is not defined, e.g for locations it could be (item) => `/locations?orgId=1&buildingId=2&locationId=${item.id}`
+    page?: string; // page to link to, used with getLink to generate link
+    idName?: string; // id to pass to the link
+    search?: Record<string, string | number | undefined >; // search params to pass to the link
   }[];
 }
 
@@ -37,7 +30,7 @@ export const DataList = (props: DataListProps) => {
   const gridTemplate = columns.map((col) => col.width).join(" ");
 
   return (
-    <div className="border border-border-grey">
+    <div className="border border-border-grey mt-4">
       <div className={`grid grid-cols-${columns.length} gap-4 bg-sidebar-grey text-lab-turquoise p-1`} style={{ gridTemplateColumns: gridTemplate }}>
         {columns.map((column) => (
           <span key={column.key} className="mb-2">
@@ -62,9 +55,10 @@ export const DataList = (props: DataListProps) => {
                     alt={column.label}
                     className="h-32"
                   />
-                ) : column.getLink ? (
+                ) : column.search ? (
                   <Link
-                    to={column.getLink(item)}
+                    to={column.page ? `/${column.page}` : "/"}
+                    search={{ ...column.search, [column.idName!]: item.id }}
                     className=" hover:underline text-lab-turquoise"
                   >
                     {item[column.key as keyof typeof item] ??

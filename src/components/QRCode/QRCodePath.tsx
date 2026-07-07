@@ -5,8 +5,7 @@ import {
 import { useState } from "react";
 import { QRCode } from "./QRCode";
 import { Link } from "@tanstack/react-router";
-import { createPath } from "@utils/createPath";
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 
 interface SelectedPath {
   path_id: number;
@@ -43,12 +42,12 @@ export const QRCodePath = (props: {
   return (
     <div>
       <Link
-        to={createPath(
-          `/qrcodes`,
-          searchParams.orgId || undefined,
-          searchParams.siteId || undefined,
-          searchParams.buildingId || undefined,
-        )}
+        to={`/qrcodes`}
+        search={{
+          orgId: searchParams.orgId,
+          siteId: searchParams.siteId,
+          buildingId: searchParams.buildingId,
+        }}
         className="text-lab-green-dark p-2"
       >
         &larr; Back to locations list

@@ -6,7 +6,7 @@ import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 // Fetches locations in a building (GET /buildings/:id/locations)
 // TODO: implement pagination?
 export const fetchLocations = async (
-  building_id: number | null,
+  building_id: number | undefined,
 ): Promise<ListLocation[]> => {
   if (!building_id) {
     throw new Error("Building ID is required to fetch locations.");
@@ -16,7 +16,7 @@ export const fetchLocations = async (
   return json.data;
 };
 
-export const fetchLocationById = async (id: number|null): Promise<LocationWithImage> => {
+export const fetchLocationById = async (id: number|undefined): Promise<LocationWithImage> => {
   if (!id) {
     throw new Error("Location ID is required to fetch location details.");
   }
@@ -25,7 +25,7 @@ export const fetchLocationById = async (id: number|null): Promise<LocationWithIm
 };
 
 export const fetchLocationDestinations = async (
-  id: number | null,
+  id: number | undefined,
   lang?: string,
   accessibility_level?: string,
 ): Promise<LocationDestinations> => {
@@ -40,7 +40,7 @@ export const fetchLocationDestinations = async (
 };
 
 export const fetchEntryLocations = async (
-  building_id: number | null, lang = "fi"
+  building_id: number | undefined, lang = "fi"
 ): Promise<EntranceLocation[]> => {
   if (!building_id) {
     throw new Error("Building ID is required to fetch entry locations.");
@@ -50,7 +50,7 @@ export const fetchEntryLocations = async (
 };
 
 export const createLocation = async (
-  building_id: number,
+  building_id: number | undefined,
   location: CreateLocationDTO,
 ): Promise<Location> => {
   const response = await apiClient.post(`buildings/${building_id}/locations`, {
@@ -60,7 +60,7 @@ export const createLocation = async (
 };
 
 export const updateLocation = async (
-  id: number,
+  id: number | undefined,
   location: UpdateLocationDTO,
 ): Promise<Location> => {
   const response = await apiClient.put(`locations/${id}`, {
@@ -69,6 +69,8 @@ export const updateLocation = async (
   return response.json();
 };
 
+// TODO: need to implement endpoints on backend for fetching deletion impact for a location, and for deleting a location + overlay, image, translation entries that would become orphaned when the location is deleted.
+// currently only path/path-steps are deleted via cascade when a location is deleted. Image files are also deleted since the location's folder is deleted, but not the image entries in the db.
 export const deleteLocation = async (id: number): Promise<void> => {
   await apiClient.delete(`locations/${id}`);
 };

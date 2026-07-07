@@ -5,7 +5,7 @@ import { useGetBuildings } from "@hooks/useBuildings";
 import { useGetSites } from "@hooks/useSites";
 import { ListLocations } from "./ListLocations";
 import { GridView } from "@components/Grid/GridView";
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { useSelectionStore } from "storage/store";
 import { Link } from "@tanstack/react-router";
 
@@ -37,7 +37,7 @@ export const LocationsSelections = (props: {searchParams : SearchParams, page: s
           imageUrl: org.logoUrl || "",
         })) || []}
         setSelectedItem={(id) => {
-          useSelectionStore.setState({ orgId: id, siteId: null, buildingId: null });
+          useSelectionStore.setState({ orgId: id, siteId: undefined, buildingId: undefined });
 
         }}
       />
@@ -56,7 +56,7 @@ export const LocationsSelections = (props: {searchParams : SearchParams, page: s
           imageUrl: sites.data?.find((s) => s.id === site.id)?.image_url || "",
         })) || []}
         setSelectedItem={(id) => {
-          useSelectionStore.setState({ siteId: id, buildingId: null });
+          useSelectionStore.setState({ siteId: id, buildingId: undefined });
         }}
       />
     </div>;
@@ -81,7 +81,7 @@ export const LocationsSelections = (props: {searchParams : SearchParams, page: s
   return (
     <div>
       {page !== "qrcodes" && (
-        <Link to={`/locations/new?buildingId=${queryBuildingId}`} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
+        <Link to={`/locations/new`} search={{ orgId: queryOrgId, siteId: querySiteId, buildingId: queryBuildingId }} className="text-white hover:underline bg-lab-blue p-2 rounded ml-2">
           Add a new location
         </Link>
       )}

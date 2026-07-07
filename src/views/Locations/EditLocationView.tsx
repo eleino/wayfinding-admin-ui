@@ -1,6 +1,5 @@
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useSelectionStore } from "@storage/store";
-import { createPath } from "@utils/createPath";
 import { useGetLocationById, useUpdateLocation } from "@hooks/useLocations";
 import { useUploadImage } from "@hooks/useImages";
 import {
@@ -11,27 +10,21 @@ import {
 import { LocationForm } from "@components/Locations/LocationForm";
 import type { EditLocationInput } from "@apptypes/location";
 import { useQueryClient } from "@tanstack/react-query";
+import type { SearchParams } from "@schemas/router.schema";
 
 export const EditLocationView = () => {
-  const { search } = useLocation();
-  const locationId = search.locationId;
+  const search  = useSearch({ from: '__root__'}) as SearchParams;
+  const { locationId, orgId, siteId, buildingId } = search;
   const savedBuildingId =
     useSelectionStore((state) => state.buildingId) || search.buildingId;
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedOrgId = useSelectionStore((state) => state.orgId);
-  const pathBack = createPath(
-    "/locations",
-    savedOrgId || undefined,
-    savedSiteId || undefined,
-    savedBuildingId || undefined,
-  );
+
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
-  const locationData = useGetLocationById(
-    locationId ? parseInt(locationId) : null,
-  );
+  const locationData = useGetLocationById(locationId);
   const { location, image } = locationData.data || {};
   const updateLocationMutation = useUpdateLocation();
   const uploadImageMutation = useUploadImage();
@@ -57,6 +50,7 @@ export const EditLocationView = () => {
     imageUrl: image?.url || null,
   };
 
+  // TODO: move this functionality to its own hook to simplify this component
   const handleUpdateLocation = async (
     updatedLocationData: EditLocationInput,
   ) => {
@@ -75,7 +69,7 @@ export const EditLocationView = () => {
     if (Object.keys(locChanges).length > 0) {
       promises.push(
         updateLocationMutation.mutateAsync({
-          locationId: parseInt(locationId),
+          locationId,
           location: locChanges,
         }),
       );
@@ -87,7 +81,7 @@ export const EditLocationView = () => {
           itemType: "location",
           key,
           file: updatedLocationData.imageFile,
-          itemId: parseInt(locationId),
+          itemId:locationId,
         }),
       );
     }
@@ -199,16 +193,15 @@ export const EditLocationView = () => {
     try {
       await Promise.all(promises);
       queryClient.invalidateQueries({
-        queryKey: ["location", parseInt(locationId)],
+        queryKey: ["location", locationId],
       });
       navigate({
-        to: createPath(
-          `/locations`,
-          savedOrgId || undefined,
-          savedSiteId || undefined,
-          savedBuildingId || undefined,
-          locationId,
-        ),
+        to:`/locations`,
+        search:{
+          orgId: orgId || savedOrgId,
+          siteId: siteId || savedSiteId,
+          buildingId: buildingId || savedBuildingId,
+          locationId: locationId,}
       });
     } catch (error) {
       console.error("Error updating translations:", error);
@@ -218,7 +211,7 @@ export const EditLocationView = () => {
   return (
     <div className="p-4">
       <div>
-        <Link to={pathBack} className="text-lab-green-dark p-2">
+        <Link to="/locations" search={{orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: buildingId || savedBuildingId}} className="text-lab-green-dark p-2">
           &larr; Back to locations list
         </Link>
       </div>

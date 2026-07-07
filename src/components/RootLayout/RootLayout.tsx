@@ -3,11 +3,13 @@ import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import SideBar from "../SideBar/SideBar";
 import { useContext } from "react";
 import { AuthContext } from "@auth/authContext";
+import { BreadCrumbs } from "@components/List/BreadCrumbs";
 
 const RootLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
+
   const handleLogout = () => {
     logout();
     navigate({ to: "/login" });
@@ -31,8 +33,9 @@ if (!isAuthenticated || (userRole !== 'admin' && userRole !== 'maintainer')) {
         </button>
       </div>
       <div className="flex flex-row h-full">
-        <SideBar path={location.pathname} />
+        <SideBar />
         <main className="p-5">
+          <BreadCrumbs />
           <Outlet />
         </main>
       </div>

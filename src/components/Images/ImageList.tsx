@@ -1,4 +1,4 @@
-import type { SearchParams } from "@apptypes/searchParams";
+import type { SearchParams } from "@schemas/router.schema";
 import { useGetImagesByTypeInfinite } from "@hooks/useImages";
 import { useState } from "react";
 import { ImageBox } from "./ImageBox";
