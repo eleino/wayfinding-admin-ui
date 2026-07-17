@@ -8,15 +8,14 @@ import type { Location } from "@apptypes/location";
 import type { UploadedImage } from "@apptypes/image";
 import type { Translation } from "@apptypes/translation";
 import { HTTPError, TimeoutError } from "ky";
+// import { useLanguages } from "./useAppInit";
 
 interface DataTranslations {
   name_translation: {
-    en: Translation | null;
-    fi: Translation | null;
+    [lang: string]: Translation | null;
   };
   at_location_msg_translation: {
-    en: Translation | null;
-    fi: Translation | null;
+    [lang: string]: Translation | null;
   };
 }
 interface DataType {
@@ -29,12 +28,15 @@ interface DataType {
 export const useLocationCreator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(null);
+  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(
+    null,
+  );
   const [data, setData] = useState<DataType | null>(null);
   const queryClient = useQueryClient();
   const createLocationMutation = useCreateLocation();
   const uploadImageMutation = useUploadImage();
   const createTranslationMutation = useCreateTranslation();
+  // const languageCodes = useLanguages();
 
   const mutateAsync = useCallback(
     async (buildingId: number, locationData: EditLocationInput) => {
@@ -44,6 +46,16 @@ export const useLocationCreator = () => {
       if (!buildingId) {
         return { error: "Building ID is required" };
       }
+      // const languages = languageCodes.data?.map((lang) => lang.code) || [];
+      // trim translations and convert to a map
+      const toTranslationMap = (items: { lang: string; text?: string }[]) => {
+        return items.reduce<Record<string, string>>((acc, item) => {
+          const text = item.text?.trim();
+          if (text) acc[item.lang] = text;
+          return acc;
+        }, {});
+      };
+      
       try {
         const location = {
           name: locationData.location_name,
@@ -66,56 +78,91 @@ export const useLocationCreator = () => {
             itemId: locationResult.location_id,
           });
         }
-        let translationsResult: DataTranslations = {
-          name_translation: {
-            en: null,
-            fi: null,
-          },
-          at_location_msg_translation: {
-            en: null,
-            fi: null,
-          },
+        // let translationsResult: DataTranslations = {
+        //   name_translation: {
+        //     en: null,
+        //     fi: null,
+        //   },
+        //   at_location_msg_translation: {
+        //     en: null,
+        //     fi: null,
+        //   },
+        // };
+        const translationsResult: DataTranslations = {
+          name_translation: {},
+          at_location_msg_translation: {},
         };
         if (locationResult.location_id) {
           const nameKey = locationResult.trl_location_name_key;
           const atLocationMsgKey = locationResult.trl_current_location_msg_key;
           setLoadingMessage("Creating translations...");
-          const [enName, fiName, enMsg, fiMsg] = await Promise.all([
-            createTranslationMutation.mutateAsync({
-              translation_key: nameKey,
-              language_code: "en",
-              type: "location_name",
-              text_value: locationData.trl_location_name_en,
-            }),
-            createTranslationMutation.mutateAsync({
-              translation_key: nameKey,
-              language_code: "fi",
-              type: "location_name",
-              text_value: locationData.trl_location_name_fi,
-            }),
-            createTranslationMutation.mutateAsync({
-              translation_key: atLocationMsgKey,
-              language_code: "en",
-              type: "at_location_message",
-              text_value: locationData.trl_at_current_location_msg_en,
-            }),
-            createTranslationMutation.mutateAsync({
-              translation_key: atLocationMsgKey,
-              language_code: "fi",
-              type: "at_location_message",
-              text_value: locationData.trl_at_current_location_msg_fi,
-            }),
-          ]);
-          translationsResult = {
-            name_translation: {
-              en: enName,
-              fi: fiName,
-            },
-            at_location_msg_translation: {
-              en: enMsg,
-              fi: fiMsg,
-            },
-          };
+          const translationMutations = [];
+          const nameTranslations = toTranslationMap(locationData.trl_location_name);
+          const msgTranslations = toTranslationMap(locationData.trl_at_current_location_msg);
+          
+          for (const [lang, text] of Object.entries(nameTranslations)) {
+            translationMutations.push(
+              createTranslationMutation.mutateAsync({
+                translation_key: nameKey,
+                language_code: lang,
+                type: "location_name",
+                text_value: text,
+              }),
+            );
+          }
+          for (const [lang, text] of Object.entries(msgTranslations)) {
+            translationMutations.push(
+              createTranslationMutation.mutateAsync({
+                translation_key: atLocationMsgKey,
+                language_code: lang,
+                type: "at_location_message",
+                text_value: text,
+              }),
+            );
+          }
+          const translationResults = await Promise.all(translationMutations);
+          // for (const lang of languages) {
+          //   // check if the translation exists in form input for the current language
+          //   const nameTranslation = locationData.trl_location_name.find(
+          //     (t) => t.lang === lang,
+          //   );
+          //   if (nameTranslation) {
+          //     // if yes, add mutation for it
+          //     translationMutations.push(
+          //       createTranslationMutation.mutateAsync({
+          //         translation_key: nameKey,
+          //         language_code: lang,
+          //         type: "location_name",
+          //         text_value: nameTranslation.text,
+          //       }),
+          //     );
+          //   }
+          //   const atLocationMsgTranslation =
+          //     locationData.trl_at_current_location_msg.find(
+          //       (t) => t.lang === lang,
+          //     );
+          //   if (atLocationMsgTranslation) {
+          //     translationMutations.push(
+          //       createTranslationMutation.mutateAsync({
+          //         translation_key: atLocationMsgKey,
+          //         language_code: lang,
+          //         type: "at_location_message",
+          //         text_value: atLocationMsgTranslation.text,
+          //       }),
+          //     );
+          // //   }
+          //   const translationResults = await Promise.all(translationMutations);
+            for (const result of translationResults) {
+              if (result.type === "location_name") {
+                translationsResult.name_translation[result.language_code] =
+                  result;
+              } else if (result.type === "at_location_message") {
+                translationsResult.at_location_msg_translation[
+                  result.language_code
+                ] = result;
+              }
+            }
+          // }
         }
 
         queryClient.invalidateQueries({ queryKey: ["locations", buildingId] });

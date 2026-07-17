@@ -8,8 +8,7 @@ export interface Translation {
 }
 
 export interface AppTranslations {
-    fi: AppTranslation[] | null;
-    en: AppTranslation[] | null;
+    [lang: string]: AppTranslation[] | null;
 }
 
 export interface AppTranslation {

@@ -35,8 +35,7 @@ export interface EntranceLocation {
     image_url: string;
     trl_location_name_key: string;
     translations: {
-        fi?: AppTranslation[];
-        en?: AppTranslation[];
+        [lang: string]: AppTranslation[];
     }
 }
 
@@ -50,8 +49,7 @@ export interface EndLocation {
     is_exit: boolean;
     trl_location_name_key: string;
     translations: {
-        fi?: AppTranslation[];
-        en?: AppTranslation[];
+        [lang: string]: AppTranslation[];
     }
 }
 
@@ -64,8 +62,7 @@ export interface LocationDestinations {
         image_url: string;
         trl_current_location_msg_key: string;
         translations: {
-            fi?: AppTranslation[];
-            en?: AppTranslation[];
+            [lang: string]: AppTranslation[];
         }
     };
     end_locations: EndLocation[];
@@ -76,10 +73,24 @@ export interface EditLocationInput {
     // building_id: number;
     is_entry_location: boolean;
     floor_number: number;
-    trl_location_name_en: string;
-    trl_location_name_fi: string;
-    trl_at_current_location_msg_en: string;
-    trl_at_current_location_msg_fi: string;
+    // update to support multiple languages
+    // trl_location_name_en: string;
+    // trl_location_name_fi: string;
+    // trl_at_current_location_msg_en: string;
+    // trl_at_current_location_msg_fi: string;
+    trl_location_name: {
+        lang: string;
+        text?: string;
+    }[];
+    trl_at_current_location_msg: {
+        lang: string;
+        text?: string;
+    }[];
+    // trl_location_desc: {
+    //     [lang: string]: string;
+    // }[];
+    // image_url?: string | null;
+    // image_file?: File | undefined;
     imageUrl?: string | null;
     imageFile?: File | undefined;
 }

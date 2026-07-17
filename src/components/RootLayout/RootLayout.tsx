@@ -4,11 +4,16 @@ import SideBar from "../SideBar/SideBar";
 import { useContext } from "react";
 import { AuthContext } from "@auth/authContext";
 import { BreadCrumbs } from "@components/List/BreadCrumbs";
+import { useAppInit } from "@hooks/useAppInit";
 
 const RootLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
+
+  // Fetch app init data to initialize languages and settings
+  const appInit = useAppInit();
+  console.log(appInit.data);
 
   const handleLogout = () => {
     logout();

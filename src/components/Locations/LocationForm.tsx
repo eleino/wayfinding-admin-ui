@@ -1,11 +1,12 @@
 // form for creating and editing locations
-import { Field, Form, useForm, setInput } from "@formisch/react";
+import { Field, FieldArray, Form, useForm } from "@formisch/react";
 import type { EditLocationInput } from "@apptypes/location";
-import { useState } from "react";
+// import { useState } from "react";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
 import { LocationSchema } from "@schemas/location.schema";
+import { useLanguages } from "@hooks/useAppInit";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
@@ -13,15 +14,22 @@ export const LocationForm = (props: {
   isEntryLocation?: boolean;
 }) => {
   const { locationData, handleSubmit, isEntryLocation } = props;
-  const [fiNameDirty, setFiNameDirty] = useState(false);
+  const languageList = useLanguages();
+  const languageCodes = languageList.data?.map((lang) => lang.code) || [];
+  // const [fiNameDirty, setFiNameDirty] = useState(false);
+  const mapLanguageCodeToName = (code: string) => {
+    const language = languageList.data?.find((lang) => lang.code === code);
+    return language ? language.name : code;
+  };
   const initialValues = locationData || {
     location_name: "",
     is_entry_location: isEntryLocation || false,
     floor_number: 1,
-    trl_location_name_fi: "",
-    trl_location_name_en: "",
-    trl_at_current_location_msg_fi: "",
-    trl_at_current_location_msg_en: "",
+    trl_location_name: languageCodes.map((code) => ({ lang: code, text: "" })),
+    trl_at_current_location_msg: languageCodes.map((code) => ({
+      lang: code,
+      text: "",
+    })),
     imageFile: undefined,
   };
   const locationForm = useForm({
@@ -29,9 +37,9 @@ export const LocationForm = (props: {
     initialInput: initialValues,
   });
 
-  const handleNameChange = (value: string) => {
-    setInput(locationForm, { path: ["trl_location_name_fi"], input: value });
-  };
+  // const handleNameChange = (value: string) => {
+  //   setInput(locationForm, { path: ["trl_location_name_fi"], input: value });
+  // };
 
   return (
     <div>
@@ -52,9 +60,9 @@ export const LocationForm = (props: {
               required
               onChange={(event) => {
                 field.onChange(event.target.value);
-                if (!fiNameDirty && !locationData?.trl_location_name_fi) {
-                  handleNameChange(event.target.value);
-                }
+                // if (!fiNameDirty && !locationData?.trl_location_name_fi) {
+                //   handleNameChange(event.target.value);
+                // }
               }}
               errors={field.errors}
             />
@@ -99,7 +107,83 @@ export const LocationForm = (props: {
             </div>
           )}
         </Field>
-        <Field of={locationForm} path={["trl_location_name_fi"]}>
+        <FieldArray of={locationForm} path={["trl_location_name"]}>
+          {(fieldArray) => (
+            <div className="flex flex-col gap-1">
+              <label>Location Name Translations</label>
+              {fieldArray.items.map((item, index) => (
+                <div key={item}>
+                  <Field
+                    of={locationForm}
+                    path={["trl_location_name", index, "lang"]}
+                  >
+                    {(langField) => (
+                      <Field
+                        of={locationForm}
+                        path={["trl_location_name", index, "text"]}
+                      >
+                        {(textField) => (
+                          <TextInput
+                            key={index}
+                            label={mapLanguageCodeToName(
+                              langField.input ? langField.input : "",
+                            )}
+                            input={textField.input}
+                            {...textField.props}
+                            onChange={(event) =>
+                              textField.onChange(event.target.value)
+                            }
+                            name={`trl_location_name_${langField.input}`}
+                            errors={fieldArray.errors}
+                          />
+                        )}
+                      </Field>
+                    )}
+                  </Field>
+                </div>
+              ))}
+            </div>
+          )}
+        </FieldArray>
+        <FieldArray of={locationForm} path={["trl_at_current_location_msg"]}>
+          {(fieldArray) => (
+            <div className="flex flex-col gap-1">
+              <label>At Current Location Message Translations</label>
+              {fieldArray.items.map((item, index) => (
+                <div key={item}>
+                  <Field
+                    of={locationForm}
+                    path={["trl_at_current_location_msg", index, "lang"]}
+                  >
+                    {(langField) => (
+                      <Field
+                        of={locationForm}
+                        path={["trl_at_current_location_msg", index, "text"]}
+                      >
+                        {(textField) => (
+                          <TextInput
+                            key={index}
+                            label={mapLanguageCodeToName(
+                              langField.input ? langField.input : "",
+                            )}
+                            input={textField.input}
+                            {...textField.props}
+                            onChange={(event) =>
+                              textField.onChange(event.target.value)
+                            }
+                            name={`trl_at_current_location_msg_${langField.input}`}
+                            errors={fieldArray.errors}
+                          />
+                        )}
+                      </Field>
+                    )}
+                  </Field>
+                </div>
+              ))}
+            </div>
+          )}
+        </FieldArray>
+        {/* <Field of={locationForm} path={["trl_location_name_fi"]}>
           {(field) => {
             return (
               <TextInput
@@ -149,7 +233,7 @@ export const LocationForm = (props: {
               errors={field.errors}
             />
           )}
-        </Field>
+        </Field> */}
         <Field of={locationForm} path={["imageFile"]}>
           {(field) => (
             <div className="flex flex-col gap-1">
@@ -165,12 +249,12 @@ export const LocationForm = (props: {
           )}
         </Field>
         <div className="flex justify-end my-5">
-        <button
-          type="submit"
-          className="bg-lab-green-dark rounded cursor-pointer w-40 p-1"
-        >
-          Save Location
-        </button>
+          <button
+            type="submit"
+            className="bg-lab-green-dark rounded cursor-pointer w-40 p-1"
+          >
+            Save Location
+          </button>
         </div>
       </Form>
     </div>

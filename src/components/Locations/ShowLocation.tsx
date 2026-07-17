@@ -3,6 +3,7 @@ import { useGetLocationById } from "@hooks/useLocations";
 import { useGetTranslationsEnFi } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
 
+// TODO: update language display
 export const ShowLocation = (props: {
   locationId: number | null;
   searchParams: SearchParams;
