@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-const TranslationSchema = v.object({
+export const TranslationSchema = v.object({
   lang: v.string(),
   text: v.optional(v.string()),
 });
@@ -10,7 +10,7 @@ interface Translation {
   lang: string;
   text?: string;
 }
-const hasTranslation = v.check(
+export const hasTranslation = v.check(
   (translations: Translation[]) =>
     translations.some((item) => item.text && item.text.trim().length > 0),
   "At least one translation is required",

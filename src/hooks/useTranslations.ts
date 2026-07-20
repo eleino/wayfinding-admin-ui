@@ -1,13 +1,20 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchAllAppTranslations, fetchTranslationByKey, createTranslation, updateTranslation, deleteTranslation } from "@api/translations";
+import {
+  fetchAllAppTranslations,
+  fetchTranslationByKey,
+  createTranslation,
+  updateTranslation,
+  deleteTranslation,
+} from "@api/translations";
 import type { HTTPError } from "ky";
 import type { CreateTranslationDto } from "@apptypes/dtos/create-translation.dto";
 import type { UpdateTranslationDTO } from "@apptypes/dtos/update-translation.dto";
+import { useLanguages } from "./useAppInit";
 
 // TODO: make app language-agnostic, there can be languages beyond en+fi
 // a potential compromise to displaying all translations for all languages is to allow selecting 1 language
 // and displaying that + finnish translations
-// we receive list of languages from 
+// we receive list of languages from
 // GET /init/app
 /* which returns:
 {
@@ -33,48 +40,129 @@ import type { UpdateTranslationDTO } from "@apptypes/dtos/update-translation.dto
 }
     */
 
-export const useGetTranslation = (key: string | undefined, lang: string, options = {}) => {
-    const query = useQuery({ queryKey: ["translation", key, lang], queryFn: () => fetchTranslationByKey(key, lang), enabled: !!key && !!lang, ...options });
-    return query;
+export const useGetTranslation = (
+  key: string | undefined,
+  lang: string,
+  options = {},
+) => {
+  const query = useQuery({
+    queryKey: ["translation", key, lang],
+    queryFn: () => fetchTranslationByKey(key, lang),
+    enabled: !!key && !!lang,
+    ...options,
+  });
+  return query;
 };
 
 // for fetching both en and fi translations for a given key at the same time
-export const useGetTranslationsEnFi = (key: string | undefined, options = {}) => {
-    const query = useQuery({ queryKey: ["translationsEnFi", key], queryFn: () => Promise.all([fetchTranslationByKey(key, "en"), fetchTranslationByKey(key, "fi")]), enabled: !!key,
-    retry: retryOn404, ...options });
-    return query;
+export const useGetTranslationsEnFi = (
+  key: string | undefined,
+  options = {},
+) => {
+  const query = useQuery({
+    queryKey: ["translationsEnFi", key],
+    queryFn: () =>
+      Promise.all([
+        fetchTranslationByKey(key, "en"),
+        fetchTranslationByKey(key, "fi"),
+      ]),
+    enabled: !!key,
+    retry: retryOn404,
+    ...options,
+  });
+  return query;
+};
+
+// fetch translations for a given key in all languages
+export const useGetTranslationsAllLangs = (
+  key: string | undefined,
+  options = {},
+) => {
+  const languageList = useLanguages();
+  const query = useQuery({
+    queryKey: ["translationsAllLangs", key],
+    queryFn: async () => {
+      if (!languageList.data) return [];
+      const langs = languageList.data.map((lang) => lang.code);
+      const translations = await Promise.all(
+        langs.map((lang) => fetchTranslationByKey(key, lang)),
+      );
+      return translations;
+    },
+    enabled: !!key && !!languageList.data,
+    ...options,
+  });
+  return query;
 };
 
 export const useGetAppTranslations = (lang: string, options = {}) => {
-    const query = useQuery({ queryKey: ["appTranslations", lang], queryFn: () => fetchAllAppTranslations(lang), enabled: !!lang, ...options });
-    return query;
-}
+  const query = useQuery({
+    queryKey: ["appTranslations", lang],
+    queryFn: () => fetchAllAppTranslations(lang),
+    enabled: !!lang,
+    ...options,
+  });
+  return query;
+};
+
+export const useGetAppTranslationsAllLangs = (options = {}) => {
+  const languageList = useLanguages();
+  const query = useQuery({
+    queryKey: ["appTranslationsAllLangs"],
+    queryFn: async () => {
+      if (!languageList.data) return [];
+      const langs = languageList.data.map((lang) => lang.code);
+      const translations = await Promise.all(
+        langs.map((lang) => fetchAllAppTranslations(lang)),
+      );
+      return translations;
+    },
+    enabled: !!languageList.data,
+    ...options,
+  });
+  return query;
+};
 
 const retryOn404 = (failureCount: number, error: HTTPError) => {
-    if (error?.response.status === 404) return false;
-    return failureCount < 3; // Retry up to 3 times for non-404 errors
-}
+  if (error?.response.status === 404) return false;
+  return failureCount < 3; // Retry up to 3 times for non-404 errors
+};
 
 export const useCreateTranslation = (options = {}) => {
-    const mutation = useMutation({
-        mutationFn: (translation: CreateTranslationDto) => createTranslation(translation),
-        ...options,
-    });
-    return mutation;
-}
+  const mutation = useMutation({
+    mutationFn: (translation: CreateTranslationDto) =>
+      createTranslation(translation),
+    ...options,
+  });
+  return mutation;
+};
 
 export const useUpdateTranslation = (options = {}) => {
-    const mutation = useMutation({
-        mutationFn: ({ translationKey, lang, translation }: { translationKey: string; lang: string; translation: UpdateTranslationDTO }) => updateTranslation(translationKey, translation, lang),
-        ...options,
-    });
-    return mutation;
-}
+  const mutation = useMutation({
+    mutationFn: ({
+      translationKey,
+      lang,
+      translation,
+    }: {
+      translationKey: string;
+      lang: string;
+      translation: UpdateTranslationDTO;
+    }) => updateTranslation(translationKey, translation, lang),
+    ...options,
+  });
+  return mutation;
+};
 
 export const useDeleteTranslation = (options = {}) => {
-    const mutation = useMutation({
-        mutationFn: ({ translationKey, lang }: { translationKey: string; lang: string }) => deleteTranslation(translationKey, lang),
-        ...options,
-    });
-    return mutation;
-}
+  const mutation = useMutation({
+    mutationFn: ({
+      translationKey,
+      lang,
+    }: {
+      translationKey: string;
+      lang: string;
+    }) => deleteTranslation(translationKey, lang),
+    ...options,
+  });
+  return mutation;
+};

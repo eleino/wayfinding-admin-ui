@@ -51,8 +51,7 @@ export interface StepInstructionsItem {
   trl_instruction_on_approach_key: string;
   trl_instruction_to_next_key: string;
   translations: {
-    fi?: AppTranslation[];
-    en?: AppTranslation[];
+    [lang: string]: AppTranslation[];
   };
 }
 
@@ -60,8 +59,7 @@ export interface StepInstructionsDestination {
   location_id: number;
   trl_location_name_key: string;
   translations: {
-    fi?: AppTranslation[];
-    en?: AppTranslation[];
+    [lang: string]: AppTranslation[];
   };
 }
 
@@ -102,10 +100,8 @@ export interface EditStepInput {
   image_on_approach_file?: File;
   image_to_next_url?: string;
   image_to_next_file?: File;
-  trl_instruction_on_approach_fi?: string;
-  trl_instruction_on_approach_en?: string;
-  trl_instruction_to_next_fi?: string;
-  trl_instruction_to_next_en?: string;
+  trl_instruction_on_approach?: { lang: string, text: string }[];
+  trl_instruction_to_next?: { lang: string, text: string }[];
   overlay_on_approach?: EditStepOverlay;
   overlay_to_next?: EditStepOverlay;
 }

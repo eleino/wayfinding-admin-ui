@@ -5,8 +5,7 @@ export const useAppInit = () => {
   const query = useQuery({
     queryKey: ["appInit"],
     queryFn: initApp,
-    staleTime: 10 * 60 * 1000,
-    retry: 3,
+    staleTime: 20 * 60 * 1000,
   });
   return query;
 };
@@ -16,5 +15,4 @@ export const useLanguages = () =>
     queryKey: ["appInit"],
     queryFn: initApp,
     select: (data) => data.languages,
-    staleTime: 10 * 60 * 1000,
   });

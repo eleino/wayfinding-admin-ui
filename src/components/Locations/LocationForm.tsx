@@ -6,21 +6,22 @@ import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
 import { LocationSchema } from "@schemas/location.schema";
-import { useLanguages } from "@hooks/useAppInit";
+import type { AppInitLanguage } from "@apptypes/init";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
   handleSubmit: (data: EditLocationInput) => void;
   isEntryLocation?: boolean;
+  languageList: AppInitLanguage[];
 }) => {
-  const { locationData, handleSubmit, isEntryLocation } = props;
-  const languageList = useLanguages();
-  const languageCodes = languageList.data?.map((lang) => lang.code) || [];
-  // const [fiNameDirty, setFiNameDirty] = useState(false);
+  const { locationData, handleSubmit, isEntryLocation, languageList } = props;
+  const languageCodes = languageList.map((lang) => lang.code) || [];
+
   const mapLanguageCodeToName = (code: string) => {
-    const language = languageList.data?.find((lang) => lang.code === code);
+    const language = languageList.find((lang) => lang.code === code);
     return language ? language.name : code;
   };
+
   const initialValues = locationData || {
     location_name: "",
     is_entry_location: isEntryLocation || false,
@@ -37,9 +38,11 @@ export const LocationForm = (props: {
     initialInput: initialValues,
   });
 
+
   // const handleNameChange = (value: string) => {
   //   setInput(locationForm, { path: ["trl_location_name_fi"], input: value });
   // };
+
 
   return (
     <div>

@@ -12,8 +12,7 @@ const RootLayout = () => {
   const { isAuthenticated, userRole, logout } = useContext(AuthContext);
 
   // Fetch app init data to initialize languages and settings
-  const appInit = useAppInit();
-  console.log(appInit.data);
+  useAppInit();
 
   const handleLogout = () => {
     logout();

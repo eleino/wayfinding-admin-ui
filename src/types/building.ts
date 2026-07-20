@@ -38,8 +38,7 @@ export interface ListBuildingNamesAPI {
   image_url: string | null;
   trl_building_name_key: string;
   translations: {
-    fi?: AppTranslation[];
-    en?: AppTranslation[];
+    [lang: string]: AppTranslation[];
   };
 }
 
