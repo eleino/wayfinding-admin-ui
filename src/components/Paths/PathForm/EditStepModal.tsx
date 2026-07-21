@@ -1,6 +1,6 @@
-import type { StepInstructionsItem } from "@apptypes/step";
+import type { EditStepInput } from "@apptypes/step";
 import { useGetStepById } from "@hooks/useSteps";
-import { useGetTranslation } from "@hooks/useTranslations";
+import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import { EditStepInstructions } from "./EditStepInstructions";
 import { useGetImagesByType } from "@hooks/useImages";
 
@@ -10,18 +10,17 @@ import { useGetImagesByType } from "@hooks/useImages";
  */
 export const EditStepModal = (props: {
   stepId: number;
-  stepInstructionsEn?: StepInstructionsItem; //this step's instructions in English so we don't need to fetch overview twice here
+  stepInstructions?: {stepInstructionTranslations: EditStepInput, trl_instruction_to_next_key: string, trl_instruction_on_approach_key: string};
   closeModal: () => void;
   stepIndex: number;
   locationName?: string;
 }) => {
   // we should get all other necessary data from fetching step overview
-  const { stepId, stepInstructionsEn, closeModal, stepIndex, locationName } = props;
+  const { stepId, stepInstructions, closeModal, stepIndex, locationName } = props;
 
   const stepOverview = useGetStepById(stepId);
-  const firstApproachEn = useGetTranslation(
-    stepInstructionsEn?.trl_instruction_on_approach_key || "",
-    "en",
+  const firstApproachTranslations = useGetTranslationsAllLangs(
+    stepOverview.data?.step.instructions.find((step) => step.direction === "on_approach")?.trl_instruction_key || "",
     { enabled: stepIndex === 0 },
   );
   const overlayImages = useGetImagesByType("overlay");
@@ -31,7 +30,7 @@ export const EditStepModal = (props: {
   const isLoading =
     stepOverview.isLoading ||
     overlayImages.isLoading ||
-    (stepIndex === 0 && firstApproachEn.isLoading);
+    (stepIndex === 0 && firstApproachTranslations.isLoading);
   const hasData = stepData && overlayImages.data;
 
   if (isLoading)
@@ -51,11 +50,11 @@ export const EditStepModal = (props: {
     <ModalWrapper closeModal={closeModal}>
       <EditStepInstructions
         {...props}
-        firstApproachEn={firstApproachEn.data}
+        firstApproachTranslations={firstApproachTranslations.data}
         stepData={stepData}
         locationName={locationName}
         stepIndex={props.stepIndex}
-        stepInstructionsEn={props.stepInstructionsEn}
+        stepInstructions={stepInstructions}
         overlayImages={overlayImages.data}
       />
     </ModalWrapper>

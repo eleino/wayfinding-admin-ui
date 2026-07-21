@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { EditStepModal } from "./EditStepModal";
 import { EditStepLocation } from "./EditStepLocation";
 import { usePathEditSteps } from "../PathContext/PathEditStepsContext";
-import { useGetTranslationsEnFi } from "@hooks/useTranslations";
+import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
+import type { StepInstructionsItem } from "@apptypes/step";
 
 export const EditStep = (props: {
   stepIndex: number;
@@ -13,80 +14,93 @@ export const EditStep = (props: {
   onRemove: () => void;
   setUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }) => {
-  const {
-    stepIndex,
-    onRemove,
-    haveStepDataDetails,
-    setUnsavedChanges,
-  } = props;
+  const { stepIndex, onRemove, haveStepDataDetails, setUnsavedChanges } = props;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [stepError, setStepError] = useState(false);
   const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(false);
-  const { form, locationList, entryLocations, pathData, pathInstructionsFi, pathInstructionsEn, allowRearranging } = usePathEditSteps();
+  const {
+    form,
+    locationList,
+    entryLocations,
+    pathData,
+    pathInstructions,
+    allowRearranging,
+    languageList,
+  } = usePathEditSteps();
   const stepNro = stepIndex + 1;
   const currentStep = pathData.steps?.[stepIndex];
-  const currentStepInstructionsFi = useMemo(() => pathInstructionsFi?.steps.find(
-    (step) => step.step_order === stepNro), [pathInstructionsFi, stepNro]
-  );
-  const currentStepInstructionsEn = useMemo(() => pathInstructionsEn?.steps.find(
-    (step) => step.step_order === stepNro), [pathInstructionsEn, stepNro]
-  );
-  
-  const stepInstructions = useMemo(() => {
-    return {
-      distance_to_next_meters:
-        currentStepInstructionsFi?.distance_to_next_meters || 0,
-      name: currentStep?.name || `Step ${stepNro}`,
-      approach: {
-        fi: {
-        key: currentStepInstructionsFi?.trl_instruction_on_approach_key,
-        text:
-          currentStepInstructionsFi?.translations?.fi?.find(
-            (text) =>
-              text.translation_key ===
-              currentStepInstructionsFi?.trl_instruction_on_approach_key,
-          )?.text_value || "N/A",
-      },
-      en: {
-        key: currentStepInstructionsEn?.trl_instruction_on_approach_key,
-        text:
-          currentStepInstructionsEn?.translations?.en?.find(
-            (text) =>
-              text.translation_key ===
-              currentStepInstructionsEn?.trl_instruction_on_approach_key,
-          )?.text_value || "N/A",
-      },
-      overlay: currentStepInstructionsFi?.img_on_approach?.overlay || null,
-      image: currentStepInstructionsFi?.img_on_approach || null,
-    },
-    to_next: {
-      fi: {
-        key: currentStepInstructionsFi?.trl_instruction_to_next_key,
-        text:
-          currentStepInstructionsFi?.translations?.fi?.find(
-            (text) =>
-              text.translation_key ===
-              currentStepInstructionsFi?.trl_instruction_to_next_key,
-          )?.text_value || "N/A",
-      },
-      en: {
-        key: currentStepInstructionsEn?.trl_instruction_to_next_key,
-        text:
-          currentStepInstructionsEn?.translations?.en?.find(
-            (text) =>
-              text.translation_key ===
-              currentStepInstructionsEn?.trl_instruction_to_next_key,
-          )?.text_value || "N/A",
-      },
-      overlay: currentStepInstructionsFi?.img_to_next?.overlay || null,
-      image: currentStepInstructionsFi?.img_to_next || null,
-    },
-  }}, [currentStep, currentStepInstructionsFi, currentStepInstructionsEn, stepNro]);
 
-    const firstApproachText = useGetTranslationsEnFi(stepInstructions.approach.fi.key, {enabled: stepIndex === 0});
+  // capture current step instructions for all languages
+  const currentStepInstructions = useMemo(() => {
+    if (!pathInstructions || !languageList?.length) return undefined;
+    // so currentStepInstructions will be an object with the following structure:
+    // {
+    //   step_order: number,
+    //   trl_instruction_on_approach_key: string,
+    //   trl_instruction_to_next_key: string,
+    //   trl_instruction_on_approach: { lang: string, text: string }[],
+    //   trl_instruction_to_next: { lang: string, text: string }[],
+    // }
+    // map the pathInstructions array to find the step with the correct step_order
+    const stepEntries = pathInstructions
+      .map((langInstructions, index) => {
+        const languageCode = languageList[index]?.code;
+        const step = langInstructions.steps.find(
+          (stp) => stp.step_order === stepNro,
+        );
+
+        return languageCode && step ? { languageCode, step } : null;
+      })
+      .filter( // filter out null values and assert the type of the remaining entries
+        (
+          entry,
+        ): entry is { languageCode: string; step: StepInstructionsItem } =>
+          entry !== null,
+      );
+
+    const baseStep = stepEntries[0]?.step; // to fill in non-translation entries
+    if (!baseStep) return undefined;
+
+    return {
+      stepInstructionTranslations: {
+        step_order: baseStep.step_order,
+        distance_to_next_meters: baseStep.distance_to_next_meters,
+        img_on_approach: baseStep.img_on_approach,
+        img_to_next: baseStep.img_to_next,
+        // fill in the translations for each language:
+        trl_instruction_on_approach: stepEntries.map(
+          ({ languageCode, step }) => ({
+            lang: languageCode,
+            text:
+              step.translations[languageCode]?.find(
+                (trl) =>
+                  trl.translation_key === step.trl_instruction_on_approach_key,
+              )?.text_value || "",
+          }),
+        ),
+        trl_instruction_to_next: stepEntries.map(({ languageCode, step }) => ({
+          lang: languageCode,
+          text:
+            step.translations[languageCode]?.find(
+              (trl) => trl.translation_key === step.trl_instruction_to_next_key,
+            )?.text_value || "",
+        })),
+      },
+      trl_instruction_on_approach_key:
+        baseStep.trl_instruction_on_approach_key || "",
+      trl_instruction_to_next_key: baseStep.trl_instruction_to_next_key || "",
+    };
+  }, [pathInstructions, stepNro, languageList]);
+
+  const firstApproachText = useGetTranslationsAllLangs(
+    currentStepInstructions?.trl_instruction_on_approach_key,
+    { enabled: stepIndex === 0 },
+  );
 
   return (
-    <div className={`border p-4 mb-4 bg-sidebar-grey rounded relative ${stepError ? "border-red-500" : "border-lab-green-dark"} `}>
+    <div
+      className={`border p-4 mb-4 bg-sidebar-grey rounded relative ${stepError ? "border-red-500" : "border-lab-green-dark"} `}
+    >
       <div className="flex flex-row">
         <Field of={form} path={["steps", stepIndex, "step_order"]}>
           {(field) => {
@@ -114,20 +128,21 @@ export const EditStep = (props: {
               <EditStepModal
                 stepIndex={stepIndex}
                 stepId={currentStep?.id || 0}
-                stepInstructionsEn={currentStepInstructionsEn}
+                stepInstructions={currentStepInstructions}
                 closeModal={() => setIsInstructionModalOpen(false)}
                 locationName={currentStep?.name}
               />,
               document.body,
             )}
-          <p
-            className={`${(allowRearranging && stepIndex !== 0) ? "cursor-pointer inline-block text-red-500 outline-red-500" : "text-gray-500 outline-gray-500"} w-6 h-6 mt-1 text-4xl outline-3 rounded text-center`}
+          <div
+            className={`${allowRearranging && stepIndex !== 0 ? "cursor-pointer inline-block text-red-500 outline-red-500" : "text-gray-500 outline-gray-500"} w-6 h-6 mt-1 text-4xl outline-3 rounded text-center`}
             onClick={() => {
-              if (allowRearranging && stepIndex !== 0) setShowDeleteConfirm(true);
+              if (allowRearranging && stepIndex !== 0)
+                setShowDeleteConfirm(true);
             }}
           >
             <span className="relative bottom-2">&times;</span>
-          </p>
+          </div>
           {showDeleteConfirm && (
             <DeleteDialog
               itemName={`Step ${stepIndex + 1}`}
@@ -141,20 +156,19 @@ export const EditStep = (props: {
           )}
         </div>
       </div>
-        {allowRearranging ? (
-          <EditStepLocation
-            form={form}
-            locationList={locationList}
-            entryLocations={entryLocations}
-            stepIndex={stepIndex}
-            setStepError={setStepError}
-            setUnsavedChanges={setUnsavedChanges}
-          />
-        ) : (
-          <p className="pt-1">Location: {stepInstructions.name}</p>
-        )}
+      {allowRearranging ? (
+        <EditStepLocation
+          form={form}
+          locationList={locationList}
+          entryLocations={entryLocations}
+          stepIndex={stepIndex}
+          setStepError={setStepError}
+          setUnsavedChanges={setUnsavedChanges}
+        />
+      ) : (
+        <p className="pt-1">Location: {currentStep?.name}</p>
+      )}
       <div className="flex flex-row gap-4">
-
         {haveStepDataDetails ? (
           <div className="flex flex-row gap-4 pb-2">
             <Field
@@ -181,7 +195,7 @@ export const EditStep = (props: {
                       className="w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />
                     {field.errors && (
-                      <p className="text-red-500 ml-1">{field.errors}</p>
+                      <div className="text-red-500 ml-1">{field.errors}</div>
                     )}
                   </div>
                 );
@@ -210,7 +224,7 @@ export const EditStep = (props: {
                       className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />
                     {field.errors && (
-                      <p className="text-red-500">{field.errors}</p>
+                      <div className="text-red-500">{field.errors}</div>
                     )}
                   </div>
                 );
@@ -218,9 +232,7 @@ export const EditStep = (props: {
             </Field>
           </div>
         ) : (
-          <p>
-            Distance to next: {stepInstructions.distance_to_next_meters} meters
-          </p>
+          <p>Distance to next: {currentStep?.distance_to_next_meters} meters</p>
         )}
       </div>
 
@@ -230,34 +242,42 @@ export const EditStep = (props: {
             Instruction on approach:
           </p>
           <p className="wrap-break-word text-sm text-gray-400">
-            {stepInstructions.approach.fi.key}
+            {currentStepInstructions?.trl_instruction_on_approach_key}
           </p>
           <div className="flex flex-row gap-2">
             <div className="relative w-20 h-auto top-0 left-0 flex-none">
-              {stepInstructions.approach.image ? (
+              {currentStepInstructions?.stepInstructionTranslations
+                ?.img_on_approach ? (
                 <img
-                  src={stepInstructions.approach.image.url}
+                  src={
+                    currentStepInstructions.stepInstructionTranslations
+                      .img_on_approach.url
+                  }
                   alt={`Instruction image for step ${stepIndex + 1}`}
                   className="w-full h-full object-contain relative"
                 />
               ) : (
                 <p className="text-gray-500">No image</p>
               )}
-              {stepInstructions.approach.overlay ? (
+              {currentStepInstructions?.stepInstructionTranslations
+                ?.img_on_approach?.overlay ? (
                 <img
-                  src={stepInstructions.approach.overlay?.overlay_image_url}
+                  src={
+                    currentStepInstructions.stepInstructionTranslations
+                      .img_on_approach.overlay?.overlay_image_url
+                  }
                   alt={`Instruction overlay for step ${stepIndex + 1}`}
                   className="mt-1 absolute"
                   style={{
                     top: "50%",
                     left: "50%",
-                    width: `${stepInstructions.approach.overlay.overlay_size}%`,
+                    width: `${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.overlay_size}%`,
                     height: "auto",
                     transform: `
-                translate(${stepInstructions.approach.overlay.position_x_percent}%, ${stepInstructions.approach.overlay.position_y_percent}%)
+                translate(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.position_x_percent}%, ${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.position_y_percent}%)
                 perspective(6cm)
-                rotateX(${stepInstructions.approach.overlay.rotation_x_deg}deg) 
-                rotate(${stepInstructions.approach.overlay.rotation_deg}deg)
+                rotateX(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.rotation_x_deg}deg) 
+                rotate(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.rotation_deg}deg)
             `,
                     pointerEvents: "none",
                     zIndex: 10,
@@ -267,44 +287,68 @@ export const EditStep = (props: {
                 ""
               )}
             </div>
-            <p>
-              FI: {stepIndex === 0 && firstApproachText.data ? firstApproachText.data[1].text_value : stepInstructions.approach.fi.text || "N/A"}
-              <br />
-              EN: {stepIndex === 0 && firstApproachText.data ? firstApproachText.data[0].text_value : stepInstructions.approach.en.text || "N/A"}
-            </p>
+            <div>
+              {stepIndex === 0 && firstApproachText.data ? (
+                <div className="flex flex-col gap-1">
+                  {firstApproachText.data.map((trl) => (
+                    <span key={trl.language_code}>
+                      {trl.language_code.toUpperCase()}: {trl.text_value}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {currentStepInstructions?.stepInstructionTranslations?.trl_instruction_on_approach.map(
+                    (trl) => (
+                      <span key={trl.lang}>
+                        {trl.lang.toUpperCase()}: {trl.text}
+                      </span>
+                    ),
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex flex-col text-end flex-1 max-w-1/2">
-          <p className="font-bold text-lab-turquoise">Instruction to next:</p>
-          <p className="wrap-break-word text-sm text-gray-400">
-            {stepInstructions.to_next.fi.key}
-          </p>
+          <div className="font-bold text-lab-turquoise">Instruction to next:</div>
+          <div className="wrap-break-word text-sm text-gray-400">
+            {currentStepInstructions?.trl_instruction_to_next_key}
+          </div>
           <div className="flex flex-row gap-2">
             <div className="relative w-20 flex-none">
-              {stepInstructions.to_next.image ? (
+              {currentStepInstructions?.stepInstructionTranslations
+                ?.img_to_next ? (
                 <img
-                  src={stepInstructions.to_next.image.url}
+                  src={
+                    currentStepInstructions?.stepInstructionTranslations
+                      ?.img_to_next.url
+                  }
                   alt={`Instruction image for step ${stepIndex + 1}`}
                   className="w-full h-full object-contain relative"
                 />
               ) : (
                 <p className="text-gray-500">No image</p>
               )}
-              {stepInstructions.to_next.overlay ? (
+              {currentStepInstructions?.stepInstructionTranslations?.img_to_next
+                ?.overlay ? (
                 <img
-                  src={stepInstructions.to_next.overlay?.overlay_image_url}
+                  src={
+                    currentStepInstructions?.stepInstructionTranslations
+                      ?.img_to_next.overlay?.overlay_image_url
+                  }
                   alt={`Instruction overlay for step ${stepIndex + 1}`}
                   className="absolute"
                   style={{
                     top: "50%",
                     left: "50%",
-                    width: `${stepInstructions.to_next.overlay.overlay_size}%`,
+                    width: `${currentStepInstructions?.stepInstructionTranslations?.img_to_next.overlay?.overlay_size}%`,
                     height: "auto",
                     transform: `
-                translate(${stepInstructions.to_next.overlay.position_x_percent}%, ${stepInstructions.to_next.overlay.position_y_percent}%)
+                translate(${currentStepInstructions?.stepInstructionTranslations?.img_to_next.overlay?.position_x_percent}%, ${currentStepInstructions?.stepInstructionTranslations?.img_to_next.overlay?.position_y_percent}%)
                 perspective(6cm)
-                rotateX(${stepInstructions.to_next.overlay.rotation_x_deg}deg) 
-                rotate(${stepInstructions.to_next.overlay.rotation_deg}deg)
+                rotateX(${currentStepInstructions?.stepInstructionTranslations?.img_to_next.overlay?.rotation_x_deg}deg) 
+                rotate(${currentStepInstructions?.stepInstructionTranslations?.img_to_next.overlay?.rotation_deg}deg)
             `,
                     pointerEvents: "none",
                     zIndex: 10,
@@ -314,11 +358,20 @@ export const EditStep = (props: {
                 ""
               )}
             </div>
-            <p className="text-end w-full">
-              FI: {stepInstructions.to_next.fi.text}
+            <div className="text-end w-full">
+              <div className="flex flex-col gap-1">
+                {currentStepInstructions?.stepInstructionTranslations?.trl_instruction_to_next.map(
+                  (trl) => (
+                    <span key={trl.lang}>
+                      {trl.lang.toUpperCase()}: {trl.text}
+                    </span>
+                  ),
+                )}
+              </div>
+              {/* FI: {stepInstructions.to_next.fi.text}
               <br />
-              EN: {stepInstructions.to_next.en.text}
-            </p>
+              EN: {stepInstructions.to_next.en.text} */}
+            </div>
           </div>
         </div>
       </div>

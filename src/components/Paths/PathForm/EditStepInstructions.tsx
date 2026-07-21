@@ -1,10 +1,6 @@
-import type {
-  EditStepInput,
-  StepApiResponse,
-  StepInstructionsItem,
-} from "@apptypes/step";
+import type { EditStepInput, StepApiResponse } from "@apptypes/step";
 import { TextInput } from "@components/Forms/TextInput";
-import { useForm, Field, handleSubmit } from "@formisch/react";
+import { useForm, Field, handleSubmit, FieldArray } from "@formisch/react";
 import { EditStepSchema } from "@schemas/step.schema";
 import { StepOverlay } from "./StepOverlay";
 import type { Translation } from "@apptypes/translation";
@@ -12,34 +8,34 @@ import type { ImageResponse } from "@apptypes/image";
 import { useInstructionsUpdater } from "@hooks/useInstructionsUpdater";
 
 export const EditStepInstructions = (props: {
-  stepInstructionsEn?: StepInstructionsItem;
+  stepInstructions?: {
+    stepInstructionTranslations: EditStepInput;
+    trl_instruction_to_next_key: string;
+    trl_instruction_on_approach_key: string;
+  };
   closeModal: () => void;
   stepIndex: number;
   locationName?: string;
   stepData: StepApiResponse;
-  firstApproachEn: Translation | undefined;
+  firstApproachTranslations: Translation[] | undefined;
   overlayImages: ImageResponse | undefined;
 }) => {
   const {
-    stepInstructionsEn,
+    stepInstructions,
     stepIndex,
     locationName,
     stepData,
-    firstApproachEn,
+    firstApproachTranslations,
     overlayImages,
     closeModal,
   } = props;
 
   const instructionsUpdater = useInstructionsUpdater();
+  const currentStepInstructions = stepInstructions?.stepInstructionTranslations;
 
   const instructionKeys = {
-    approach:
-      stepData.step.instructions.find(
-        (instr) => instr.direction === "on_approach",
-      )?.trl_instruction_key || "",
-    to_next:
-      stepData.step.instructions.find((instr) => instr.direction === "to_next")
-        ?.trl_instruction_key || "",
+    approach: stepInstructions?.trl_instruction_on_approach_key || "",
+    to_next: stepInstructions?.trl_instruction_to_next_key || "",
   };
 
   const overlay_on_approach =
@@ -60,30 +56,15 @@ export const EditStepInstructions = (props: {
     )?.key || "";
 
   const initialValues = {
-    trl_instruction_on_approach_fi:
-      stepData.step.instructions.find(
-        (instr) => instr.direction === "on_approach",
-      )?.instructions.translation || "",
-
-    trl_instruction_on_approach_en:
+    trl_instruction_on_approach:
       stepIndex === 0
-        ? firstApproachEn?.text_value || ""
-        : stepInstructionsEn?.translations.en?.find(
-            (text) =>
-              text.translation_key ===
-              stepInstructionsEn.trl_instruction_on_approach_key,
-          )?.text_value || "",
-
-    trl_instruction_to_next_fi:
-      stepData.step.instructions.find((instr) => instr.direction === "to_next")
-        ?.instructions.translation || "",
-
-    trl_instruction_to_next_en:
-      stepInstructionsEn?.translations.en?.find(
-        (text) =>
-          text.translation_key ===
-          stepInstructionsEn.trl_instruction_to_next_key,
-      )?.text_value || "",
+        ? firstApproachTranslations?.map((trl) => ({
+            lang: trl.language_code,
+            text: trl.text_value,
+          })) || []
+        : currentStepInstructions?.trl_instruction_on_approach || [],
+    trl_instruction_to_next:
+      currentStepInstructions?.trl_instruction_to_next || [],
 
     image_on_approach_file: undefined,
     image_to_next_file: undefined,
@@ -91,7 +72,9 @@ export const EditStepInstructions = (props: {
       // also need overlay_key and image_key when sending data to backend
       image_key: approachOverlayKey,
       position_x_percent: Number(overlay_on_approach?.position_x_percent) || 0,
-      position_y_percent: Number(overlay_on_approach?.position_y_percent ?? -20),
+      position_y_percent: Number(
+        overlay_on_approach?.position_y_percent ?? -20,
+      ),
       rotation_deg: Number(overlay_on_approach?.rotation_deg) || 0,
       rotation_x_deg: Number(overlay_on_approach?.rotation_x_deg) || 0,
       overlay_size: Number(overlay_on_approach?.overlay_size) || 15,
@@ -116,7 +99,9 @@ export const EditStepInstructions = (props: {
     console.log("Submitted values:", values);
     console.log("Form Errors:", instructionsForm.errors);
     const result = await instructionsUpdater.mutateAsync(
-      values, initialValues, stepData
+      values,
+      initialValues,
+      stepData,
     );
     if (!result.error) {
       closeModal();
@@ -144,15 +129,6 @@ export const EditStepInstructions = (props: {
           <h2 className="text-xl font-bold mb-4">
             Edit Step {stepData.step.step_order}
           </h2>
-
-          {/* <Form
-              of={instructionsForm}
-              onSubmit={(data) => {
-                console.log("wtf")
-                handleInstructionsSubmit(data);
-              }}
-              className="space-y-4"
-            > */}
           <div className="space-y-4">
             <p className="ml-1">
               Location:{" "}
@@ -164,38 +140,47 @@ export const EditStepInstructions = (props: {
               <h2 className="text-lg font-semibold text-lab-turquoise">
                 Edit the instructions on approach
               </h2>
-              <Field
+              <FieldArray
                 of={instructionsForm}
-                path={["trl_instruction_on_approach_fi"]}
+                path={["trl_instruction_on_approach"]}
               >
-                {(field) => (
-                  <TextInput
-                    label={`Instruction on approach (fi), key: ${instructionKeys.approach}`}
-                    {...field.props}
-                    input={field.input}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                    errors={field.errors}
-                  />
+                {(fieldArray) => (
+                  <div>
+                    {fieldArray.items.map((item, index) => (
+                      <div key={item}>
+                        <Field
+                          of={instructionsForm}
+                          path={["trl_instruction_on_approach", index, "lang"]}
+                        >
+                          {(langField) => (
+                            <Field
+                              of={instructionsForm}
+                              path={[
+                                "trl_instruction_on_approach",
+                                index,
+                                "text",
+                              ]}
+                            >
+                              {(textField) => (
+                                <TextInput
+                                  label={`Instruction on approach (${langField.input}), key: ${instructionKeys.approach}`}
+                                  {...textField.props}
+                                  input={textField.input}
+                                  onChange={(event) => {
+                                    textField.onChange(event.target.value);
+                                  }}
+                                  errors={fieldArray.errors}
+                                />
+                              )}
+                            </Field>
+                          )}
+                        </Field>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </Field>
-              <Field
-                of={instructionsForm}
-                path={["trl_instruction_on_approach_en"]}
-              >
-                {(field) => (
-                  <TextInput
-                    label="Instruction on approach (en)"
-                    {...field.props}
-                    input={field.input}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                    errors={field.errors}
-                  />
-                )}
-              </Field>
+              </FieldArray>
+
               <StepOverlay
                 imageUrl={
                   stepData.step.instructions.find(
@@ -212,38 +197,43 @@ export const EditStepInstructions = (props: {
               <h2 className="text-lg font-semibold text-lab-turquoise pt-5">
                 Edit the instructions leading to next step
               </h2>
-              <Field
+              <FieldArray
                 of={instructionsForm}
-                path={["trl_instruction_to_next_fi"]}
+                path={["trl_instruction_to_next"]}
               >
-                {(field) => (
-                  <TextInput
-                    label={`Instruction to next (fi), key: ${instructionKeys.to_next}`}
-                    {...field.props}
-                    input={field.input}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                    errors={field.errors}
-                  />
+                {(fieldArray) => (
+                  <div>
+                    {fieldArray.items.map((item, index) => (
+                      <div key={item}>
+                        <Field
+                          of={instructionsForm}
+                          path={["trl_instruction_to_next", index, "lang"]}
+                        >
+                          {(langField) => (
+                            <Field
+                              of={instructionsForm}
+                              path={["trl_instruction_to_next", index, "text"]}
+                            >
+                              {(textField) => (
+                                <TextInput
+                                  label={`Instruction to next (${langField.input}), key: ${instructionKeys.to_next}`}
+                                  {...textField.props}
+                                  input={textField.input}
+                                  onChange={(event) => {
+                                    textField.onChange(event.target.value);
+                                  }}
+                                  errors={fieldArray.errors}
+                                />
+                              )}
+                            </Field>
+                          )}
+                        </Field>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </Field>
-              <Field
-                of={instructionsForm}
-                path={["trl_instruction_to_next_en"]}
-              >
-                {(field) => (
-                  <TextInput
-                    label="Instruction to next (en)"
-                    {...field.props}
-                    input={field.input}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                    errors={field.errors}
-                  />
-                )}
-              </Field>
+              </FieldArray>
+
               <StepOverlay
                 imageUrl={
                   stepData.step.instructions.find(

@@ -1,6 +1,7 @@
 // modal to pop open LocationForm
 import { LocationForm } from "./LocationForm";
 import type { EditLocationInput } from "@apptypes/location";
+import { useLanguages } from "@hooks/useAppInit";
 import { useLocationCreator } from "@hooks/useLocationCreator";
 
 export const LocationModal = (props: {
@@ -20,6 +21,7 @@ export const LocationModal = (props: {
     isEntryLocation,
   } = props;
   const locationCreator = useLocationCreator();
+  const languageList = useLanguages();
   const handleSubmit = async (data: EditLocationInput) => {
     if (!buildingId) return;
     const result = await locationCreator.mutateAsync(buildingId, data);
@@ -46,6 +48,7 @@ export const LocationModal = (props: {
           handleSubmit={(data) => {
             handleSubmit(data);
           }}
+          languageList={languageList.data || []}
         />
         {locationCreator.isLoading && (
           <div>{locationCreator.loadingMessage}</div>

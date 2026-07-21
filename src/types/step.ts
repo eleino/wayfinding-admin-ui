@@ -100,8 +100,8 @@ export interface EditStepInput {
   image_on_approach_file?: File;
   image_to_next_url?: string;
   image_to_next_file?: File;
-  trl_instruction_on_approach?: { lang: string, text: string }[];
-  trl_instruction_to_next?: { lang: string, text: string }[];
+  trl_instruction_on_approach?: { lang: string, text?: string }[];
+  trl_instruction_to_next?: { lang: string, text?: string }[];
   overlay_on_approach?: EditStepOverlay;
   overlay_to_next?: EditStepOverlay;
 }
