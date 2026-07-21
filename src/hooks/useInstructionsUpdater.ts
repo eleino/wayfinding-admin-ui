@@ -17,6 +17,7 @@ import type { Translation } from "@apptypes/translation";
 import type { OverlayResponse } from "@apptypes/overlay";
 import type { EditStepInput, StepApiResponse } from "@apptypes/step";
 import { HTTPError, TimeoutError } from "ky";
+import { useLanguages } from "./useAppInit";
 
 interface DataType {
   translations: Translation[] | null;
@@ -37,6 +38,7 @@ export const useInstructionsUpdater = () => {
   const updateOverlayMutation = useUpdateOverlay();
   const createOverlayMutation = useCreateOverlay();
   const deleteOverlayMutation = useDeleteOverlay();
+  const languageList = useLanguages();
 
   const mutateAsync = useCallback(
     async (
@@ -49,7 +51,7 @@ export const useInstructionsUpdater = () => {
       setError(null);
       setData(null);
       const directions = ["on_approach", "to_next"] as const;
-      const languages = ["fi", "en"] as const;
+      const languages = languageList.data?.map((lang) => lang.code) || [];
       const translationTypeMap = {
         on_approach: "approach_instruction",
         to_next: "to_next_instruction",
@@ -75,9 +77,9 @@ export const useInstructionsUpdater = () => {
           // handle translations
           for (const lang of languages) {
             const newTextValue =
-              updatedInstructionData[`trl_instruction_${dir}_${lang}`];
+              updatedInstructionData[`trl_instruction_${dir}`]?.find((trl) => trl.lang === lang)?.text || "";
             const initialTextValue =
-              initialData[`trl_instruction_${dir}_${lang}`];
+              initialData[`trl_instruction_${dir}`]?.find((trl) => trl.lang === lang)?.text || "";
 
             if (newTextValue !== initialTextValue) {
               if (initialTextValue && !newTextValue) {
@@ -207,6 +209,9 @@ export const useInstructionsUpdater = () => {
             queryKey: ["pathInstructions", stepData.step.path_id, lang],
           });
         }
+        queryClient.invalidateQueries({
+          queryKey: ["pathInstructionsAllLangs", stepData.step.path_id],
+        });
         return {
           data: filteredData,
         };
@@ -228,6 +233,7 @@ export const useInstructionsUpdater = () => {
       updateOverlayMutation,
       createOverlayMutation,
       deleteOverlayMutation,
+      languageList,
     ],
   );
 

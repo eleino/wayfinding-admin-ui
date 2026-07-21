@@ -1,20 +1,23 @@
 import type { StepInstruction } from "@apptypes/step";
-import { useGetTranslation } from "@hooks/useTranslations";
+import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 
 export const StepInstructions = (props: {
   instruction: StepInstruction;
   key: number;
 }) => {
   const { instruction } = props;
-  const { image, translation } = instruction.instructions;
+  const { image } = instruction.instructions;
   const { overlay } = image;
-  const enTranslation = useGetTranslation(instruction.trl_instruction_key, "en");
+  const translations = useGetTranslationsAllLangs(instruction.trl_instruction_key);
   return (
     <div className="mb-2">
       <p className="text-lab-turquoise mb-1">Direction: {instruction.direction}</p>
       <p className="text-gray-300 mb-1">Translation key: {instruction.trl_instruction_key}
-        <span className="block">fi: {translation}</span>
-        <span className="block">en: {enTranslation ? enTranslation.data?.text_value : "Translation not available"}</span>
+        {translations.data?.map((trl) => (
+          <span key={trl.language_code} className="block">
+            {trl.language_code}: {trl.text_value}
+            </span>)
+            )}
       </p>
       <div className="">
         <p>Image key: {instruction.img_key}</p>

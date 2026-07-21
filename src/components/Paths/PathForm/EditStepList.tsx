@@ -12,7 +12,7 @@ import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { useLocation } from "@tanstack/react-router";
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
-import { useGetPathInstructions, useUpdateSteps } from "@hooks/useSteps";
+import { useGetPathInstructionsAllLangs, useUpdateSteps } from "@hooks/useSteps";
 import type { PathApiResponse } from "@apptypes/path";
 import { EditStep } from "./EditStep";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@components/Forms/AlertDialog";
 import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
 import { PathEditStepsProvider } from "../PathContext/PathEditStepsContext";
+import { useLanguages } from "@hooks/useAppInit";
 
 export const EditStepList = (props: { pathData: PathApiResponse }) => {
   const { pathData } = props;
@@ -30,11 +31,11 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
   const pathId = search.pathId;
   const locationList = useGetLocations(buildingId);
   const entryLocations = useGetEntryLocations(buildingId);
-  const pathInstructionsFi = useGetPathInstructions(pathId, "fi");
-  const pathInstructionsEn = useGetPathInstructions(pathId, "en");
+  const pathInstructions = useGetPathInstructionsAllLangs(pathId);
   const updateStepsMutation = useUpdateSteps();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
+  const languageList = useLanguages();
 
   const steps = pathData.steps?.map((step) => ({
     step_order: step.order,
@@ -125,8 +126,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
   }
   if (
     locationList.isLoading ||
-    pathInstructionsFi.isLoading ||
-    pathInstructionsEn.isLoading
+    pathInstructions.isLoading
   ) {
     return <p>Loading path data...</p>;
   }
@@ -192,9 +192,9 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
             locationList: locationList.data,
             entryLocations: entryLocations.data,
             pathData,
-            pathInstructionsFi: pathInstructionsFi.data,
-            pathInstructionsEn: pathInstructionsEn.data,
+            pathInstructions: pathInstructions.data,
             allowRearranging,
+            languageList: languageList.data,
           }}
         >
           <FieldArray of={form} path={["steps"]}>

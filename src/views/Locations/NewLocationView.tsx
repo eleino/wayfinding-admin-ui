@@ -4,6 +4,7 @@ import { LocationForm } from "@components/Locations/LocationForm";
 import type { EditLocationInput } from "@apptypes/location";
 import { useLocationCreator } from "@hooks/useLocationCreator";
 import type { SearchParams } from "@schemas/router.schema";
+import { useLanguages } from "@hooks/useAppInit";
 
 export const NewLocationView = () => {
   const { buildingId } = useSearch({ from: "__root__" }) as SearchParams;
@@ -12,6 +13,7 @@ export const NewLocationView = () => {
     useSelectionStore((state) => state.buildingId) || buildingId;
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const savedOrgId = useSelectionStore((state) => state.orgId);
+  const languageList = useLanguages();
 
   const navigate = useNavigate();
 
@@ -33,7 +35,15 @@ export const NewLocationView = () => {
       });
     }
   };
-
+  if (languageList.isLoading) {
+    return <div>Loading languages...</div>;
+  }
+  if (languageList.isError) {
+    return <div>Error loading languages: {languageList.error.message}</div>;
+  }
+  if (!languageList.data || languageList.data.length === 0) {
+    return <div>No languages available</div>;
+  }
   return (
     <div className="p-4">
       <h1>Add a new location</h1>
@@ -50,7 +60,7 @@ export const NewLocationView = () => {
       </Link>
       <div className="border-border-grey bg-sidebar-grey p-4 mt-4 w-150">
         {buildingId ? (
-          <LocationForm handleSubmit={handleCreateLocation} />
+          <LocationForm handleSubmit={handleCreateLocation} languageList={languageList.data} />
         ) : (
           <div>Please select a building to add a location.</div>
         )}

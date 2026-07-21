@@ -10,9 +10,9 @@ export type PathEditStepsContextValue = {
   locationList?: ListLocation[];
   entryLocations?: EntranceLocation[];
   pathData: PathApiResponse;
-  pathInstructionsFi?: StepInstructionsList;
-  pathInstructionsEn?: StepInstructionsList;
+  pathInstructions?: StepInstructionsList[];
   allowRearranging?: boolean;
+  languageList?: { code: string; name: string }[];
 };
 
 const PathEditStepsContext = createContext<PathEditStepsContextValue | null>(null);

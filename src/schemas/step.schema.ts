@@ -1,5 +1,6 @@
 import type { CreateStepDTO } from "@apptypes/dtos/create-step.dto";
 import * as v from "valibot";
+import { TranslationSchema } from "./location.schema";
 
 export const StepSchema = v.object({
   location_id: v.number(),
@@ -38,10 +39,8 @@ export const OverlaySchema = v.object({
 
 // instructions are optional, user frontend displays a step's approach/to next instruction+image(+overlay) based on whether text instruction for it is present
 export const EditStepSchema = v.object({
-    trl_instruction_on_approach_fi: v.optional(v.string()),
-    trl_instruction_on_approach_en: v.optional(v.string()),
-    trl_instruction_to_next_fi: v.optional(v.string()),
-    trl_instruction_to_next_en: v.optional(v.string()),
+    trl_instruction_on_approach: v.optional(v.array(TranslationSchema)),
+    trl_instruction_to_next: v.optional(v.array(TranslationSchema)),
     image_on_approach_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     image_to_next_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
     overlay_on_approach: v.optional(

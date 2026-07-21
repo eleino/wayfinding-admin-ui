@@ -10,8 +10,7 @@ export interface Site {
     trl_site_desc_key: string;
     trl_site_welcome_msg_key: string;
     translations: {
-        fi?: AppTranslation[];
-        en?: AppTranslation[];
+        [lang: string]: AppTranslation[];
     }
 }
 

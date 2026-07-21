@@ -1,8 +1,10 @@
 import type { SearchParams } from "@schemas/router.schema";
 import { useGetLocationById } from "@hooks/useLocations";
-import { useGetTranslationsEnFi } from "@hooks/useTranslations";
+import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import { Link } from "@tanstack/react-router";
+import { useLanguages } from "@hooks/useAppInit";
 
+// TODO: update language display
 export const ShowLocation = (props: {
   locationId: number | null;
   searchParams: SearchParams;
@@ -12,13 +14,20 @@ export const ShowLocation = (props: {
     enabled: !!locationId,
   });
   const { location, image } = locationData.data || {};
+  const languageList = useLanguages();
+  const convertLanguageCodeToName = (code: string) => {
+    const language = languageList.data?.find((lang) => lang.code === code);
+    return language ? language.name : code;
+  };
 
   // fetch translations for keys defined in trl_location_name_key, trl_current_location_msg_key, trl_location_desc_key
-  const trl_location_name = useGetTranslationsEnFi(
+  const trl_location_name = useGetTranslationsAllLangs(
     location?.trl_location_name_key,
+    {enabled: !!location?.trl_location_name_key,}
   );
-  const trl_current_location_msg = useGetTranslationsEnFi(
+  const trl_current_location_msg = useGetTranslationsAllLangs(
     location?.trl_current_location_msg_key,
+    {enabled: !!location?.trl_current_location_msg_key,}
   );
   // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests? It's also not shown to users in the wayfinding app, so no reason to include it
   /*   const trl_location_desc = useGetTranslationsEnFi(
@@ -100,18 +109,30 @@ export const ShowLocation = (props: {
                   <h3 className="col-span-2 ">
                     {location.trl_location_name_key}
                   </h3>
-                  <span className="text-lab-turquoise font-bold">En:</span>
-                  <span>{trl_location_name.data?.[0]?.text_value}</span>
-                  <span className="text-lab-turquoise font-bold">Fi:</span>
-                  <span>{trl_location_name.data?.[1]?.text_value}</span>
+                    <div className="flex flex-col gap-1">
+                  {trl_location_name.data?.map((translation) => (
+                    <div key={translation.language_code} className="flex flex-row gap-1">
+                      <span className="text-lab-turquoise font-bold">
+                        {convertLanguageCodeToName(translation.language_code)}:
+                      </span>
+                      <span>{translation.text_value}</span>
+                    </div>
+                  ))}
+                    </div>
 
                   <h3 className="col-span-2 mt-2">
                     {location.trl_current_location_msg_key}
                   </h3>
-                  <span className="text-lab-turquoise font-bold">En:</span>
-                  <span>{trl_current_location_msg.data?.[0]?.text_value}</span>
-                  <span className="text-lab-turquoise font-bold">Fi:</span>
-                  <span>{trl_current_location_msg.data?.[1]?.text_value}</span>
+                  <div className="flex flex-col gap-1">
+                  {trl_current_location_msg.data?.map((translation) => (
+                    <div key={translation.language_code} className="flex flex-row gap-1">
+                      <span className="text-lab-turquoise font-bold">
+                        {convertLanguageCodeToName(translation.language_code)}:
+                      </span>
+                      <span>{translation.text_value}</span>
+                    </div>
+                  ))}
+                  </div>
 
                   {/* desc is empty for every location currently, and not used on the users' frontend
             <li>{location.trl_location_desc_key}

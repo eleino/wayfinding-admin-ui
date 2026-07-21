@@ -1,6 +1,8 @@
 import { fetchStepById, fetchPathInstructions, updateSteps } from "@api/steps";
 import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLanguages } from "./useAppInit";
+import type { StepInstructionsList } from "@apptypes/step";
 
 export const useGetStepById = (id: number | null, lang?: string, options = {}) => {
   if (!id) {
@@ -15,6 +17,23 @@ export const useGetPathInstructions = (id: number | null, lang: string = "fi", f
     throw new Error("Path ID is required to fetch path instructions.");
   }
   const query = useQuery({ queryKey: ["pathInstructions", id, lang], queryFn: () => fetchPathInstructions(id, lang, fromLocation), ...options });
+  return query;
+}
+
+export const useGetPathInstructionsAllLangs = (id: number | null, fromLocation?: number, options = {}) => {
+  if (!id) {
+    throw new Error("Path ID is required to fetch path instructions.");
+  }
+  const languageList = useLanguages();
+
+  const query = useQuery({ queryKey: ["pathInstructionsAllLangs", id], queryFn: async () => {
+    if (!languageList.data) return [];
+    const promises: Promise<StepInstructionsList>[] = [];
+    languageList.data?.forEach((lang) => {
+      promises.push(fetchPathInstructions(id, lang.code, fromLocation));
+    });
+    return Promise.all(promises);
+  }, enabled: !!languageList.data, ...options });
   return query;
 }
 
