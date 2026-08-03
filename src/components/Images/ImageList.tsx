@@ -55,7 +55,7 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
       </ul>
 
       {isLoading && <p>Loading...</p>}
-      {error && <p>Error loading images.</p>}
+      {error && <p>Error loading images: {error.message}</p>}
       {allImages.length === 0 ? (selectedType && !isLoading) && (
         <p className="text-gray-500 mt-1">No images found for type "{selectedType}".</p>
       ) : (

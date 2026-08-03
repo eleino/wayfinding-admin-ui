@@ -16,8 +16,8 @@ import type { UploadedImage } from "@apptypes/image";
 import type { Translation } from "@apptypes/translation";
 import type { OverlayResponse } from "@apptypes/overlay";
 import type { EditStepInput, StepApiResponse } from "@apptypes/step";
-import { HTTPError, TimeoutError } from "ky";
 import { useLanguages } from "./useAppInit";
+import { ApiError, normalizeApiError } from "@api/errors";
 
 interface DataType {
   translations: Translation[] | null;
@@ -27,7 +27,7 @@ interface DataType {
 export const useInstructionsUpdater = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const [data, setData] = useState<DataType | null>(null);
 
   const queryClient = useQueryClient();
@@ -216,12 +216,11 @@ export const useInstructionsUpdater = () => {
           data: filteredData,
         };
       } catch (error) {
-        if (error instanceof HTTPError || error instanceof TimeoutError) {
-          setError(error);
-        } else {
-          setError(new Error("An unknown error occurred"));
-        }
-        return { error };
+        const apiError = normalizeApiError(error);
+        setError(apiError);
+        setIsLoading(false);
+        setLoadingMessage(null);
+        return { error: apiError };
       }
     },
     [

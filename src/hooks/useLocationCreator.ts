@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 import type { Location } from "@apptypes/location";
 import type { UploadedImage } from "@apptypes/image";
 import type { Translation } from "@apptypes/translation";
-import { HTTPError, TimeoutError } from "ky";
+import { ApiError, normalizeApiError } from "@api/errors";
 
 interface DataType {
   location: Location;
@@ -19,9 +19,7 @@ interface DataType {
 export const useLocationCreator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(
-    null,
-  );
+  const [error, setError] = useState<ApiError | null>(null);
   const [data, setData] = useState<DataType | null>(null);
   const queryClient = useQueryClient();
   const createLocationMutation = useCreateLocation();
@@ -118,12 +116,9 @@ export const useLocationCreator = () => {
         setIsLoading(false);
         setLoadingMessage(null);
         console.error("Error creating location:", error);
-        if (error instanceof HTTPError || error instanceof TimeoutError) {
-          setError(error);
-        } else {
-          setError(new Error("An unknown error occurred"));
-        }
-        return { error };
+        const apiError = normalizeApiError(error);
+        setError(apiError);
+        return { error: apiError };
       }
     },
     [

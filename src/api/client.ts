@@ -1,4 +1,5 @@
 import ky from 'ky';
+import { normalizeApiError } from './errors';
 
 const apiClient = ky.create({
   baseUrl: `${import.meta.env.VITE_API_BASE_URL}`,
@@ -11,6 +12,9 @@ const apiClient = ky.create({
           request.headers.set('Authorization', `Bearer ${token}`);
         }
       },
+    ],
+    beforeError: [
+      ({ error }) => normalizeApiError(error),
     ],
   },
 });
