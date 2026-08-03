@@ -48,7 +48,6 @@ export const EditStep = (props: {
         const step = langInstructions.steps.find(
           (stp) => stp.step_order === stepNro,
         );
-
         return languageCode && step ? { languageCode, step } : null;
       })
       .filter( // filter out null values and assert the type of the remaining entries

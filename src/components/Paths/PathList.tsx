@@ -21,7 +21,7 @@ export const PathList = (props: { buildingId: number | undefined }) => {
   return (
     <div className="p-2">
       {paths.isLoading && <p>Loading paths...</p>}
-      {paths.isError && <p>Error loading paths: {String(paths.error)}</p>}
+      {paths.isError && <p>Error loading paths: {paths.error.message}</p>}
       <DataList
         data={paths.data || []}
         columns={[

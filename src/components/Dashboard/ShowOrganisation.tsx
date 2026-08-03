@@ -9,7 +9,7 @@ const ShowOrganisation = (props: { orgId: number }) => {
   }
 
   if (sites.isError) {
-    return <div>Error loading sites: {String(sites.error)}</div>;
+    return <div>Error loading sites: {sites.error.message}</div>;
   }
   return (
     <div>

@@ -1,6 +1,7 @@
 import { useGetQRCode } from "@hooks/useQRCodes";
 import { useEffect, useMemo, useState } from "react";
 import {AlertDialog, type AlertDialogType } from "@components/Forms/AlertDialog";
+import { getQRCodeFontSize, populateQRCodePrintDocument } from "./qrCodePrint";
 
 export const QRCode = (props: { locationId: number; pathId?: number }) => {
   const { locationId, pathId } = props;
@@ -25,68 +26,15 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
     };
   }, [imgUrl]);
 
-  // Calculate font size based on text length
-  const getFontSize = (text: string) => {
-    const length = text.length || 1;
-    const baseSize = 96;
-    const calculatedSize = Math.max(
-      56,
-     baseSize - (length * 0.8),
-    );
-    return `${calculatedSize}pt`;
-  };
-
-  const a4Styles = `
-    width: 210mm;
-    height: 297mm;
-    padding: 20mm;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    background: white;
-    color: black;
-    text-align: center;
-  `;
-
   const handlePrint = () => {
     if (!imgUrl) return;
     const printWindow = window.open("", "_blank");
     if (printWindow) {
-      const htmlContent = `
-        <html>
-          <head>
-            <title>Print QR Code</title>
-            <style>
-              @page { size: A4; margin: 0; }
-              body { margin: 0; display: flex; justify-content: center; }
-              .a4-container { ${a4Styles} }
-              .qr-image { 
-                max-width: 100%; 
-                height: 45%; 
-                object-fit: contain;
-                margin-top: 10mm;
-              }
-              .label-text { 
-                margin-top: 10mm;
-                font-family: sans-serif;
-                font-size: ${getFontSize(QRCodeText)};
-                overflow-wrap: anywhere;
-                font-weight: bold;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="a4-container">
-              <img src="${imgUrl}" class="qr-image" />
-              <span class="label-text">${QRCodeText}</span>
-            </div>
-          </body>
-        </html>
-    `;
-      printWindow.document.documentElement.innerHTML = htmlContent;
-      printWindow.document.close();
+      printWindow.opener = null;
+      populateQRCodePrintDocument(printWindow.document, {
+        imageUrl: imgUrl,
+        label: QRCodeText,
+      });
       printWindow.focus();
       // Small timeout to ensure image loads before print dialog
       setTimeout(() => {
@@ -161,7 +109,7 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
                 />
                 <span
                   style={{
-                    fontSize: getFontSize(QRCodeText),
+                    fontSize: getQRCodeFontSize(QRCodeText),
                     marginTop: "10mm",
                     fontFamily: "sans-serif",
                     overflowWrap: "anywhere",

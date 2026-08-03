@@ -73,11 +73,6 @@ export interface EditLocationInput {
     // building_id: number;
     is_entry_location: boolean;
     floor_number: number;
-    // update to support multiple languages
-    // trl_location_name_en: string;
-    // trl_location_name_fi: string;
-    // trl_at_current_location_msg_en: string;
-    // trl_at_current_location_msg_fi: string;
     trl_location_name: {
         lang: string;
         text?: string;

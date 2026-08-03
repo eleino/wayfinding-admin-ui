@@ -5,7 +5,7 @@ import { useUpdateLocation } from "./useLocations";
 import { useUploadImage } from "./useImages";
 import { useState, useCallback } from "react";
 import type { EditLocationInput } from "@apptypes/location";
-import { HTTPError, TimeoutError } from "ky";
+import { ApiError, normalizeApiError } from "@api/errors";
 import type { Location } from "@apptypes/location";
 import type { UploadedImage } from "@apptypes/image";
 import type { Translation } from "@apptypes/translation";
@@ -19,9 +19,7 @@ interface DataType {
 export const useLocationUpdater = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const [error, setError] = useState<HTTPError | TimeoutError | Error | null>(
-    null,
-  );
+  const [error, setError] = useState<ApiError | null>(null);
   const [data, setData] = useState<DataType | null>(null);
 
   const updateLocationMutation = useUpdateLocation();
@@ -184,12 +182,9 @@ export const useLocationUpdater = () => {
         setIsLoading(false);
         setLoadingMessage(null);
         console.error("Error updating location:", error);
-        if (error instanceof HTTPError || error instanceof TimeoutError) {
-          setError(error);
-        } else {
-          setError(new Error("An unknown error occurred"));
-        }
-        return { error };
+        const apiError = normalizeApiError(error);
+        setError(apiError);
+        return { error: apiError };
       } finally {
         setIsLoading(false);
         setLoadingMessage(null);

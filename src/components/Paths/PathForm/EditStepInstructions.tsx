@@ -93,6 +93,7 @@ export const EditStepInstructions = (props: {
   const instructionsForm = useForm({
     schema: EditStepSchema,
     initialInput: initialValues,
+    validate: "blur",
   });
 
   const handleInstructionsSubmit = async (values: EditStepInput) => {

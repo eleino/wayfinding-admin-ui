@@ -38,7 +38,7 @@ export const ShowLocation = (props: {
     return <div>Loading location details...</div>;
   }
   if (locationData.isError) {
-    return <div>Error loading location details.</div>;
+    return <div>Error loading location details: {locationData.error.message}</div>;
   }
 
   /* TODO: implement saving recent locations, and listing them somewhere for easy access
