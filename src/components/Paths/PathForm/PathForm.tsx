@@ -36,6 +36,7 @@ export const PathForm = (props: {
   const pathForm = useForm({
     schema,
     initialInput: initialValues,
+    validate: "blur",
   });
   if (!buildingId && !isEditMode) {
     return (

@@ -39,14 +39,18 @@ export const useGetPathInstructionsAllLangs = (id: number | null, fromLocation?:
 
 export const useUpdateSteps = (options = {}) => {
   const queryClient = useQueryClient();
+  const languageList = useLanguages();
   const mutation = useMutation({
     mutationFn: ({ pathId, stepsData }: { pathId: number, stepsData: UpdateStepDTO[] }) => updateSteps(pathId, stepsData),
     onSuccess: (data) => {
       const pathId = data.length > 0 ? data[0].path_id : null;
       if (pathId) {
         queryClient.invalidateQueries({ queryKey: ["path", pathId] });
-        queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, "fi"] });
-        queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, "en"] });
+        if (languageList.data) {
+          languageList.data.forEach((lang) => {
+            queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, lang.code] });
+          });
+        }
       }
     },
     ...options
