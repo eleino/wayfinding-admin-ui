@@ -53,7 +53,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={createRouter({ routeTree: AppRouter })} />
+      <RouterProvider router={createRouter({ routeTree: AppRouter, basepath: import.meta.env.BASE_URL })} />
     </QueryClientProvider>
   );
 }

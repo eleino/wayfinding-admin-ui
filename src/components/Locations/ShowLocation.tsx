@@ -1,23 +1,63 @@
 import type { SearchParams } from "@schemas/router.schema";
-import { useGetLocationById } from "@hooks/useLocations";
+import { useDeleteLocation, useGetLocationById, useGetLocationDeletionImpact } from "@hooks/useLocations";
 import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useLanguages } from "@hooks/useAppInit";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { LocationDeletionDialog } from "./LocationDeletionDialog";
 
-// TODO: update language display
 export const ShowLocation = (props: {
   locationId: number | null;
   searchParams: SearchParams;
 }) => {
   const { locationId, searchParams } = props;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const locationData = useGetLocationById(Number(locationId), {
     enabled: !!locationId,
   });
+  const deletionImpact = useGetLocationDeletionImpact(Number(locationId), {
+    enabled: showDeleteDialog && !!locationId,
+  });
+  const deleteLocationMutation = useDeleteLocation();
   const { location, image } = locationData.data || {};
   const languageList = useLanguages();
   const convertLanguageCodeToName = (code: string) => {
     const language = languageList.data?.find((lang) => lang.code === code);
     return language ? language.name : code;
+  };
+
+  const handleDeleteLocation = () => {
+    if (!locationId || !deletionImpact.data) return;
+
+    deleteLocationMutation.mutate(
+      {
+        locationId,
+        cascadePaths: deletionImpact.data.affected_paths.length > 0,
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ["locations", location?.building_id],
+          });
+          queryClient.removeQueries({ queryKey: ["location", locationId] });
+          queryClient.removeQueries({
+            queryKey: ["locationDeletionImpact", locationId],
+          });
+          navigate({
+            to: "/locations",
+            search: {
+              orgId: searchParams.orgId,
+              siteId: searchParams.siteId,
+              buildingId: searchParams.buildingId,
+            },
+            replace: true,
+          });
+        },
+      },
+    );
   };
 
   // fetch translations for keys defined in trl_location_name_key, trl_current_location_msg_key, trl_location_desc_key
@@ -29,10 +69,6 @@ export const ShowLocation = (props: {
     location?.trl_current_location_msg_key,
     {enabled: !!location?.trl_current_location_msg_key,}
   );
-  // NOTE: translation for desc appears to consistently be missing, maybe we should exclude it to not spam backend with requests? It's also not shown to users in the wayfinding app, so no reason to include it
-  /*   const trl_location_desc = useGetTranslationsEnFi(
-    location?.trl_location_desc_key,
-  ); */
 
   if (locationData.isLoading) {
     return <div>Loading location details...</div>;
@@ -63,18 +99,30 @@ export const ShowLocation = (props: {
           &larr; Back to locations list
         </Link>
         <div className="bg-sidebar-grey p-4 pl-3 rounded mt-2 relative">
-          <div className="flex flex-row justify-between">
-            <h2 className="text-lab-turquoise font-bold text-xl pb-2">
+          <div className="flex flex-row justify-between gap-2 items-center">
+            <h2 className="text-lab-turquoise font-bold text-xl">
               Location Details
             </h2><span className="font-sm text-gray-400">Location ID: {locationId}</span>
-            <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
-              <Link
-                to="/locations/edit"
-                search={{...searchParams, locationId: Number(locationId)}}
+            <div className="flex flex-row gap-2 pl-5">
+              <button
+                type="button"
+                className="cursor-pointer rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
+                onClick={() => {
+                  deleteLocationMutation.reset();
+                  setShowDeleteDialog(true);
+                }}
               >
-                Edit Location
-              </Link>
-            </button>
+                Delete Location
+              </button>
+              <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
+                <Link
+                  to="/locations/edit"
+                  search={{...searchParams, locationId: Number(locationId)}}
+                >
+                  Edit Location
+                </Link>
+              </button>
+            </div>
           </div>
           <div className="flex flex-row gap-10 mt-2">
             <div className="flex flex-col gap-4 mt-2">
@@ -133,12 +181,6 @@ export const ShowLocation = (props: {
                     </div>
                   ))}
                   </div>
-
-                  {/* desc is empty for every location currently, and not used on the users' frontend
-            <li>{location.trl_location_desc_key}
-              <p>En: {trl_location_desc.data?.[0]?.text_value}</p>
-              <p>Fi: {trl_location_desc.data?.[1]?.text_value}</p>
-            </li> */}
                 </div>
               </div>
             </div>
@@ -156,6 +198,22 @@ export const ShowLocation = (props: {
             </div>
           </div>
         </div>
+        {showDeleteDialog && (
+          <LocationDeletionDialog
+            impact={deletionImpact.data}
+            isLoading={deletionImpact.isLoading}
+            error={deletionImpact.error}
+            isDeleting={deleteLocationMutation.isPending}
+            deleteError={deleteLocationMutation.error}
+            searchParams={searchParams}
+            onConfirm={handleDeleteLocation}
+            onCancel={() => {
+              if (!deleteLocationMutation.isPending) {
+                setShowDeleteDialog(false);
+              }
+            }}
+          />
+        )}
       </div>
     );
   }
