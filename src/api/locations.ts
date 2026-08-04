@@ -1,6 +1,6 @@
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import apiClient from "./client";
-import type { EntranceLocation, ListLocation, Location, LocationDestinations, LocationWithImage } from "@apptypes/location";
+import type { EntranceLocation, ListLocation, Location, LocationDeletionImpact, LocationDestinations, LocationWithImage } from "@apptypes/location";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
 // Fetches locations in a building (GET /buildings/:id/locations)
@@ -69,8 +69,18 @@ export const updateLocation = async (
   return response.json();
 };
 
-// TODO: need to implement endpoints on backend for fetching deletion impact for a location, and for deleting a location + overlay, image, translation entries that would become orphaned when the location is deleted.
-// currently only path/path-steps are deleted via cascade when a location is deleted. Image files are also deleted since the location's folder is deleted, but not the image entries in the db.
-export const deleteLocation = async (id: number): Promise<void> => {
-  await apiClient.delete(`locations/${id}`);
+export const fetchLocationDeletionImpact = async (
+  id: number,
+): Promise<LocationDeletionImpact> => {
+  const response = await apiClient.get(`locations/${id}/deletion-impact`);
+  return response.json();
+};
+
+export const deleteLocation = async (
+  id: number,
+  cascadePaths = false,
+): Promise<void> => {
+  await apiClient.delete(
+    `locations/${id}?cascadePaths=${cascadePaths ? "true" : "false"}`,
+  );
 };

@@ -89,3 +89,57 @@ export interface EditLocationInput {
     imageUrl?: string | null;
     imageFile?: File | undefined;
 }
+
+export type AffectedPathReason =
+  | "start_location"
+  | "end_location"
+  | "step_location"
+  | "resource_key";
+
+export interface LocationDeletionImpact {
+  location: {
+    location_id: number;
+    name: string;
+  };
+  can_delete_without_cascade: boolean;
+  affected_paths: {
+    path_id: number;
+    name: string;
+    reason: AffectedPathReason;
+  }[];
+  affected_path_steps: {
+    path_step_id: number;
+    path_id: number;
+    location_id: number;
+    step_order: number;
+  }[];
+  obsolete_resources: {
+    images: {
+      image_key: string;
+      type: string;
+      file_path: string;
+    }[];
+    translations: {
+      translation_id: number;
+      translation_key: string;
+      language_code: string;
+      type: string;
+      text_value: string;
+    }[];
+    overlays: {
+      image_overlay_id: number;
+      overlay_key: string;
+      image_key: string;
+    }[];
+  };
+  missing_resource_keys: {
+    images: string[];
+    translations: string[];
+    overlays: string[];
+  };
+  cascade_counts: {
+    organization_paths: number;
+    feedback: number;
+    metrics: number;
+  };
+}

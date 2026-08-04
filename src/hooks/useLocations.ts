@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { fetchLocationById, fetchLocationDestinations, fetchLocations, createLocation, updateLocation, fetchEntryLocations } from "@api/locations";
+import { fetchLocationById, fetchLocationDeletionImpact, fetchLocationDestinations, fetchLocations, createLocation, updateLocation, fetchEntryLocations, deleteLocation } from "@api/locations";
 import type { CreateLocationDTO } from "@apptypes/dtos/create-location.dto";
 import type { UpdateLocationDTO } from "@apptypes/dtos/update-location.dto";
 
@@ -37,4 +37,24 @@ export const useUpdateLocation = (options = {}) => {
         ...options,
     });
     return mutation;
+}
+
+export const useGetLocationDeletionImpact = (
+    id: number | undefined,
+    options = {},
+) => {
+    return useQuery({
+        queryKey: ["locationDeletionImpact", id],
+        queryFn: () => fetchLocationDeletionImpact(id!),
+        enabled: !!id,
+        ...options,
+    });
+}
+
+export const useDeleteLocation = (options = {}) => {
+    return useMutation({
+        mutationFn: ({ locationId, cascadePaths }: { locationId: number; cascadePaths: boolean }) =>
+            deleteLocation(locationId, cascadePaths),
+        ...options,
+    });
 }
