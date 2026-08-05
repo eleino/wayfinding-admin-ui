@@ -67,5 +67,5 @@ export interface BuildingOverview {
       total: number;
       limit: number;
     }
-  }
+  };
 };

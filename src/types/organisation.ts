@@ -2,7 +2,7 @@ import type { SiteListItem } from "./site";
 export interface OrganisationType {
     id: string;
     name: string;
-    logoUrl: string;
+    logoUrl: string | null;
 }
 
 export interface ChildOrganisation {
@@ -32,6 +32,7 @@ export interface OrgSettings {
     }
 }
 
+// GET /organizations/:orgId/overview
 export interface OrganisationOverview {
     organization: {
         organization_id: number;

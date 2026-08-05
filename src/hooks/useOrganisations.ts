@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchOrganisationById, fetchOrganisations } from "@api/organisations";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchOrganisationById, fetchOrganisations, updateOrganisation } from "@api/organisations";
 import { useEffect } from "react";
 import { useSelectionStore } from "@storage/store";
 
@@ -9,6 +9,7 @@ export const useGetOrganisations = (options = {}) => {
     queryFn: fetchOrganisations,
     ...options,
   });
+  // Update the orgList in the selection store whenever the query data changes
   useEffect(() => {
     if (query.data) {
       useSelectionStore.setState({
@@ -28,6 +29,7 @@ export const useGetOrganisationById = (id: number|null, options = {}) => {
     queryFn: () => fetchOrganisationById(id),
     ...options,
   });
+  // Update the siteList in the selection store whenever the query data changes
   useEffect(() => {
     if (query.data) {
       useSelectionStore.setState({
@@ -39,4 +41,16 @@ export const useGetOrganisationById = (id: number|null, options = {}) => {
     }
   }, [query.data]);
   return query;
+};
+
+export const useUpdateOrganisation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateOrganisation,
+    onSuccess: (_data, orgData) => {
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
+      queryClient.invalidateQueries({ queryKey: ["organisations", orgData.id] });
+    },
+  });
 };

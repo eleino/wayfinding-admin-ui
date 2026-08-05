@@ -1,11 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { LocationDeletionDialog } from "./LocationDeletionDialog";
 import type { LocationDeletionImpact } from "@apptypes/location";
-import type { ReactNode } from "react";
-
-vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children }: { children: ReactNode }) => <a>{children}</a>,
-}));
+import { renderWithQuery } from "test/render";
 
 const impact: LocationDeletionImpact = {
   location: { location_id: 12, name: "Library" },
@@ -49,9 +45,9 @@ const impact: LocationDeletionImpact = {
 };
 
 describe("LocationDeletionDialog", () => {
-  it("lists the impact and requires an explicit destructive confirmation", () => {
+  it("lists the impact and requires an explicit destructive confirmation", async () => {
     const onConfirm = vi.fn();
-    render(
+    await renderWithQuery(
       <LocationDeletionDialog
         impact={impact}
         isLoading={false}
@@ -83,8 +79,8 @@ describe("LocationDeletionDialog", () => {
     expect(onConfirm).toHaveBeenCalledOnce();
   });
 
-  it("disables confirmation while impact is loading", () => {
-    render(
+  it("disables confirmation while impact is loading", async () => {
+    await renderWithQuery(
       <LocationDeletionDialog
         isLoading
         error={null}

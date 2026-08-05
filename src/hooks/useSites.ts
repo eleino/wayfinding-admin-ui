@@ -1,7 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchSites } from "@api/sites";
-// import { useEffect } from "react";
-// import { useSelectionStore } from "@storage/store";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchSiteById, fetchSites, updateSite } from "@api/sites";
 
 export const useGetSites = (orgId: number | null, options = {}) => {
   const query = useQuery({
@@ -10,15 +8,26 @@ export const useGetSites = (orgId: number | null, options = {}) => {
     enabled: !!orgId,
     ...options,
   });
-/*   useEffect(() => {
-    if (query.data) {
-      useSelectionStore.setState({
-        siteList: query.data.map((site) => ({
-          id: Number(site.id),
-          name: site.name,
-        })),
-      });
-    }
-  }, [query.data]); */
   return query;
+};
+
+export const useGetSiteById = (id: number | null, options = {}) =>
+  useQuery({
+    queryKey: ["sites", "detail", id],
+    queryFn: () => fetchSiteById(id!),
+    enabled: !!id,
+    ...options,
+  });
+
+export const useUpdateSite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSite,
+    onSuccess: (_data, siteData) => {
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+      queryClient.invalidateQueries({ queryKey: ["sites", "detail", siteData.id] });
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
+    },
+  });
 };
