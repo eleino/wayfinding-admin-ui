@@ -45,7 +45,7 @@ const FeedbackItem = ({ feedback }: { feedback: Feedback }) => {
   };
 
   return (
-    <li className="border border-black rounded p-2">
+    <li className="border border-black rounded p-2 mb-2">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">

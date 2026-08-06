@@ -1,7 +1,12 @@
 import PathUsageChart from "./PathUsageChart";
 import { useGetAllPathMetrics } from "@hooks/useMetrics";
+import { useGetPaths } from "@hooks/usePaths";
 import { useSelectionStore } from "@storage/store";
-import { aggregateMetricsByDate } from "@utils/sortMetrics";
+import {
+  aggregateMetricsByDate,
+  sortPathMetricsSummariesByFinishedCount,
+  sortPathMetricsSummariesByUsageCount,
+} from "@utils/sortMetrics";
 
 // format date to the format backend expects: YYYY-MM-DD
 const formatDate = (date: Date) => {
@@ -38,9 +43,17 @@ const PathUsageState = ({
 export const PathUsage = () => {
   const buildingId = useSelectionStore((state) => state.buildingId);
   const building = useSelectionStore((state) => state.buildingList.find((b) => b.id === buildingId));
+  const savedPaths = useSelectionStore((state) => state.pathList);
   const { startDate, endDate } = getDateRange();
   const metrics = useGetAllPathMetrics(buildingId ?? null, startDate, endDate);
-  const aggregatedMetrics = aggregateMetricsByDate(metrics.data ?? []);
+  const paths = useGetPaths(buildingId, { enabled: !!buildingId });
+  const pathMetrics = metrics.data ?? [];
+  const aggregatedMetrics = aggregateMetricsByDate(pathMetrics);
+  const mostStartedPath = sortPathMetricsSummariesByUsageCount(pathMetrics)[0];
+  const mostCompletedPath = sortPathMetricsSummariesByFinishedCount(pathMetrics)[0];
+  const availablePaths = paths.data ?? savedPaths;
+  const getPathName = (pathId: number) =>
+    availablePaths.find((path) => path.id === pathId)?.name ?? `Path #${pathId}`;
 
   let content: React.ReactNode;
 
@@ -65,14 +78,37 @@ export const PathUsage = () => {
     content = <PathUsageState>No path activity in the last 30 days for the selected building.</PathUsageState>;
   } else {
     content = (
-      <div className="h-full min-h-0 min-w-0">
-        <PathUsageChart pathMetrics={aggregatedMetrics} />
+      <div className="grid h-full min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] gap-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-border-grey bg-black/20 px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Most started path
+            </p>
+            <p className="mt-1 text-sm font-semibold text-lab-turquoise">
+              {getPathName(mostStartedPath.path_id)} · {mostStartedPath.usage_count}{" "}
+              {mostStartedPath.usage_count === 1 ? "start" : "starts"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-border-grey bg-black/20 px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+              Most completed path
+            </p>
+            <p className="mt-1 text-sm font-semibold text-lab-green-dark">
+              {getPathName(mostCompletedPath.path_id)} · {mostCompletedPath.finished_count}{" "}
+              {mostCompletedPath.finished_count === 1 ? "completion" : "completions"}
+            </p>
+          </div>
+        </div>
+
+        <div className="min-h-0 min-w-0">
+          <PathUsageChart pathMetrics={aggregatedMetrics} />
+        </div>
       </div>
     );
   }
 
   return (
-    <section className="grid h-105 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl border border-border-grey bg-sidebar-grey p-5">
+    <section className="grid h-125 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl border border-border-grey bg-sidebar-grey p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">Path usage</h2>

@@ -10,7 +10,7 @@ export const DashboardView = () => {
         <p className="text-gray-400">Monitor wayfinding activity and manage your locations.</p>
       </div>
 
-      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)]">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(10rem,2fr)]">
         <PathUsage />
 
         <RecentFeedback />

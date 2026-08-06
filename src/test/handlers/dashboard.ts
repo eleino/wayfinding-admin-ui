@@ -186,4 +186,14 @@ export const dashboardHandlers = [
       },
     ]),
   ),
+
+  http.get("*/buildings/:buildingId/paths", () =>
+    HttpResponse.json({
+      data: [
+        { id: 1, name: "Main entrance to lobby" },
+        { id: 2, name: "East entrance to library" },
+      ],
+      meta: { paths: { total: 2, limit: 1000 } },
+    }),
+  ),
 ];
