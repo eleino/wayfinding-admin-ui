@@ -16,6 +16,6 @@ describe("populateQRCodePrintDocument", () => {
       maliciousLabel,
     );
     expect(printDocument.querySelectorAll("img")).toHaveLength(1);
-    expect(printDocument.querySelector("[onerror]")).not.toBeInTheDocument();
+    expect(printDocument.querySelector("[onerror]")).toBeNull();
   });
 });
