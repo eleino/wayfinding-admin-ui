@@ -1,5 +1,4 @@
 import { expect, test, vi } from "vitest";
-import { screen } from "@testing-library/react";
 import LocationsView from "./LocationsView";
 import { renderWithQuery } from "test/render";
 import type { SearchParams } from "@schemas/router.schema";
@@ -37,26 +36,27 @@ vi.mock("@components/Locations/LocationsSelections", () => ({
 
 // test that LocationsView is rendered, <h1>Locations</h1> should always be present
 test("renders LocationsView component", async () => {
-  await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: undefined }, path: "/locations" });
-  const headingElement = screen.getByRole("heading", { level: 1, name: "Locations" });
-  expect(headingElement).toBeInTheDocument();
+  const screen = await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: undefined }, path: "/locations" });
+  await expect.element(
+    screen.getByRole("heading", { level: 1, name: "Locations" }),
+  ).toBeInTheDocument();
 });
 
 // should show ShowLocation if locationId is present in search params, otherwise show LocationsSelections
 test("renders ShowLocation when locationId is present in search params", async () => {
-  await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: 5 }, path: "/locations" });
+  const screen = await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: 5 }, path: "/locations" });
   const showLocationElement = screen.getByTestId("show-location");
-  expect(showLocationElement).toBeInTheDocument();
-  expect(showLocationElement).toHaveTextContent(
+  await expect.element(showLocationElement).toBeInTheDocument();
+  await expect.element(showLocationElement).toHaveTextContent(
     "ShowLocation Component - Location ID: 5",
   );
 });
 
 test("renders LocationsSelections when locationId is not present in search params", async () => {
-  await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: undefined }, path: "/locations" });
+  const screen = await renderWithQuery(<LocationsView />, { searchParams: { orgId: 1, siteId: 2, buildingId: 3, locationId: undefined }, path: "/locations" });
   const locationsSelectionsElement = screen.getByTestId("locations-selections");
-  expect(locationsSelectionsElement).toBeInTheDocument();
-  expect(locationsSelectionsElement).toHaveTextContent(
+  await expect.element(locationsSelectionsElement).toBeInTheDocument();
+  await expect.element(locationsSelectionsElement).toHaveTextContent(
     'LocationsSelections Component - Search Params: {"orgId":1,"siteId":2,"buildingId":3}, Page: locations',
   );
 });

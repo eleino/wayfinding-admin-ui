@@ -1,5 +1,3 @@
-import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test } from "vitest";
 import { renderWithQuery } from "test/render";
 import {
@@ -12,26 +10,21 @@ describe("RecentFeedback", () => {
   beforeEach(resetDashboardMockData);
 
   test("allows an administrator to update status and confirm removal", async () => {
-    const user = userEvent.setup();
-    await renderWithQuery(<RecentFeedback />);
+    const screen = await renderWithQuery(<RecentFeedback />);
 
-    expect(
-      await screen.findByText("The directions at the north entrance were unclear."),
+    await expect.element(
+      screen.getByText("The directions at the north entrance were unclear."),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "View" }));
-    await user.selectOptions(screen.getByLabelText("Status"), "resolved");
+    await screen.getByRole("button", { name: "View" }).click();
+    await screen.getByLabelText("Status").selectOptions("resolved");
 
-    await waitFor(() => {
-      expect(dashboardRequests.feedbackStatusUpdates).toEqual([
-        { feedbackId: 7, status: "resolved" },
-      ]);
-    });
+    await expect.poll(() => dashboardRequests.feedbackStatusUpdates).toEqual([
+      { feedbackId: 7, status: "resolved" },
+    ]);
 
-    await user.click(screen.getByRole("button", { name: "Remove" }));
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await screen.getByRole("button", { name: "Remove" }).click();
+    await screen.getByRole("button", { name: "Confirm" }).click();
 
-    await waitFor(() => {
-      expect(dashboardRequests.deletedFeedbackIds).toEqual([7]);
-    });
+    await expect.poll(() => dashboardRequests.deletedFeedbackIds).toEqual([7]);
   });
 });

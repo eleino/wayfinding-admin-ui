@@ -1,4 +1,4 @@
-import { act, render, type RenderOptions } from "@testing-library/react";
+import { render, type RenderOptions } from "vitest-browser-react";
 import { type ReactElement } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -75,10 +75,8 @@ export const renderWithQuery = async (
 
   const router = createTestRouter(ui, searchParams, path);
 
-  // ensure router is loaded before rendering the component
-  await act(async () => {
-    await router.load();
-  });
+  // Ensure the memory router has resolved its initial route before rendering.
+  await router.load();
 
   function Wrapper() {
     return (
@@ -88,7 +86,7 @@ export const renderWithQuery = async (
     );
   }
   return {
-    ...render(<></>, { wrapper: Wrapper, ...restOptions }),
+    ...(await render(<></>, { wrapper: Wrapper, ...restOptions })),
     queryClient, router,
   };
 };
@@ -105,9 +103,7 @@ export const renderWithPathEditStepsProvider = async (
 
   const router = createTestRouter(ui, searchParams, path);
 
-  await act(async () => {
-    await router.load();
-  });
+  await router.load();
 
   function Wrapper() {
     return (
@@ -119,7 +115,7 @@ export const renderWithPathEditStepsProvider = async (
     );
   }
   return {
-    ...render(<></>, { wrapper: Wrapper, ...restOptions }),
+    ...(await render(<></>, { wrapper: Wrapper, ...restOptions })),
     queryClient, router,
   };
 };

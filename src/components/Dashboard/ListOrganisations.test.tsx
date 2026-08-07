@@ -1,5 +1,3 @@
-import { screen, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test } from "vitest";
 import { useSelectionStore } from "@storage/store";
 import { renderWithQuery } from "test/render";
@@ -22,46 +20,41 @@ describe("ListOrganisations", () => {
   });
 
   test("shows the selected hierarchy and clears descendants when the organisation changes", async () => {
-    const user = userEvent.setup();
-    await renderWithQuery(<ListOrganisations />);
+    const screen = await renderWithQuery(<ListOrganisations />);
 
-    expect(await screen.findByText("Main Site")).toBeInTheDocument();
-    expect(await screen.findByText("Main Building")).toBeInTheDocument();
+    await expect.element(screen.getByText("Main Site")).toBeInTheDocument();
+    await expect.element(screen.getByText("Main Building")).toBeInTheDocument();
 
-    await user.click(screen.getByText("South Campus"));
+    await screen.getByText("South Campus").click();
 
-    await waitFor(() => {
-      const state = useSelectionStore.getState();
-      expect(state.orgId).toBe(2);
-      expect(state.siteId).toBeUndefined();
-      expect(state.buildingId).toBeUndefined();
-      expect(state.locationId).toBeUndefined();
-      expect(state.pathId).toBeUndefined();
+    await expect.poll(() => useSelectionStore.getState()).toMatchObject({
+      orgId: 2,
+      siteId: undefined,
+      buildingId: undefined,
+      locationId: undefined,
+      pathId: undefined,
     });
-    expect(await screen.findByText("No sites found for this organisation.")).toBeInTheDocument();
+    await expect.element(
+      screen.getByText("No sites found for this organisation."),
+    ).toBeInTheDocument();
   });
 
   test("loads organisation details and saves edits through the API", async () => {
-    const user = userEvent.setup();
-    await renderWithQuery(<ListOrganisations />);
-    const northCampus = await screen.findByText("North Campus");
-    const card = northCampus.closest("article");
-    expect(card).not.toBeNull();
+    const screen = await renderWithQuery(<ListOrganisations />);
+    const card = screen.getByRole("article", { hasText: "North Campus" });
 
-    await user.click(within(card!).getByRole("button", { name: "View details" }));
-    expect(await screen.findByText("north-campus")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Close dialog" }));
+    await card.getByRole("button", { name: "View details" }).first().click();
+    await expect.element(screen.getByText("north-campus")).toBeInTheDocument();
+    await screen.getByRole("button", { name: "Close dialog" }).click();
 
-    await user.click(within(card!).getByRole("button", { name: "Edit" }));
-    const nameInput = await screen.findByLabelText("Name");
-    await user.clear(nameInput);
-    await user.type(nameInput, "Northern Campus");
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await card.getByRole("button", { name: "Edit" }).first().click();
+    const nameInput = screen.getByLabelText("Name");
+    await nameInput.clear();
+    await nameInput.fill("Northern Campus");
+    await screen.getByRole("button", { name: "Save changes" }).click();
 
-    await waitFor(() => {
-      expect(dashboardRequests.organisationUpdates).toEqual([
-        { organisationId: 1, name: "Northern Campus" },
-      ]);
-    });
+    await expect.poll(() => dashboardRequests.organisationUpdates).toEqual([
+      { organisationId: 1, name: "Northern Campus" },
+    ]);
   });
 });

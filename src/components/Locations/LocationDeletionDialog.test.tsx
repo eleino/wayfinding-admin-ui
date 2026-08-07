@@ -1,4 +1,3 @@
-import { fireEvent, screen } from "@testing-library/react";
 import { LocationDeletionDialog } from "./LocationDeletionDialog";
 import type { LocationDeletionImpact } from "@apptypes/location";
 import { renderWithQuery } from "test/render";
@@ -47,7 +46,7 @@ const impact: LocationDeletionImpact = {
 describe("LocationDeletionDialog", () => {
   it("lists the impact and requires an explicit destructive confirmation", async () => {
     const onConfirm = vi.fn();
-    await renderWithQuery(
+    const screen = await renderWithQuery(
       <LocationDeletionDialog
         impact={impact}
         isLoading={false}
@@ -60,10 +59,10 @@ describe("LocationDeletionDialog", () => {
       />,
     );
 
-    expect(screen.getByText("To library")).toBeInTheDocument();
-    expect(screen.getByText("LOCATION_12_IMG")).toBeInTheDocument();
-    expect(screen.getByText("LOCATION_12_NAME")).toBeInTheDocument();
-    expect(screen.getByText("FROM_11_TO_12")).toBeInTheDocument();
+    await expect.element(screen.getByText("To library")).toBeInTheDocument();
+    await expect.element(screen.getByText("LOCATION_12_IMG")).toBeInTheDocument();
+    await expect.element(screen.getByText("LOCATION_12_NAME")).toBeInTheDocument();
+    await expect.element(screen.getByText("FROM_11_TO_12")).toBeInTheDocument();
 
     const deleteButton = screen.getByRole("button", {
       name: "Delete location and 1 path",
@@ -72,15 +71,15 @@ describe("LocationDeletionDialog", () => {
       name: "Yes, I want to delete this location and 1 path.",
     });
 
-    expect(deleteButton).toBeDisabled();
-    fireEvent.click(confirmCheckbox);
-    expect(deleteButton).not.toBeDisabled();
-    fireEvent.click(deleteButton);
+    await expect.element(deleteButton).toBeDisabled();
+    await confirmCheckbox.click();
+    await expect.element(deleteButton).toBeEnabled();
+    await deleteButton.click();
     expect(onConfirm).toHaveBeenCalledOnce();
   });
 
   it("disables confirmation while impact is loading", async () => {
-    await renderWithQuery(
+    const screen = await renderWithQuery(
       <LocationDeletionDialog
         isLoading
         error={null}
@@ -92,7 +91,7 @@ describe("LocationDeletionDialog", () => {
       />,
     );
 
-    expect(
+    await expect.element(
       screen.getByRole("button", { name: "Delete location" }),
     ).toBeDisabled();
   });

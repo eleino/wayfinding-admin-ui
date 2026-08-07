@@ -1,8 +1,7 @@
 import { http, HttpResponse } from "msw";
-import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useSelectionStore } from "@storage/store";
-import { server } from "test/server";
+import { worker } from "test/worker";
 import { renderWithQuery } from "test/render";
 import { PathUsage } from "./PathUsage";
 
@@ -19,7 +18,7 @@ describe("PathUsage", () => {
   });
 
   test("shows the paths with the most starts and completions", async () => {
-    server.use(
+    worker.use(
       http.get("*/metrics/paths", () =>
         HttpResponse.json([
           {
@@ -38,11 +37,15 @@ describe("PathUsage", () => {
       ),
     );
 
-    await renderWithQuery(<PathUsage />);
+    const screen = await renderWithQuery(<PathUsage />);
 
-    expect(await screen.findByText("Most started path")).toBeInTheDocument();
-    expect(await screen.findByText("East entrance to library · 8 starts")).toBeInTheDocument();
-    expect(screen.getByText("Most completed path")).toBeInTheDocument();
-    expect(screen.getByText("Main entrance to lobby · 4 completions")).toBeInTheDocument();
+    await expect.element(screen.getByText("Most started path")).toBeInTheDocument();
+    await expect.element(
+      screen.getByText(/East entrance to library.*8 starts/),
+    ).toBeInTheDocument();
+    await expect.element(screen.getByText("Most completed path")).toBeInTheDocument();
+    await expect.element(
+      screen.getByText(/Main entrance to lobby.*4 completions/),
+    ).toBeInTheDocument();
   });
 });
