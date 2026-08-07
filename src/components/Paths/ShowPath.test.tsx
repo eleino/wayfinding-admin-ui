@@ -30,6 +30,36 @@ describe("ShowPath", () => {
       http.get("*/paths/:pathId/overview", () =>
         HttpResponse.json(mockPathData),
       ),
+      http.get("*/locations/:locationId/overview", () =>
+        HttpResponse.json({
+          location: {
+            location_id: 1,
+            name: "Start location",
+            building_id: 1,
+            is_entry_location: true,
+            qr_url: null,
+            img_location_key: "LOCATION_1_IMG",
+            floor_number: 1,
+            trl_location_name_key: "LOCATION_1_NAME",
+            trl_current_location_msg_key: "CURRENT_LOCATION_1_MSG",
+            trl_location_desc_key: "LOCATION_1_DESC",
+          },
+          image: {
+            url: "https://example.com/start-location.jpg",
+            overlay: null,
+          },
+        }),
+      ),
+      http.get("*/translations/:key", ({ params, request }) => {
+        const language = new URL(request.url).searchParams.get("lang") ?? "";
+        return HttpResponse.json({
+          translation_key: params.key,
+          translation_id: language === "fi" ? 1 : 2,
+          language_code: language,
+          type: "at_location_message",
+          text_value: `${language} You are here`,
+        });
+      }),
       http.get("*/paths/:pathId/instructions", ({ request }) => {
         const url = new URL(request.url);
         const language = url.searchParams.get("lang") ?? "";
@@ -63,7 +93,10 @@ describe("ShowPath", () => {
               [language]: [
                 {
                   translation_key: `APPROACH_${step.order}`,
-                  text_value: `${language} approach instruction ${step.order}`,
+                  text_value:
+                    step.order === 1
+                      ? ""
+                      : `${language} approach instruction ${step.order}`,
                 },
                 {
                   translation_key: `NEXT_${step.order}`,
@@ -122,13 +155,19 @@ describe("ShowPath", () => {
     await expect.element(screen.getByText("Path usage chart")).toBeInTheDocument();
     await expect.element(screen.getByText("Step 1", { exact: true })).toBeInTheDocument();
     await expect
-      .element(screen.getByText("fi approach instruction 1"))
+      .element(screen.getByText("fi You are here"))
       .toBeInTheDocument();
+    await expect
+      .element(screen.getByText("en You are here"))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByAltText("On approach instruction"))
+      .toHaveAttribute("src", "https://example.com/start-location.jpg");
     await expect
       .element(screen.getByText("en next instruction 2"))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByTestId("instruction-image-container"))
+      .element(screen.getByTestId("instruction-image-container").first())
       .toHaveClass("relative", "h-auto", "w-full");
     await expect
       .element(screen.getByAltText("To next step instruction"))

@@ -188,7 +188,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
         </p>
       </div>
       <Form of={form} onSubmit={handleStepsSubmit}>
-        <p>Total path length: {calcPathLength()} meters</p>
+        <p className="pb-2">Total path length: {calcPathLength()} meters</p>
         <PathEditStepsProvider
           value={{
             form,

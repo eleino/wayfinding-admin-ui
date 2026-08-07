@@ -9,6 +9,14 @@ export interface LocalizedStepInstructions {
   step: StepInstructionsItem;
 }
 
+export interface InstructionOverride {
+  image: StepInstructionImage | null;
+  translations: Array<{
+    languageCode: string;
+    text: string;
+  }>;
+}
+
 const InstructionImage = ({
   image,
   alt,
@@ -49,28 +57,34 @@ const InstructionPreview = ({
   title,
   direction,
   instructions,
+  instructionOverride,
 }: {
   title: string;
   direction: "on_approach" | "to_next";
   instructions: LocalizedStepInstructions[];
+  instructionOverride?: InstructionOverride;
 }) => {
   const baseInstruction = instructions[0]?.step;
   const translationKey =
     direction === "on_approach"
       ? baseInstruction?.trl_instruction_on_approach_key
       : baseInstruction?.trl_instruction_to_next_key;
-  const image =
-    direction === "on_approach"
+  const image = instructionOverride
+    ? instructionOverride.image
+    : direction === "on_approach"
       ? baseInstruction?.img_on_approach
       : baseInstruction?.img_to_next;
-  const translations = instructions
-    .map(({ languageCode, step }) => ({
-      languageCode,
-      text: step.translations[languageCode]?.find(
-        (translation) => translation.translation_key === translationKey,
-      )?.text_value,
-    }))
-    .filter((translation) => translation.text);
+  const translations = instructionOverride
+    ? instructionOverride.translations
+    : instructions
+        .map(({ languageCode, step }) => ({
+          languageCode,
+          text:
+            step.translations[languageCode]?.find(
+              (translation) => translation.translation_key === translationKey,
+            )?.text_value ?? "",
+        }))
+        .filter((translation) => translation.text);
 
   return (
     <div className="rounded-lg border border-border-grey bg-black/20 p-6">
@@ -101,9 +115,11 @@ const InstructionPreview = ({
 export const PathStepBox = ({
   step,
   instructions,
+  onApproachOverride,
 }: {
   step: PathStep;
   instructions: LocalizedStepInstructions[];
+  onApproachOverride?: InstructionOverride;
 }) => (
   <article className="rounded-xl border border-border-grey bg-sidebar-grey p-5 shadow">
     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -131,6 +147,7 @@ export const PathStepBox = ({
         title="On approach"
         direction="on_approach"
         instructions={instructions}
+        instructionOverride={onApproachOverride}
       />
       <InstructionPreview
         title="To next step"

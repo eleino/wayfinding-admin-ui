@@ -19,6 +19,7 @@ export const EditStepInstructions = (props: {
   stepData: StepApiResponse;
   firstApproachTranslations: Translation[] | undefined;
   overlayImages: ImageResponse | undefined;
+  firstApproachImageUrl?: string;
 }) => {
   const {
     stepInstructions,
@@ -28,6 +29,7 @@ export const EditStepInstructions = (props: {
     firstApproachTranslations,
     overlayImages,
     closeModal,
+    firstApproachImageUrl,
   } = props;
 
   const instructionsUpdater = useInstructionsUpdater();
@@ -97,8 +99,6 @@ export const EditStepInstructions = (props: {
   });
 
   const handleInstructionsSubmit = async (values: EditStepInput) => {
-    console.log("Submitted values:", values);
-    console.log("Form Errors:", instructionsForm.errors);
     const result = await instructionsUpdater.mutateAsync(
       values,
       initialValues,
@@ -184,6 +184,7 @@ export const EditStepInstructions = (props: {
 
               <StepOverlay
                 imageUrl={
+                  firstApproachImageUrl ??
                   stepData.step.instructions.find(
                     (instr) => instr.direction === "on_approach",
                   )?.instructions.image.url

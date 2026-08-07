@@ -6,6 +6,7 @@ import { EditStepModal } from "./EditStepModal";
 import { EditStepLocation } from "./EditStepLocation";
 import { usePathEditSteps } from "../PathContext/PathEditStepsContext";
 import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
+import { useGetLocationById } from "@hooks/useLocations";
 import type { StepInstructionsItem } from "@apptypes/step";
 
 export const EditStep = (props: {
@@ -91,10 +92,22 @@ export const EditStep = (props: {
     };
   }, [pathInstructions, stepNro, languageList]);
 
-  const firstApproachText = useGetTranslationsAllLangs(
-    currentStepInstructions?.trl_instruction_on_approach_key,
-    { enabled: stepIndex === 0 },
+  const firstLocation = useGetLocationById(
+    stepIndex === 0 ? currentStep?.location_id : undefined,
+    { enabled: stepIndex === 0 && !!currentStep?.location_id },
   );
+  const firstApproachTranslationKey =
+    firstLocation.data?.location.trl_current_location_msg_key ??
+    currentStepInstructions?.trl_instruction_on_approach_key;
+  const firstApproachText = useGetTranslationsAllLangs(
+    firstApproachTranslationKey,
+    { enabled: stepIndex === 0 && !!firstApproachTranslationKey },
+  );
+  const firstApproachImageUrl = firstLocation.data?.image?.url ?? undefined;
+  const approachImage =
+    stepIndex === 0 && firstApproachImageUrl
+      ? { url: firstApproachImageUrl, overlay: null }
+      : currentStepInstructions?.stepInstructionTranslations?.img_on_approach;
 
   return (
     <div
@@ -130,6 +143,7 @@ export const EditStep = (props: {
                 stepInstructions={currentStepInstructions}
                 closeModal={() => setIsInstructionModalOpen(false)}
                 locationName={currentStep?.name}
+                firstApproachImageUrl={firstApproachImageUrl}
               />,
               document.body,
             )}
@@ -245,38 +259,30 @@ export const EditStep = (props: {
           </p>
           <div className="flex flex-row gap-2">
             <div className="relative w-20 h-auto top-0 left-0 flex-none">
-              {currentStepInstructions?.stepInstructionTranslations
-                ?.img_on_approach ? (
+              {approachImage ? (
                 <img
-                  src={
-                    currentStepInstructions.stepInstructionTranslations
-                      .img_on_approach.url
-                  }
+                  src={approachImage.url}
                   alt={`Instruction image for step ${stepIndex + 1}`}
                   className="w-full h-full object-contain relative"
                 />
               ) : (
                 <p className="text-gray-500">No image</p>
               )}
-              {currentStepInstructions?.stepInstructionTranslations
-                ?.img_on_approach?.overlay ? (
+              {approachImage?.overlay ? (
                 <img
-                  src={
-                    currentStepInstructions.stepInstructionTranslations
-                      .img_on_approach.overlay?.overlay_image_url
-                  }
+                  src={approachImage.overlay.overlay_image_url}
                   alt={`Instruction overlay for step ${stepIndex + 1}`}
                   className="mt-1 absolute"
                   style={{
                     top: "50%",
                     left: "50%",
-                    width: `${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.overlay_size}%`,
+                    width: `${approachImage.overlay.overlay_size}%`,
                     height: "auto",
                     transform: `
-                translate(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.position_x_percent}%, ${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.position_y_percent}%)
+                translate(${approachImage.overlay.position_x_percent}%, ${approachImage.overlay.position_y_percent}%)
                 perspective(6cm)
-                rotateX(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.rotation_x_deg}deg) 
-                rotate(${currentStepInstructions.stepInstructionTranslations.img_on_approach.overlay.rotation_deg}deg)
+                rotateX(${approachImage.overlay.rotation_x_deg}deg)
+                rotate(${approachImage.overlay.rotation_deg}deg)
             `,
                     pointerEvents: "none",
                     zIndex: 10,

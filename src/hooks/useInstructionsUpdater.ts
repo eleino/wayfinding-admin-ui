@@ -204,6 +204,17 @@ export const useInstructionsUpdater = () => {
         queryClient.invalidateQueries({
           queryKey: ["steps", stepData.step.path_id],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["location", stepData.step.location_id],
+        });
+        stepData.step.instructions.forEach((instruction) => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "translationsAllLangs",
+              instruction.trl_instruction_key,
+            ],
+          });
+        });
         for (const lang of languages) {
           queryClient.invalidateQueries({
             queryKey: ["pathInstructions", stepData.step.path_id, lang],

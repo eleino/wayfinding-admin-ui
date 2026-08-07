@@ -1,8 +1,10 @@
 import PathUsageChart from "@components/Dashboard/PathUsageChart";
 import { DeleteDialog } from "@components/Forms/DeleteDialog";
+import { useGetLocationById } from "@hooks/useLocations";
 import { useGetAllPathMetrics } from "@hooks/useMetrics";
 import { useDeletePath, useGetPathById } from "@hooks/usePaths";
 import { useGetPathInstructionsAllLangs } from "@hooks/useSteps";
+import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import type { SearchParams } from "@schemas/router.schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,6 +12,7 @@ import { getPast30DaysDateRange } from "@utils/dateRange";
 import { useState } from "react";
 import {
   PathStepBox,
+  type InstructionOverride,
   type LocalizedStepInstructions,
 } from "./PathStepBox";
 
@@ -40,6 +43,15 @@ export const ShowPath = (props: {
     pathId ?? null,
     loadedPath?.start_location_id,
     { enabled: !!pathId && !!loadedPath?.start_location_id },
+  );
+  const startLocationQuery = useGetLocationById(loadedPath?.start_location_id, {
+    enabled: !!loadedPath?.start_location_id,
+  });
+  const startLocationMessageKey =
+    startLocationQuery.data?.location.trl_current_location_msg_key;
+  const startLocationTranslationsQuery = useGetTranslationsAllLangs(
+    startLocationMessageKey,
+    { enabled: !!startLocationMessageKey },
   );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
@@ -100,6 +112,22 @@ export const ShowPath = (props: {
   const pathMetrics = metricsQuery.data?.find(
     (item) => item.path_id === path.path_id,
   );
+  const startLocationImageUrl = startLocationQuery.data?.image?.url;
+  const startInstruction: InstructionOverride = {
+    image: startLocationImageUrl
+      ? { url: startLocationImageUrl, overlay: null }
+      : null,
+    translations: (startLocationTranslationsQuery.data ?? []).map(
+      (translation) => ({
+        languageCode: translation.language_code,
+        text: translation.text_value,
+      }),
+    ),
+  };
+  const startInstructionIsLoading =
+    startLocationQuery.isLoading || startLocationTranslationsQuery.isLoading;
+  const startInstructionIsError =
+    startLocationQuery.isError || startLocationTranslationsQuery.isError;
 
   const getStepInstructions = (stepOrder: number) =>
     (instructionsQuery.data ?? []).flatMap<LocalizedStepInstructions>(
@@ -274,11 +302,11 @@ export const ShowPath = (props: {
           <span className="text-sm text-gray-400">{steps.length} total</span>
         </div>
 
-        {instructionsQuery.isLoading ? (
+        {instructionsQuery.isLoading || startInstructionIsLoading ? (
           <p className="rounded-xl border border-border-grey bg-sidebar-grey p-5 text-gray-400">
             Loading all step instructions...
           </p>
-        ) : instructionsQuery.isError ? (
+        ) : instructionsQuery.isError || startInstructionIsError ? (
           <p
             className="rounded-xl border border-red-500/40 bg-sidebar-grey p-5 text-red-300"
             role="alert"
@@ -292,6 +320,9 @@ export const ShowPath = (props: {
                 key={step.id}
                 step={step}
                 instructions={getStepInstructions(step.order)}
+                onApproachOverride={
+                  step.order === steps[0]?.order ? startInstruction : undefined
+                }
               />
             ))}
           </div>

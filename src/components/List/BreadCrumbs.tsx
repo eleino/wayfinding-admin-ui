@@ -22,7 +22,7 @@ export const BreadCrumbs = () => {
   if (activeCrumbs.length === 0) return null;
 
   return (
-    <div className="mb-4 text-sm">
+    <div className="my-4 ml-4 text-sm">
       {activeCrumbs.map((crumb, index) => (
         <span
           key={index}
