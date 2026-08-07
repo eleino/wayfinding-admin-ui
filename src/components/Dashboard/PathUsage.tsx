@@ -7,22 +7,7 @@ import {
   sortPathMetricsSummariesByFinishedCount,
   sortPathMetricsSummariesByUsageCount,
 } from "@utils/sortMetrics";
-
-// format date to the format backend expects: YYYY-MM-DD
-const formatDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-// get the date range for the last 30 days
-const getDateRange = () => {
-  const end = new Date();
-  const start = new Date(end);
-  start.setDate(start.getDate() - 29);
-  return { startDate: formatDate(start), endDate: formatDate(end) };
-};
+import { getPast30DaysDateRange } from "@utils/dateRange";
 
 // component to display the state of the path usage section
 const PathUsageState = ({
@@ -44,7 +29,7 @@ export const PathUsage = () => {
   const buildingId = useSelectionStore((state) => state.buildingId);
   const building = useSelectionStore((state) => state.buildingList.find((b) => b.id === buildingId));
   const savedPaths = useSelectionStore((state) => state.pathList);
-  const { startDate, endDate } = getDateRange();
+  const { startDate, endDate } = getPast30DaysDateRange();
   const metrics = useGetAllPathMetrics(buildingId ?? null, startDate, endDate);
   const paths = useGetPaths(buildingId, { enabled: !!buildingId });
   const pathMetrics = metrics.data ?? [];
