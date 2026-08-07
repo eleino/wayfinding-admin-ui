@@ -31,7 +31,10 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
   const pathId = search.pathId;
   const locationList = useGetLocations(buildingId);
   const entryLocations = useGetEntryLocations(buildingId);
-  const pathInstructions = useGetPathInstructionsAllLangs(pathId);
+  const pathInstructions = useGetPathInstructionsAllLangs(
+    pathId,
+    pathData.path.start_location_id,
+  );
   const updateStepsMutation = useUpdateSteps();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
@@ -185,7 +188,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
         </p>
       </div>
       <Form of={form} onSubmit={handleStepsSubmit}>
-        <p>Total path length: {calcPathLength()} meters</p>
+        <p className="pb-2">Total path length: {calcPathLength()} meters</p>
         <PathEditStepsProvider
           value={{
             form,

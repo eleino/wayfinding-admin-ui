@@ -16,24 +16,28 @@ export const useGetPathInstructions = (id: number | null, lang: string = "fi", f
   if (!id) {
     throw new Error("Path ID is required to fetch path instructions.");
   }
-  const query = useQuery({ queryKey: ["pathInstructions", id, lang], queryFn: () => fetchPathInstructions(id, lang, fromLocation), ...options });
+  const query = useQuery({ queryKey: ["pathInstructions", id, lang, fromLocation], queryFn: () => fetchPathInstructions(id, lang, fromLocation), ...options });
   return query;
 }
 
-export const useGetPathInstructionsAllLangs = (id: number | null, fromLocation?: number, options = {}) => {
+export const useGetPathInstructionsAllLangs = (
+  id: number | null,
+  fromLocation?: number,
+  options: { enabled?: boolean } = {},
+) => {
   if (!id) {
     throw new Error("Path ID is required to fetch path instructions.");
   }
   const languageList = useLanguages();
 
-  const query = useQuery({ queryKey: ["pathInstructionsAllLangs", id], queryFn: async () => {
+  const query = useQuery({ queryKey: ["pathInstructionsAllLangs", id, fromLocation], queryFn: async () => {
     if (!languageList.data) return [];
     const promises: Promise<StepInstructionsList>[] = [];
     languageList.data?.forEach((lang) => {
       promises.push(fetchPathInstructions(id, lang.code, fromLocation));
     });
     return Promise.all(promises);
-  }, enabled: !!languageList.data, ...options });
+  }, ...options, enabled: !!languageList.data && options.enabled !== false });
   return query;
 }
 

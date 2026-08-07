@@ -17,31 +17,27 @@ const RootLayout = () => {
   const handleLogout = () => {
     logout();
     navigate({ to: "/login" });
-    
-  }
-if (!isAuthenticated || (userRole !== 'admin' && userRole !== 'maintainer')) {
-  if (location.pathname !== "/login") {
-    navigate({ to: "/login" });
-  }
+  };
+  if (!isAuthenticated || (userRole !== "admin" && userRole !== "maintainer")) {
+    if (location.pathname !== "/login") {
+      navigate({ to: "/login" });
+    }
     return (
-        <main className="p-5">
-          <Outlet />
-        </main>
+      <main className="p-5">
+        <Outlet />
+      </main>
     );
   }
   return (
-    <div className="flex flex-col p-10 w-full h-screen">
-      <div className="place-self-end">
-        <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded">
-          Logout
-        </button>
-      </div>
-      <div className="flex flex-row h-full">
-        <SideBar />
-        <main className="p-5">
-          <BreadCrumbs />
-          <Outlet />
-        </main>
+    <div className="p-10 w-full h-full bg-black">
+      <div className="flex flex-col rounded-xl shadow-lg bg-sidebar-grey/50">
+        <div className="flex flex-row gap-4">
+          <SideBar handleLogout={handleLogout} />
+          <main>
+            <BreadCrumbs />
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

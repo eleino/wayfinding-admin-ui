@@ -14,6 +14,7 @@ export const EditStepModal = (props: {
   closeModal: () => void;
   stepIndex: number;
   locationName?: string;
+  firstApproachImageUrl?: string;
 }) => {
   // we should get all other necessary data from fetching step overview
   const { stepId, stepInstructions, closeModal, stepIndex, locationName } = props;
@@ -56,6 +57,7 @@ export const EditStepModal = (props: {
         stepIndex={props.stepIndex}
         stepInstructions={stepInstructions}
         overlayImages={overlayImages.data}
+        firstApproachImageUrl={props.firstApproachImageUrl}
       />
     </ModalWrapper>
   );

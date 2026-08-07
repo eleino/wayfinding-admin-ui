@@ -27,7 +27,7 @@ export const useGetTranslation = (
 // fetch translations for a given key in all languages
 export const useGetTranslationsAllLangs = (
   key: string | undefined,
-  options = {},
+  options: { enabled?: boolean } = {},
 ) => {
   const languageList = useLanguages();
   const query = useQuery({
@@ -40,8 +40,8 @@ export const useGetTranslationsAllLangs = (
       );
       return translations;
     },
-    enabled: !!key && !!languageList.data,
     ...options,
+    enabled: !!key && !!languageList.data && options.enabled !== false,
   });
   return query;
 };
