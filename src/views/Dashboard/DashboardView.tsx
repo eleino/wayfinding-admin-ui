@@ -1,18 +1,22 @@
 import { ListOrganisations } from "@components/Dashboard/ListOrganisations";
-import PathUsageChart from "@components/Dashboard/PathUsageChart";
-import { useGetAllPathMetrics } from "@hooks/useMetrics";
-import { aggregateMetricsByDate } from "@utils/sortMetrics";
+import { PathUsage } from "@components/Dashboard/PathUsage";
+import { RecentFeedback } from "@components/Dashboard/RecentFeedback";
 
 export const DashboardView = () => {
-    // fetch all metrics for building 1
-    const metricsData = useGetAllPathMetrics(1, "2025-11-01", "2025-12-17");
-    const aggregatedMetrics = aggregateMetricsByDate(metricsData.data || []);
-    return (
-        <div className="w-200 p-4">
-            <h1>Dashboard</h1>
-            <h2 className="text-center">Path usage:</h2>
-            <PathUsageChart pathMetrics={aggregatedMetrics} />
-            <ListOrganisations />
-        </div>
-    );
-}
+  return (
+    <div className="w-[calc(100vw-20rem)] max-w-350 min-w-0 pb-12">
+      <div className="mb-6">
+        <h1 className="mb-1">Dashboard</h1>
+        <p className="text-gray-400">Monitor wayfinding activity and manage your locations.</p>
+      </div>
+
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(10rem,2fr)]">
+        <PathUsage />
+
+        <RecentFeedback />
+      </div>
+
+      <ListOrganisations />
+    </div>
+  );
+};

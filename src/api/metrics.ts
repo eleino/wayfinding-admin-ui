@@ -2,9 +2,12 @@ import type { Metrics, PathMetricsList } from '@apptypes/metrics';
 import apiClient from './client';
 
 // GET /metrics/paths?startDate=2025-12-01&endDate=2025-12-31
-export const fetchAllPathMetrics = async (buildingId: number, startDate: string, endDate: string): Promise<PathMetricsList[]> => {
+export const fetchAllPathMetrics = async (buildingId: number | null, startDate: string, endDate: string): Promise<PathMetricsList[]> => {
     if (!startDate || !endDate) {
         throw new Error("Start date and end date are required to fetch path metrics summaries.");
+    }
+    if (!buildingId) {
+        throw new Error("Building ID is required to fetch path metrics summaries.");
     }
     const response = await apiClient.get(`metrics/paths?buildingId=${buildingId}&startDate=${startDate}&endDate=${endDate}`);
     return response.json();

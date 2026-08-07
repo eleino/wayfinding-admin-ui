@@ -2,12 +2,23 @@ import { fetchPaths, fetchPathById, createPath, updatePath, deletePath } from "@
 import type { CreatePathDTO } from "@apptypes/dtos/create-path.dto";
 import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useSelectionStore } from "@storage/store";
 
 export const useGetPaths = (buildingId: number | undefined, options = {}) => {
-    if (!buildingId) {
-        throw new Error("Building ID is required to fetch paths.");
+  const query = useQuery({
+    queryKey: ["paths", buildingId],
+    queryFn: () => fetchPaths(buildingId!),
+    enabled: !!buildingId,
+    ...options,
+  });
+  // Update the pathList in the selection store whenever the query data changes
+  useEffect(() => {
+    if (query.data) {
+      useSelectionStore.setState({ pathList: query.data });
     }
-  const query = useQuery({ queryKey: ["paths", buildingId], queryFn: () => fetchPaths(buildingId), enabled: !!buildingId, ...options });
+  }, [query.data]);
+
   return query;
 }
 
