@@ -26,6 +26,9 @@ export const StepOverlay = (props: StepOverlayProps) => {
   const imageField = useField(form, {
     path: [`image_${direction}_file`],
   });
+  const removeImageField = useField(form, {
+    path: [`remove_image_${direction}`],
+  });
   const overlayField = useField(form, {
     path: [`overlay_${direction}`],
   });
@@ -163,6 +166,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
         onFileSelect={(file) => {
           imageField.onChange(file);
           if (file) {
+            removeImageField.onChange(false);
             const reader = new FileReader();
             reader.onloadend = () => {
               setPreviewImage(reader.result as string);
@@ -171,6 +175,10 @@ export const StepOverlay = (props: StepOverlayProps) => {
           } else {
             setPreviewImage(imageUrl);
           }
+        }}
+        onExistingImageRemove={() => {
+          removeImageField.onChange(true);
+          setPreviewImage(undefined);
         }}
       />
       {previewImage && !useOverlay && (

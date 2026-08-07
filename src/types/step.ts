@@ -98,8 +98,10 @@ export interface EditStepOverlay {
 export interface EditStepInput {
   image_on_approach_url?: string;
   image_on_approach_file?: File;
+  remove_image_on_approach?: boolean;
   image_to_next_url?: string;
   image_to_next_file?: File;
+  remove_image_to_next?: boolean;
   trl_instruction_on_approach?: { lang: string, text?: string }[];
   trl_instruction_to_next?: { lang: string, text?: string }[];
   overlay_on_approach?: EditStepOverlay;

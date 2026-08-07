@@ -43,4 +43,5 @@ export const LocationSchema = v.object({
       ),
     ),
   ),
+  removeImage: v.optional(v.boolean()),
 });

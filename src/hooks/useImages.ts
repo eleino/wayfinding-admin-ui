@@ -4,6 +4,7 @@ import {
   fetchImagesByType,
   fetchImagesByTypeAndPage,
   uploadImage,
+  deleteImage,
 } from "@api/images";
 
 type UploadImageParams = {
@@ -61,3 +62,9 @@ export const useUploadImage = (options = {}) => {
   });
   return mutation;
 };
+
+export const useDeleteImage = (options = {}) =>
+  useMutation({
+    mutationFn: (key: string) => deleteImage(key),
+    ...options,
+  });

@@ -69,7 +69,9 @@ export const EditStepInstructions = (props: {
       currentStepInstructions?.trl_instruction_to_next || [],
 
     image_on_approach_file: undefined,
+    remove_image_on_approach: false,
     image_to_next_file: undefined,
+    remove_image_to_next: false,
     overlay_on_approach: overlay_on_approach && {
       // also need overlay_key and image_key when sending data to backend
       image_key: approachOverlayKey,

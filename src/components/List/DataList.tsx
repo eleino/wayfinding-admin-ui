@@ -24,7 +24,7 @@ interface DataListProps {
 }
 
 // component to display fetched data as a list, supports multiple columns
-// if type is image, renders an image, if linkTo is defined, renders a link
+// if type is image, renders an image, if type is link, renders a link
 export const DataList = (props: DataListProps) => {
   const { data, columns } = props;
   const gridTemplate = columns.map((col) => col.width).join(" ");
@@ -44,17 +44,25 @@ export const DataList = (props: DataListProps) => {
         data.map((item, index) => (
           <div
             key={index}
-            className={`shadow grid grid-cols-${columns.length} gap-4 border-b px-1 border-border-grey pt-1`}
+            className={`shadow grid grid-cols-${columns.length} items-center gap-4 border-b px-1 border-border-grey py-1`}
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {columns.map((column) => (
               <span key={column.key} className="mb-2">
                 {column.type === "image" ? (
-                  <img
-                    src={item[column.key as keyof typeof item] as string}
-                    alt={column.label}
-                    className="h-32"
-                  />
+                  item[column.key as keyof typeof item] ? (
+                    <img
+                      src={item[column.key as keyof typeof item] as string}
+                      alt={
+                        "name" in item && typeof item.name === "string"
+                          ? `${item.name} image`
+                          : column.label
+                      }
+                      className="h-12 w-16 rounded object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs text-gray-500">No image</span>
+                  )
                 ) : column.search ? (
                   <Link
                     to={column.page ? `/${column.page}` : "/"}

@@ -42,7 +42,9 @@ export const EditStepSchema = v.object({
     trl_instruction_on_approach: v.optional(v.array(TranslationSchema)),
     trl_instruction_to_next: v.optional(v.array(TranslationSchema)),
     image_on_approach_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
+    remove_image_on_approach: v.optional(v.boolean()),
     image_to_next_file: v.optional(v.pipe(v.file(), v.mimeType(["image/jpeg", "image/png"], "Only JPEG and PNG images are allowed"))),
+    remove_image_to_next: v.optional(v.boolean()),
     overlay_on_approach: v.optional(
       OverlaySchema
     ),
