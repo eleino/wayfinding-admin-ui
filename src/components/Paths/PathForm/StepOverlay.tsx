@@ -8,6 +8,7 @@ import {
   type PositionRange,
 } from "@utils/overlayPositionRange";
 import type { ImageResponse } from "@apptypes/image";
+import type { ExistingImageGroup } from "@apptypes/image";
 import type { EditStepOverlay } from "@apptypes/step";
 
 interface StepOverlayProps {
@@ -17,6 +18,9 @@ interface StepOverlayProps {
   form: FormStore<typeof EditStepSchema>;
   direction: "on_approach" | "to_next";
   overlayImages: ImageResponse | undefined;
+  existingImageGroups: ExistingImageGroup[];
+  existingImagesLoading?: boolean;
+  existingImagesError?: Error | null;
 }
 
 export const StepOverlay = (props: StepOverlayProps) => {
@@ -25,6 +29,12 @@ export const StepOverlay = (props: StepOverlayProps) => {
   // image can be an image file, or an existing image url
   const imageField = useField(form, {
     path: [`image_${direction}_file`],
+  });
+  const removeImageField = useField(form, {
+    path: [`remove_image_${direction}`],
+  });
+  const existingImageField = useField(form, {
+    path: [`existing_image_${direction}_key`],
   });
   const overlayField = useField(form, {
     path: [`overlay_${direction}`],
@@ -163,6 +173,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
         onFileSelect={(file) => {
           imageField.onChange(file);
           if (file) {
+            removeImageField.onChange(false);
             const reader = new FileReader();
             reader.onloadend = () => {
               setPreviewImage(reader.result as string);
@@ -172,6 +183,21 @@ export const StepOverlay = (props: StepOverlayProps) => {
             setPreviewImage(imageUrl);
           }
         }}
+        onExistingImageRemove={() => {
+          removeImageField.onChange(true);
+          setPreviewImage(undefined);
+        }}
+        onExistingImageSelect={(image) => {
+          existingImageField.onChange(image?.key);
+          if (image) {
+            imageField.onChange(undefined);
+            removeImageField.onChange(false);
+            setPreviewImage(image.url);
+          }
+        }}
+        existingImageGroups={props.existingImageGroups}
+        existingImagesLoading={props.existingImagesLoading}
+        existingImagesError={props.existingImagesError}
       />
       {previewImage && !useOverlay && (
         <button

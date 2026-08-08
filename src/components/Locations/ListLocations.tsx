@@ -3,16 +3,32 @@ import { useGetLocations } from "@hooks/useLocations";
 import type { SearchParams } from "@schemas/router.schema";
 import { useSearch } from "@tanstack/react-router";
 import { useSelectionStore } from "@storage/store";
+import { useGetAllImagesByType } from "@hooks/useImages";
+import { useMemo } from "react";
 
 export const ListLocations = (props: { buildingId: number | undefined, page: string }) => {
     const { buildingId, page } = props;
-      const locations = useGetLocations(buildingId, {
+  const locations = useGetLocations(buildingId, {
+    enabled: !!buildingId,
+  });
+  const locationImages = useGetAllImagesByType("location", {
     enabled: !!buildingId,
   });
   const savedOrgId = useSelectionStore((state) => state.orgId);
   const savedSiteId = useSelectionStore((state) => state.siteId);
   const search = useSearch({ from: '__root__'}) as SearchParams;
   const {orgId, siteId, buildingId: searchBuildingId} = search;
+  const locationsWithImages = useMemo(() => {
+    const imagesByKey = new Map(
+      locationImages.data?.data.map((image) => [image.key, image.url]),
+    );
+
+    return (locations.data || []).map((location) => ({
+      ...location,
+      imageUrl: imagesByKey.get(`LOCATION_${location.id}_IMG`),
+    }));
+  }, [locationImages.data, locations.data]);
+
   if (!buildingId) {
     return <p>Please select a building to view locations.</p>;
   }
@@ -21,7 +37,7 @@ export const ListLocations = (props: { buildingId: number | undefined, page: str
             {locations.isLoading && <p>Loading locations...</p>}
             {locations.isError && <p>Error loading locations: {String(locations.error)}</p>}
             {page==="qrcodes" && <p>Select a location to view its QR codes.</p>}
-            <DataList data={locations.data || []} columns={[
+            <DataList data={locationsWithImages} columns={[
                 {
                     key: "id",
                     label: "Location ID",
@@ -35,6 +51,13 @@ export const ListLocations = (props: { buildingId: number | undefined, page: str
                     search: { orgId: orgId || savedOrgId, siteId: siteId || savedSiteId, buildingId: searchBuildingId || buildingId },
                     width: "3fr",
                 },
+                {
+                    key: "imageUrl",
+                    label: "Image",
+                    type: "image",
+                    width: "5rem",
+                },
+
             ]} />
         </div>
     );

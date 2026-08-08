@@ -56,6 +56,39 @@ export const uploadImage = async (itemType: string, key: string, file: File, ite
   return response.json();
 }
 
+export const copyImage = async (
+  sourceKey: string,
+  itemType: string,
+  key: string,
+  itemId: number | null,
+): Promise<UploadedImage> => {
+  if (!sourceKey || !itemType || !key || !itemId) {
+    throw new Error(
+      "Source key, type, destination key and item ID are required to copy an image.",
+    );
+  }
+
+  const itemIdFields: Record<string, string> = {
+    logo: "orgId",
+    site: "siteId",
+    building: "buildingId",
+    location: "locationId",
+    step: "locationId",
+  };
+  const itemIdField = itemIdFields[itemType];
+  if (!itemIdField) throw new Error(`Images of type ${itemType} cannot be copied.`);
+
+  const response = await apiClient.post("images/copy", {
+    json: {
+      sourceKey,
+      key,
+      type: itemType,
+      [itemIdField]: itemId.toString(),
+    },
+  });
+  return response.json();
+};
+
 // deleting image: DELETE /images/:key
 export const deleteImage = async (key: string): Promise<void> => {
   await apiClient.delete(`images/${key}`);

@@ -1,7 +1,7 @@
 import type { EditLocationInput } from "@apptypes/location";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateLocation } from "@hooks/useLocations";
-import { useUploadImage } from "@hooks/useImages";
+import { useCopyImage, useUploadImage } from "@hooks/useImages";
 import { useCreateTranslation } from "@hooks/useTranslations";
 import { useCallback, useState } from "react";
 import type { Location } from "@apptypes/location";
@@ -24,6 +24,7 @@ export const useLocationCreator = () => {
   const queryClient = useQueryClient();
   const createLocationMutation = useCreateLocation();
   const uploadImageMutation = useUploadImage();
+  const copyImageMutation = useCopyImage();
   const createTranslationMutation = useCreateTranslation();
 
   const mutateAsync = useCallback(
@@ -56,6 +57,17 @@ export const useLocationCreator = () => {
             itemType: "location",
             key,
             file: locationData.imageFile,
+            itemId: locationResult.location_id,
+          });
+        } else if (
+          locationData.existingImageKey &&
+          locationResult.location_id
+        ) {
+          setLoadingMessage("Copying image...");
+          imageResult = await copyImageMutation.mutateAsync({
+            sourceKey: locationData.existingImageKey,
+            itemType: "location",
+            key: locationResult.img_location_key,
             itemId: locationResult.location_id,
           });
         }
@@ -101,6 +113,7 @@ export const useLocationCreator = () => {
         }
 
         queryClient.invalidateQueries({ queryKey: ["locations", buildingId] });
+        queryClient.invalidateQueries({ queryKey: ["all_images", "location"] });
         const allData: DataType = {
           location: locationResult,
           image: imageResult,
@@ -124,6 +137,7 @@ export const useLocationCreator = () => {
     [
       createLocationMutation,
       uploadImageMutation,
+      copyImageMutation,
       createTranslationMutation,
       queryClient,
     ],

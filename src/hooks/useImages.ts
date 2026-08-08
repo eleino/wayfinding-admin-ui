@@ -4,13 +4,22 @@ import {
   fetchImagesByType,
   fetchImagesByTypeAndPage,
   uploadImage,
+  deleteImage,
+  copyImage,
 } from "@api/images";
+
+const IMAGE_LIST_STALE_TIME = 5 * 60 * 1000; // controls how often the image list may be refetched due to stale data
+const IMAGE_LIST_GC_TIME = 30 * 60 * 1000; // controls how long the image list is kept cached
 
 type UploadImageParams = {
   itemType: string;
   key: string;
   file: File;
   itemId?: number|null;
+};
+
+type CopyImageParams = Omit<UploadImageParams, "file"> & {
+  sourceKey: string;
 };
 
 export const useGetImagesByType = (type: string, options = {}) => {
@@ -27,6 +36,8 @@ export const useGetAllImagesByType = (type: string, options = {}) => {
   const query = useQuery({
     queryKey: ["all_images", type],
     queryFn: () => fetchAllImagesByType(type),
+    staleTime: IMAGE_LIST_STALE_TIME,
+    gcTime: IMAGE_LIST_GC_TIME,
     ...options,
   });
   return query;
@@ -40,6 +51,8 @@ export const useGetImagesByTypeInfinite = (
     queryKey: ["imagesInfinite", type],
     queryFn: ({pageParam = 1}) => fetchImagesByTypeAndPage(type, pageParam),
     enabled: !!type,
+    staleTime: IMAGE_LIST_STALE_TIME,
+    gcTime: IMAGE_LIST_GC_TIME,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.flatMap((page) => page.data).length;
@@ -61,3 +74,16 @@ export const useUploadImage = (options = {}) => {
   });
   return mutation;
 };
+
+export const useCopyImage = (options = {}) =>
+  useMutation({
+    mutationFn: ({ sourceKey, itemType, key, itemId }: CopyImageParams) =>
+      copyImage(sourceKey, itemType, key, itemId || null),
+    ...options,
+  });
+
+export const useDeleteImage = (options = {}) =>
+  useMutation({
+    mutationFn: (key: string) => deleteImage(key),
+    ...options,
+  });

@@ -45,8 +45,9 @@ const SideBar = (props: { handleLogout: () => void }) => {
     { name: "Settings", path: "/settings", search: {} },
   ];
   return (
-    <div className="w-50 pt-5 bg-sidebar-grey flex-none h-150 rounded shadow-lg border border-border-grey">
+    <div className="w-50 bg-sidebar-grey flex-none h-150 rounded shadow-lg border border-border-grey">
       <ul className="list-none w-full h-full flex flex-col">
+        <div className="mb-5 p-4 w-full  text-center text-lg uppercase font-bold border-b-2 border-lab-turquoise shadow">Wayfinding</div>
         {links.map((link) => (
           <li className="sidebar-link" key={link.path}>
             <Link
@@ -57,9 +58,9 @@ const SideBar = (props: { handleLogout: () => void }) => {
                 includeHash: false,
                 includeSearch: false,
               }}
-              className={`pl-5 py-2 w-full h-full block [&.active]:text-lab-turquoise [&.active]:font-bold [&.active]:bg-lab-turquoise/10`}
+              className={`pl-5 py-2 w-full h-full block`}
               activeProps={{
-                className: "text-lab-turquoise font-bold bg-lab-turquoise/10",
+                className: "text-lab-turquoise font-bold bg-lab-turquoise/10 border-l-2 border-lab-turquoise",
               }}
             >
               {link.name}

@@ -5,7 +5,11 @@ import {
   useDeleteTranslation,
   useUpdateTranslation,
 } from "@hooks/useTranslations";
-import { useUploadImage } from "@hooks/useImages";
+import {
+  useCopyImage,
+  useDeleteImage,
+  useUploadImage,
+} from "@hooks/useImages";
 import {
   useUpdateOverlay,
   useCreateOverlay,
@@ -35,6 +39,8 @@ export const useInstructionsUpdater = () => {
   const updateTranslationMutation = useUpdateTranslation();
   const deleteTranslationMutation = useDeleteTranslation();
   const uploadImageMutation = useUploadImage();
+  const copyImageMutation = useCopyImage();
+  const deleteImageMutation = useDeleteImage();
   const updateOverlayMutation = useUpdateOverlay();
   const createOverlayMutation = useCreateOverlay();
   const deleteOverlayMutation = useDeleteOverlay();
@@ -59,6 +65,7 @@ export const useInstructionsUpdater = () => {
       try {
         const translationTasks = [];
         const imageTasks = [];
+        const imageDeletionTasks = [];
         const overlayTasks = [];
 
         for (const dir of directions) {
@@ -114,15 +121,31 @@ export const useInstructionsUpdater = () => {
           }
           // handle images
           const newImageFile = updatedInstructionData[`image_${dir}_file`];
+          const existingImageKey =
+            updatedInstructionData[`existing_image_${dir}_key`];
+          const imageType = img_key.startsWith("LOCATION_") //first approach image is start location image if present
+            ? "location"
+            : "step";
           if (newImageFile) {
             imageTasks.push(
               uploadImageMutation.mutateAsync({
-                itemType: "step",
+                itemType: imageType,
                 key: img_key,
                 itemId: stepData.step.location_id,
                 file: newImageFile,
               }),
             );
+          } else if (existingImageKey) {
+            imageTasks.push(
+              copyImageMutation.mutateAsync({
+                sourceKey: existingImageKey,
+                itemType: imageType,
+                key: img_key,
+                itemId: stepData.step.location_id,
+              }),
+            );
+          } else if (updatedInstructionData[`remove_image_${dir}`]) {
+            imageDeletionTasks.push(deleteImageMutation.mutateAsync(img_key));
           }
 
           // handle overlays
@@ -169,7 +192,17 @@ export const useInstructionsUpdater = () => {
         setLoadingMessage("Updating translations...");
         const translationsResult = await Promise.allSettled(translationTasks);
         setLoadingMessage("Updating images...");
+        const imageDeletionResults = await Promise.allSettled(
+          imageDeletionTasks,
+        );
         const uploadedImagesResult = await Promise.allSettled(imageTasks);
+        const failedImageOperation = [
+          ...imageDeletionResults,
+          ...uploadedImagesResult,
+        ].find((result) => result.status === "rejected");
+        if (failedImageOperation?.status === "rejected") {
+          throw failedImageOperation.reason;
+        }
         setLoadingMessage("Updating overlays...");
         const overlaysResult = await Promise.allSettled(overlayTasks);
 
@@ -201,6 +234,8 @@ export const useInstructionsUpdater = () => {
         queryClient.invalidateQueries({
           queryKey: ["step", stepData.step.path_step_id],
         });
+        queryClient.invalidateQueries({ queryKey: ["all_images", "location"] });
+        queryClient.invalidateQueries({ queryKey: ["all_images", "step"] });
         queryClient.invalidateQueries({
           queryKey: ["steps", stepData.step.path_id],
         });
@@ -240,6 +275,8 @@ export const useInstructionsUpdater = () => {
       updateTranslationMutation,
       deleteTranslationMutation,
       uploadImageMutation,
+      copyImageMutation,
+      deleteImageMutation,
       updateOverlayMutation,
       createOverlayMutation,
       deleteOverlayMutation,

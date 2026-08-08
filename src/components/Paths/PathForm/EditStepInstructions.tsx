@@ -6,6 +6,7 @@ import { StepOverlay } from "./StepOverlay";
 import type { Translation } from "@apptypes/translation";
 import type { ImageResponse } from "@apptypes/image";
 import { useInstructionsUpdater } from "@hooks/useInstructionsUpdater";
+import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
 
 export const EditStepInstructions = (props: {
   stepInstructions?: {
@@ -33,6 +34,7 @@ export const EditStepInstructions = (props: {
   } = props;
 
   const instructionsUpdater = useInstructionsUpdater();
+  const imageLibrary = useLocationImageLibrary(stepData.step.location_id);
   const currentStepInstructions = stepInstructions?.stepInstructionTranslations;
 
   const instructionKeys = {
@@ -69,7 +71,11 @@ export const EditStepInstructions = (props: {
       currentStepInstructions?.trl_instruction_to_next || [],
 
     image_on_approach_file: undefined,
+    existing_image_on_approach_key: undefined,
+    remove_image_on_approach: false,
     image_to_next_file: undefined,
+    existing_image_to_next_key: undefined,
+    remove_image_to_next: false,
     overlay_on_approach: overlay_on_approach && {
       // also need overlay_key and image_key when sending data to backend
       image_key: approachOverlayKey,
@@ -194,6 +200,9 @@ export const EditStepInstructions = (props: {
                 form={instructionsForm}
                 overlayImages={overlayImages}
                 overlayKey={approachOverlayKey}
+                existingImageGroups={imageLibrary.groups}
+                existingImagesLoading={imageLibrary.isLoading}
+                existingImagesError={imageLibrary.error}
               />
 
               <h2 className="text-lg font-semibold text-lab-turquoise pt-5">
@@ -247,6 +256,9 @@ export const EditStepInstructions = (props: {
                 form={instructionsForm}
                 overlayKey={toNextOverlayKey}
                 overlayImages={overlayImages}
+                existingImageGroups={imageLibrary.groups}
+                existingImagesLoading={imageLibrary.isLoading}
+                existingImagesError={imageLibrary.error}
               />
             </div>
             <div className="flex justify-end">

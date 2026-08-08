@@ -70,7 +70,6 @@ export interface LocationDestinations {
 
 export interface EditLocationInput {
     location_name: string;
-    // building_id: number;
     is_entry_location: boolean;
     floor_number: number;
     trl_location_name: {
@@ -84,10 +83,10 @@ export interface EditLocationInput {
     // trl_location_desc: {
     //     [lang: string]: string;
     // }[];
-    // image_url?: string | null;
-    // image_file?: File | undefined;
     imageUrl?: string | null;
     imageFile?: File | undefined;
+    existingImageKey?: string;
+    removeImage?: boolean;
 }
 
 export type AffectedPathReason =
@@ -96,6 +95,7 @@ export type AffectedPathReason =
   | "step_location"
   | "resource_key";
 
+  // GET /locations/:locationId/deletion-impact
 export interface LocationDeletionImpact {
   location: {
     location_id: number;

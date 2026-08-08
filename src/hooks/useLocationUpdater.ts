@@ -1,8 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
-// import { useNavigate } from "@tanstack/react-router";
 import { useCreateTranslation, useUpdateTranslation } from "./useTranslations";
 import { useUpdateLocation } from "./useLocations";
-import { useUploadImage } from "./useImages";
+import { useCopyImage, useDeleteImage, useUploadImage } from "./useImages";
 import { useState, useCallback } from "react";
 import type { EditLocationInput } from "@apptypes/location";
 import { ApiError, normalizeApiError } from "@api/errors";
@@ -24,10 +23,12 @@ export const useLocationUpdater = () => {
 
   const updateLocationMutation = useUpdateLocation();
   const uploadImageMutation = useUploadImage();
+  const copyImageMutation = useCopyImage();
+  const deleteImageMutation = useDeleteImage();
   const updateTranslationMutation = useUpdateTranslation();
   const createTranslationMutation = useCreateTranslation();
   const queryClient = useQueryClient();
-  // const navigate = useNavigate();
+
   const mutateAsync = useCallback(
     async (
       locationId: number,
@@ -85,6 +86,24 @@ export const useLocationUpdater = () => {
               file: updatedLocationData.imageFile,
               itemId: locationId,
             });
+        } else if (updatedLocationData.existingImageKey) {
+          const key =
+            locationDetails.img_location_key || `LOCATION_${locationId}_IMG`;
+          setLoadingMessage("Copying image...");
+          imageResult = await copyImageMutation.mutateAsync({
+            sourceKey: updatedLocationData.existingImageKey,
+            itemType: "location",
+            key,
+            itemId: locationId,
+          });
+        } else if (
+          updatedLocationData.removeImage &&
+          locationDetails.img_location_key
+        ) {
+          setLoadingMessage("Removing image...");
+          await deleteImageMutation.mutateAsync(
+            locationDetails.img_location_key,
+          );
         }
 
         // handle translation updates
@@ -193,6 +212,8 @@ export const useLocationUpdater = () => {
     [
       updateLocationMutation,
       uploadImageMutation,
+      copyImageMutation,
+      deleteImageMutation,
       updateTranslationMutation,
       createTranslationMutation,
       queryClient,

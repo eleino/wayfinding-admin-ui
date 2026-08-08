@@ -43,4 +43,6 @@ export const LocationSchema = v.object({
       ),
     ),
   ),
+  existingImageKey: v.optional(v.string()),
+  removeImage: v.optional(v.boolean()),
 });

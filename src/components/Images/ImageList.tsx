@@ -62,7 +62,7 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
         <div>
           <h2 className="text-xl font-bold my-2">{selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} images</h2>
 
-          <div className="grid grid-cols-[1fr_1fr_1fr] gap-4">
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4">
             {allImages.map((image) => (
               <ImageBox
                 key={image.key}

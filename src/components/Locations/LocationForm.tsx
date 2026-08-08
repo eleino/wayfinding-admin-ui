@@ -1,20 +1,22 @@
 // form for creating and editing locations
 import { Field, FieldArray, Form, useForm } from "@formisch/react";
 import type { EditLocationInput } from "@apptypes/location";
-// import { useState } from "react";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
 import { LocationSchema } from "@schemas/location.schema";
 import type { AppInitLanguage } from "@apptypes/init";
+import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
   handleSubmit: (data: EditLocationInput) => void;
   isEntryLocation?: boolean;
   languageList: AppInitLanguage[];
+  locationId?: number;
 }) => {
-  const { locationData, handleSubmit, isEntryLocation, languageList } = props;
+  const { locationData, handleSubmit, isEntryLocation, languageList, locationId } = props;
+  const imageLibrary = useLocationImageLibrary(locationId);
   const languageCodes = languageList.map((lang) => lang.code) || [];
 
   const mapLanguageCodeToName = (code: string) => {
@@ -32,18 +34,14 @@ export const LocationForm = (props: {
       text: "",
     })),
     imageFile: undefined,
+    existingImageKey: undefined,
+    removeImage: false,
   };
   const locationForm = useForm({
     schema: LocationSchema,
     initialInput: initialValues,
     validate: "blur",
   });
-
-
-  // const handleNameChange = (value: string) => {
-  //   setInput(locationForm, { path: ["trl_location_name_fi"], input: value });
-  // };
-
 
   return (
     <div>
@@ -64,9 +62,6 @@ export const LocationForm = (props: {
               required
               onChange={(event) => {
                 field.onChange(event.target.value);
-                // if (!fiNameDirty && !locationData?.trl_location_name_fi) {
-                //   handleNameChange(event.target.value);
-                // }
               }}
               errors={field.errors}
             />
@@ -187,69 +182,44 @@ export const LocationForm = (props: {
             </div>
           )}
         </FieldArray>
-        {/* <Field of={locationForm} path={["trl_location_name_fi"]}>
-          {(field) => {
-            return (
-              <TextInput
-                label="Location name (fi)"
-                {...field.props}
-                input={field.input}
-                onChange={(event) => {
-                  field.onChange(event.target.value);
-                  setFiNameDirty(true);
-                }}
-                required
-                errors={field.errors}
-              />
-            );
-          }}
-        </Field>
-        <Field of={locationForm} path={["trl_location_name_en"]}>
-          {(field) => (
-            <TextInput
-              label="Location name (en)"
-              {...field.props}
-              input={field.input}
-              onChange={(event) => field.onChange(event.target.value)}
-              required
-              errors={field.errors}
-            />
-          )}
-        </Field>
-        <Field of={locationForm} path={["trl_at_current_location_msg_fi"]}>
-          {(field) => (
-            <TextInput
-              label="At location message (fi)"
-              {...field.props}
-              input={field.input}
-              required
-              errors={field.errors}
-            />
-          )}
-        </Field>
-        <Field of={locationForm} path={["trl_at_current_location_msg_en"]}>
-          {(field) => (
-            <TextInput
-              label="At location message (en)"
-              {...field.props}
-              input={field.input}
-              required
-              errors={field.errors}
-            />
-          )}
-        </Field> */}
         <Field of={locationForm} path={["imageFile"]}>
-          {(field) => (
-            <div className="flex flex-col gap-1">
-              <label>Location Image (optional, JPEG or PNG)</label>
-              <ImageDropBox
-                onFileSelect={(file) => field.onChange(file)}
-                imageUrl={locationData?.imageUrl || undefined}
-              />
-              {field.errors && (
-                <div className="text-red-500">{field.errors[0]}</div>
+          {(imageField) => (
+            <Field of={locationForm} path={["removeImage"]}>
+              {(removeImageField) => (
+                <Field of={locationForm} path={["existingImageKey"]}>
+                  {(existingImageField) => (
+                    <div className="flex flex-col gap-1">
+                      <label>Location Image (optional, JPEG or PNG)</label>
+                      <ImageDropBox
+                        onFileSelect={(file) => {
+                          imageField.onChange(file);
+                          if (file) removeImageField.onChange(false);
+                        }}
+                        onExistingImageSelect={(image) => {
+                          existingImageField.onChange(image?.key);
+                          if (image) {
+                            imageField.onChange(undefined);
+                            removeImageField.onChange(false);
+                          }
+                        }}
+                        existingImageGroups={imageLibrary.groups}
+                        existingImagesLoading={imageLibrary.isLoading}
+                        existingImagesError={imageLibrary.error}
+                        onExistingImageRemove={() =>
+                          removeImageField.onChange(true)
+                        }
+                        imageUrl={locationData?.imageUrl || undefined}
+                      />
+                      {imageField.errors && (
+                        <div className="text-red-500">
+                          {imageField.errors[0]}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Field>
               )}
-            </div>
+            </Field>
           )}
         </Field>
         <div className="flex justify-end my-5">
