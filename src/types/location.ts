@@ -85,6 +85,7 @@ export interface EditLocationInput {
     // }[];
     imageUrl?: string | null;
     imageFile?: File | undefined;
+    existingImageKey?: string;
     removeImage?: boolean;
 }
 

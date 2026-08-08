@@ -1,8 +1,14 @@
 import { useEffect, useId, useRef, useState } from "react";
+import type { ExistingImageGroup, SelectableImage } from "@apptypes/image";
+import { ExistingImagePicker } from "./ExistingImagePicker";
 
 interface ImageDropBoxProps {
   onFileSelect: (file: File | undefined) => void;
   onExistingImageRemove?: () => void;
+  onExistingImageSelect?: (image: SelectableImage | undefined) => void;
+  existingImageGroups?: ExistingImageGroup[];
+  existingImagesLoading?: boolean;
+  existingImagesError?: Error | null;
   imageUrl?: string;
 }
 
@@ -11,17 +17,22 @@ const REMOVE_COOLDOWN_MS = 1000;
 export const ImageDropBox = ({
   onFileSelect,
   onExistingImageRemove,
+  onExistingImageSelect,
+  existingImageGroups = [],
+  existingImagesLoading,
+  existingImagesError,
   imageUrl,
 }: ImageDropBoxProps) => {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const removeCooldownRef = useRef<number | undefined>(undefined);
   const [preview, setPreview] = useState<string | undefined>(imageUrl);
-  const [hasSelectedFile, setHasSelectedFile] = useState(false);
+  const [hasPendingReplacement, setHasPendingReplacement] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isExistingPickerOpen, setIsExistingPickerOpen] = useState(false);
   const [isRemoveDisabled, setIsRemoveDisabled] = useState(false);
 
-  // allow closing the preview modal with the Escape key
+  // allow closing the preview modal with ESC
   useEffect(() => {
     if (!isPreviewOpen) return;
 
@@ -53,12 +64,24 @@ export const ImageDropBox = ({
 
   const handleFile = (file: File) => {
     clearRemoveCooldown();
+    onExistingImageSelect?.(undefined);
     onFileSelect(file);
-    setHasSelectedFile(true);
+    setHasPendingReplacement(true);
 
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handleExistingImageSelect = (image: SelectableImage) => {
+    clearRemoveCooldown();
+    onFileSelect(undefined);
+    onExistingImageSelect?.(image);
+    setPreview(image.url);
+    setHasPendingReplacement(true);
+    setIsExistingPickerOpen(false);
+
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -70,12 +93,13 @@ export const ImageDropBox = ({
   const handleRemove = () => {
     setIsPreviewOpen(false);
     onFileSelect(undefined);
+    onExistingImageSelect?.(undefined);
 
     if (inputRef.current) inputRef.current.value = "";
 
-    if (hasSelectedFile && imageUrl) {
+    if (hasPendingReplacement && imageUrl) {
       setPreview(imageUrl);
-      setHasSelectedFile(false);
+      setHasPendingReplacement(false);
       setIsRemoveDisabled(true); // timeout to prevent accidental double clicks
       removeCooldownRef.current = window.setTimeout(() => {
         setIsRemoveDisabled(false);
@@ -85,8 +109,8 @@ export const ImageDropBox = ({
     }
 
     setPreview(undefined);
-    setHasSelectedFile(false);
-    if (!hasSelectedFile) onExistingImageRemove?.(); // removed existing image
+    setHasPendingReplacement(false);
+    if (!hasPendingReplacement) onExistingImageRemove?.(); // removed existing image
   };
 
   return (
@@ -112,18 +136,29 @@ export const ImageDropBox = ({
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="min-w-0 flex-1 cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lab-turquoise"
-          >
-            <span className="block text-sm font-medium text-lab-turquoise">
-              {preview ? "Choose a different image" : "Choose an image"}
-            </span>
-            <span className="mt-1 block text-xs text-gray-400">
-              or drag and drop a JPEG or PNG here
-            </span>
-          </button>
+          <div className="min-w-0 flex-1">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lab-turquoise"
+            >
+              <span className="text-sm p-1 rounded font-medium text-lab-turquoise hover:outline hover:outline-lab-turquoise ">
+                {preview ? "Upload a different image" : "Upload an image"}
+              </span>
+              <span className="mt-1 block text-xs text-gray-400">
+                or drag and drop a JPEG or PNG here
+              </span>
+            </button>
+            {onExistingImageSelect && (
+              <button
+                type="button"
+                onClick={() => setIsExistingPickerOpen(true)}
+                className="mt-2 border border-lab-green-dark rounded p-1 block cursor-pointer text-xs text-lab-green-dark hover:bg-lab-green-dark hover:text-black"
+              >
+                Choose an existing image
+              </button>
+            )}
+          </div>
 
           {preview && (
             <button
@@ -184,6 +219,16 @@ export const ImageDropBox = ({
             />
           </section>
         </div>
+      )}
+
+      {isExistingPickerOpen && (
+        <ExistingImagePicker
+          groups={existingImageGroups}
+          isLoading={existingImagesLoading}
+          error={existingImagesError}
+          onSelect={handleExistingImageSelect}
+          onClose={() => setIsExistingPickerOpen(false)}
+        />
       )}
     </>
   );

@@ -3,6 +3,15 @@ export interface Image {
     url: string;
 }
 
+export interface SelectableImage extends Image {
+    type: string;
+}
+
+export interface ExistingImageGroup {
+    label: string;
+    images: SelectableImage[];
+}
+
 export interface ImageMeta {
     images: {
         limit: string;

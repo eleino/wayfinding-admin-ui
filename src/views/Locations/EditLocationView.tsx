@@ -106,6 +106,7 @@ export const EditLocationView = () => {
       ) : location ? (
         <div className="bg-sidebar-grey p-4 rounded w-150">
           <LocationForm
+            locationId={locationId}
             locationData={allLocationData}
             handleSubmit={handleUpdateLocation}
             languageList={languageList.data}

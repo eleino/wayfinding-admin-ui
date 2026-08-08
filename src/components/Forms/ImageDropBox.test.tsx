@@ -12,7 +12,7 @@ describe("ImageDropBox", () => {
     );
 
     await expect
-      .element(screen.getByText("Choose a different image"))
+      .element(screen.getByText("Upload a different image"))
       .toBeInTheDocument();
     await expect.element(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument();
 
@@ -43,7 +43,7 @@ describe("ImageDropBox", () => {
 
     expect(onFileSelect).toHaveBeenCalledWith(undefined);
     expect(onExistingImageRemove).toHaveBeenCalledOnce();
-    await expect.element(screen.getByText("Choose an image")).toBeInTheDocument();
+    await expect.element(screen.getByText("Upload an image")).toBeInTheDocument();
     await expect.element(screen.getByAltText("Selected image preview")).not.toBeInTheDocument();
   });
 
@@ -71,7 +71,44 @@ describe("ImageDropBox", () => {
     await expect.element(removeButton).toBeDisabled();
     expect(onExistingImageRemove).not.toHaveBeenCalled();
 
-    await new Promise((resolve) => window.setTimeout(resolve, 2_100));
+    await new Promise((resolve) => window.setTimeout(resolve, 1_100));
     await expect.element(removeButton).toBeEnabled();
+  });
+
+  test("selects a keyed image from caller-provided library groups", async () => {
+    const onExistingImageSelect = vi.fn();
+    const screen = await render(
+      <ImageDropBox
+        onFileSelect={vi.fn()}
+        onExistingImageSelect={onExistingImageSelect}
+        existingImageGroups={[
+          {
+            label: "At location 5",
+            images: [
+              {
+                key: "IMAGE_NEXT_5_TO_3",
+                url: "https://example.com/next-5-to-3.jpg",
+                type: "step",
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    await screen.getByRole("button", { name: "Choose an existing image" }).click();
+    await expect.element(screen.getByText("IMAGE_NEXT_5_TO_3")).toBeInTheDocument();
+
+    await screen.getByRole("button", { name: /IMAGE_NEXT_5_TO_3/ }).click();
+
+    expect(onExistingImageSelect).toHaveBeenCalledWith({
+      key: "IMAGE_NEXT_5_TO_3",
+      url: "https://example.com/next-5-to-3.jpg",
+      type: "step",
+    });
+    await expect.element(screen.getByAltText("Selected image preview")).toHaveAttribute(
+      "src",
+      "https://example.com/next-5-to-3.jpg",
+    );
   });
 });

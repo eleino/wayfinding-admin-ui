@@ -6,14 +6,17 @@ import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
 import { LocationSchema } from "@schemas/location.schema";
 import type { AppInitLanguage } from "@apptypes/init";
+import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
   handleSubmit: (data: EditLocationInput) => void;
   isEntryLocation?: boolean;
   languageList: AppInitLanguage[];
+  locationId?: number;
 }) => {
-  const { locationData, handleSubmit, isEntryLocation, languageList } = props;
+  const { locationData, handleSubmit, isEntryLocation, languageList, locationId } = props;
+  const imageLibrary = useLocationImageLibrary(locationId);
   const languageCodes = languageList.map((lang) => lang.code) || [];
 
   const mapLanguageCodeToName = (code: string) => {
@@ -31,6 +34,7 @@ export const LocationForm = (props: {
       text: "",
     })),
     imageFile: undefined,
+    existingImageKey: undefined,
     removeImage: false,
   };
   const locationForm = useForm({
@@ -182,24 +186,38 @@ export const LocationForm = (props: {
           {(imageField) => (
             <Field of={locationForm} path={["removeImage"]}>
               {(removeImageField) => (
-                <div className="flex flex-col gap-1">
-                  <label>Location Image (optional, JPEG or PNG)</label>
-                  <ImageDropBox
-                    onFileSelect={(file) => {
-                      imageField.onChange(file);
-                      if (file) removeImageField.onChange(false);
-                    }}
-                    onExistingImageRemove={() =>
-                      removeImageField.onChange(true)
-                    }
-                    imageUrl={locationData?.imageUrl || undefined}
-                  />
-                  {imageField.errors && (
-                    <div className="text-red-500">
-                      {imageField.errors[0]}
+                <Field of={locationForm} path={["existingImageKey"]}>
+                  {(existingImageField) => (
+                    <div className="flex flex-col gap-1">
+                      <label>Location Image (optional, JPEG or PNG)</label>
+                      <ImageDropBox
+                        onFileSelect={(file) => {
+                          imageField.onChange(file);
+                          if (file) removeImageField.onChange(false);
+                        }}
+                        onExistingImageSelect={(image) => {
+                          existingImageField.onChange(image?.key);
+                          if (image) {
+                            imageField.onChange(undefined);
+                            removeImageField.onChange(false);
+                          }
+                        }}
+                        existingImageGroups={imageLibrary.groups}
+                        existingImagesLoading={imageLibrary.isLoading}
+                        existingImagesError={imageLibrary.error}
+                        onExistingImageRemove={() =>
+                          removeImageField.onChange(true)
+                        }
+                        imageUrl={locationData?.imageUrl || undefined}
+                      />
+                      {imageField.errors && (
+                        <div className="text-red-500">
+                          {imageField.errors[0]}
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
+                </Field>
               )}
             </Field>
           )}
