@@ -72,24 +72,3 @@ export interface CreatePathResponse {
   allowed_organizations: PathOrganization[];
   steps: StepCreationResponse[];
 }
-
-export interface CreatePathStep {
-  location_id: number;
-  step_order: number;
-  distance_to_next_meters: number;
-  video_timestamp_seconds?: number;
-  name?: string;
-}
-export interface EditPathInput {
-  path_name: string;
-  priority: number;
-  estimated_time_minutes: number;
-  accessibility_level: number;
-  video_instruction_url: string;
-  organizations?: number[];
-  elevated_priority_starts_at?: Date;
-  elevated_priority_expires_at?: Date;
-  // trl_path_name_fi?: string; // path name is never displayed to end user
-  // trl_path_name_en?: string; // and all trl_path_name keys are currently null in the db
-  steps?: CreatePathStep[];
-}

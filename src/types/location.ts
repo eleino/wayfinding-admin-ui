@@ -1,4 +1,5 @@
 import type { AppTranslation } from "./translation";
+// import type { LocationInput } from "@schemas/location.schema";
 
 export interface Location {
     location_id: number;
@@ -66,27 +67,6 @@ export interface LocationDestinations {
         }
     };
     end_locations: EndLocation[];
-}
-
-export interface EditLocationInput {
-    location_name: string;
-    is_entry_location: boolean;
-    floor_number: number;
-    trl_location_name: {
-        lang: string;
-        text?: string;
-    }[];
-    trl_at_current_location_msg: {
-        lang: string;
-        text?: string;
-    }[];
-    // trl_location_desc: {
-    //     [lang: string]: string;
-    // }[];
-    imageUrl?: string | null;
-    imageFile?: File | undefined;
-    existingImageKey?: string;
-    removeImage?: boolean;
 }
 
 export type AffectedPathReason =

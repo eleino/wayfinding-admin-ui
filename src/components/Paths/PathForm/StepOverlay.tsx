@@ -9,7 +9,7 @@ import {
 } from "@utils/overlayPositionRange";
 import type { ImageResponse } from "@apptypes/image";
 import type { ExistingImageGroup } from "@apptypes/image";
-import type { EditStepOverlay } from "@apptypes/step";
+import type { EditStepOverlay } from "@schemas/step.schema";
 
 interface StepOverlayProps {
   overlayUrl?: string;

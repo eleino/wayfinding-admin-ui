@@ -1,7 +1,7 @@
 import { useSearch } from "@tanstack/react-router";
 import { useGetPathById, useUpdatePath } from "@hooks/usePaths";
 import { PathForm } from "@components/Paths/PathForm/PathForm";
-import type { EditPathInput } from "@apptypes/path";
+import type { EditPathInput } from "@schemas/path.schema";
 import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
 import type { SearchParams } from "@schemas/router.schema";
 export const EditPathView = () => {

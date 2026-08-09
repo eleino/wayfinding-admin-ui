@@ -19,7 +19,8 @@ import { useCallback, useState } from "react";
 import type { UploadedImage } from "@apptypes/image";
 import type { Translation } from "@apptypes/translation";
 import type { OverlayResponse } from "@apptypes/overlay";
-import type { EditStepInput, StepApiResponse } from "@apptypes/step";
+import type { StepApiResponse } from "@apptypes/step";
+import type { EditStepInput } from "@schemas/step.schema";
 import { useLanguages } from "./useAppInit";
 import { ApiError, normalizeApiError } from "@api/errors";
 

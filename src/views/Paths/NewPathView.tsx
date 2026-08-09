@@ -1,5 +1,5 @@
 import { PathForm } from "@components/Paths/PathForm/PathForm";
-import type { EditPathInput } from "@apptypes/path";
+import type { EditPathInput } from "@schemas/path.schema";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelectionStore } from "@storage/store";

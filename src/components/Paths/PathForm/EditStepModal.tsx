@@ -1,4 +1,4 @@
-import type { EditStepInput } from "@apptypes/step";
+import type { EditStepInput } from "@schemas/step.schema";
 import { useGetStepById } from "@hooks/useSteps";
 import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import { EditStepInstructions } from "./EditStepInstructions";

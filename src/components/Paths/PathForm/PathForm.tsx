@@ -1,4 +1,5 @@
-import type { EditPathInput, PathApiResponse } from "@apptypes/path";
+import type { PathApiResponse } from "@apptypes/path";
+import type { EditPathInput } from "@schemas/path.schema";
 import { Field, Form, useForm, type FormStore } from "@formisch/react";
 import { TextInput } from "@components/Forms/TextInput";
 import { useGetOrganisations } from "@hooks/useOrganisations";

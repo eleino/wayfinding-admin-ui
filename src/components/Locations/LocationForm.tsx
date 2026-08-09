@@ -1,6 +1,6 @@
 // form for creating and editing locations
 import { Field, FieldArray, Form, useForm } from "@formisch/react";
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
@@ -40,7 +40,7 @@ export const LocationForm = (props: {
   const locationForm = useForm({
     schema: LocationSchema,
     initialInput: initialValues,
-    validate: "blur",
+    validate: "initial",
   });
 
   return (
@@ -133,7 +133,7 @@ export const LocationForm = (props: {
                               textField.onChange(event.target.value)
                             }
                             name={`trl_location_name_${langField.input}`}
-                            errors={fieldArray.errors}
+                            errors={textField.errors}
                           />
                         )}
                       </Field>

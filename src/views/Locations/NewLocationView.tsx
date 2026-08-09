@@ -1,7 +1,7 @@
 import { Link, useSearch, useNavigate } from "@tanstack/react-router";
 import { useSelectionStore } from "@storage/store";
 import { LocationForm } from "@components/Locations/LocationForm";
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import { useLocationCreator } from "@hooks/useLocationCreator";
 import type { SearchParams } from "@schemas/router.schema";
 import { useLanguages } from "@hooks/useAppInit";

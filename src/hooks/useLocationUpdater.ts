@@ -3,7 +3,7 @@ import { useCreateTranslation, useUpdateTranslation } from "./useTranslations";
 import { useUpdateLocation } from "./useLocations";
 import { useCopyImage, useDeleteImage, useUploadImage } from "./useImages";
 import { useState, useCallback } from "react";
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import { ApiError, normalizeApiError } from "@api/errors";
 import type { Location } from "@apptypes/location";
 import type { UploadedImage } from "@apptypes/image";

@@ -1,6 +1,6 @@
 // modal to pop open LocationForm
 import { LocationForm } from "./LocationForm";
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import { useLanguages } from "@hooks/useAppInit";
 import { useLocationCreator } from "@hooks/useLocationCreator";
 

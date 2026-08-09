@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllAppTranslations,
   fetchTranslationByKey,
@@ -83,6 +83,119 @@ export const useCreateTranslation = (options = {}) => {
   return mutation;
 };
 
+export const useCreateTranslationKey = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      translationKey,
+      type,
+      translations,
+    }: {
+      translationKey: string;
+      type: string;
+      translations: Array<
+        Pick<CreateTranslationDto, "language_code" | "text_value">
+      >;
+    }) => {
+      const filledTranslations = translations.filter(
+        (translation) => translation.text_value.trim().length > 0,
+      );
+      return Promise.all(
+        filledTranslations.map((translation) =>
+          createTranslation({
+            translation_key: translationKey,
+            type,
+            ...translation,
+          }),
+        ),
+      );
+    },
+    onSuccess: (_data, { translationKey, type }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["translation", translationKey],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["translationsAllLangs", translationKey],
+        }),
+        ...(type === "app"
+          ? [
+              queryClient.invalidateQueries({
+                queryKey: ["appTranslationsAllLangs"],
+              }),
+            ]
+          : []),
+      ]),
+  });
+};
+
+export const useSaveTranslationKey = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      translationKey,
+      type,
+      existingTranslations,
+      translations,
+    }: {
+      translationKey: string;
+      type: string;
+      existingTranslations: Record<string, string>;
+      translations: Array<
+        Pick<CreateTranslationDto, "language_code" | "text_value">
+      >;
+    }) => {
+      const filledTranslations = translations.filter(
+        (translation) => translation.text_value.trim().length > 0,
+      );
+      const newTranslations = filledTranslations.filter(
+        (translation) =>
+          existingTranslations[translation.language_code] === undefined,
+      );
+      // filter out translations that haven't changed
+      const changedTranslations = filledTranslations.filter((translation) => {
+        const existingText = existingTranslations[translation.language_code];
+        return (
+          existingText !== undefined && existingText !== translation.text_value
+        );
+      });
+
+      return Promise.all([
+        ...newTranslations.map((translation) =>
+          createTranslation({
+            translation_key: translationKey,
+            type,
+            ...translation,
+          }),
+        ),
+        ...changedTranslations.map((translation) =>
+          updateTranslation(
+            translationKey,
+            { text_value: translation.text_value },
+            translation.language_code,
+          ),
+        ),
+      ]);
+    },
+    onSettled: (_data, _error, { translationKey, type }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["translation", translationKey],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["translationsAllLangs", translationKey],
+        }),
+        ...(type === "app"
+          ? [
+              queryClient.invalidateQueries({
+                queryKey: ["appTranslationsAllLangs"],
+              }),
+            ]
+          : []),
+      ]),
+  });
+};
+
 export const useUpdateTranslation = (options = {}) => {
   const mutation = useMutation({
     mutationFn: ({
@@ -111,4 +224,33 @@ export const useDeleteTranslation = (options = {}) => {
     ...options,
   });
   return mutation;
+};
+
+export const useDeleteTranslationKey = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      translationKey,
+      languageCodes,
+    }: {
+      translationKey: string;
+      languageCodes: string[];
+    }) => {
+      await Promise.all(
+        languageCodes.map((lang) => deleteTranslation(translationKey, lang)),
+      );
+    },
+    onSuccess: (_, { translationKey }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["translation", translationKey],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["translationsAllLangs", translationKey],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["appTranslationsAllLangs"],
+        }),
+      ]),
+  });
 };

@@ -33,7 +33,7 @@ const RootLayout = () => {
       <div className="flex flex-col rounded-xl shadow-lg bg-sidebar-grey/50">
         <div className="flex flex-row gap-4">
           <SideBar handleLogout={handleLogout} />
-          <main>
+          <main className="min-w-0 flex-1 max-w-5xl">
             <BreadCrumbs />
             <Outlet />
           </main>
