@@ -4,6 +4,9 @@ interface JWTType {
     exp: number;
     role: string;
 }
+
+export const ADMIN_ROLES = ["admin", "maintainer"] as const;
+
 export const isTokenValid = (token: string): boolean => {
   try {
     const { exp } = jwtDecode<JWTType>(token);
@@ -11,6 +14,16 @@ export const isTokenValid = (token: string): boolean => {
   } catch {
     return false;
   }
+};
+
+export const isTokenAuthorized = (
+  token: string,
+  allowedRoles: readonly string[] = ADMIN_ROLES,
+): boolean => {
+  if (!isTokenValid(token)) return false;
+
+  const role = getUserRoleFromToken(token);
+  return role !== null && allowedRoles.includes(role);
 };
 
 export const getTokenExpirationDelay = (token: string): number => {
@@ -31,13 +44,3 @@ export const getUserRoleFromToken = (token: string): string | null => {
     return null;
   }
 };
-
-export function getIsAuthenticated(allowedRoles?: string[]): boolean {
-  const token = localStorage.getItem("authToken");
-  if (!token || !isTokenValid(token)) return false;
-  if (allowedRoles) {
-    const role = getUserRoleFromToken(token);
-    return role !== null && allowedRoles.includes(role);
-  }
-  return true;
-}

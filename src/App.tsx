@@ -1,7 +1,9 @@
-import { RouterProvider, createRouter } from "@tanstack/react-router"
+import { useContext, useEffect } from "react";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { AppRouter } from "./routes/AppRouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiError } from "@api/errors";
+import { AuthContext } from "@auth/authContext";
 
 const retryQuery = (failureCount: number, error: unknown) => {
   if (!(error instanceof ApiError) || !error.retryable) return false;
@@ -49,11 +51,25 @@ const queryClient = new QueryClient({
   },
 });
 
+const router = createRouter({
+  routeTree: AppRouter,
+  basepath: import.meta.env.BASE_URL,
+  context: {
+    auth: undefined!,
+  },
+});
+
 function App() {
+  const auth = useContext(AuthContext);
+
+  // Update the router context with the current auth state whenever it changes
+  useEffect(() => {
+    void router.invalidate();
+  }, [auth.isAuthenticated, auth.userRole]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={createRouter({ routeTree: AppRouter, basepath: import.meta.env.BASE_URL })} />
+      <RouterProvider router={router} context={{ auth }} />
     </QueryClientProvider>
   );
 }

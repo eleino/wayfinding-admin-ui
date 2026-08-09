@@ -26,6 +26,34 @@ const initialTranslations: StoredTranslation[] = [
     type: "app",
     text_value: "Vain suomeksi",
   },
+  {
+    translation_id: 4,
+    translation_key: "LOCATION_12_NAME",
+    language_code: "fi",
+    type: "location_name",
+    text_value: "Kirjasto",
+  },
+  {
+    translation_id: 5,
+    translation_key: "CURRENT_LOCATION_12_MSG",
+    language_code: "fi",
+    type: "at_location_message",
+    text_value: "Olet kirjastossa",
+  },
+  {
+    translation_id: 6,
+    translation_key: "STEP_9_APPROACH",
+    language_code: "fi",
+    type: "approach_instruction",
+    text_value: "Käänny vasemmalle",
+  },
+  {
+    translation_id: 7,
+    translation_key: "STEP_9_NEXT",
+    language_code: "fi",
+    type: "to_next_instruction",
+    text_value: "Jatka eteenpäin",
+  },
 ];
 
 let translations = initialTranslations.map((translation) => ({
