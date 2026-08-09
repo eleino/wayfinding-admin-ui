@@ -1,4 +1,8 @@
 import type { AppTranslation } from "./translation";
+// export type {
+//   EditStepInput,
+//   EditStepOverlay,
+// } from "@schemas/step.schema";
 
 export interface StepInstructionImageOverlay {
   overlay_image_url: string;
@@ -83,29 +87,4 @@ export interface StepCreationResponse {
   trl_instruction_to_next_key: string;
   overlay_on_approach_key: string;
   overlay_to_next_key: string;
-}
-
-export interface EditStepOverlay {
-  // overlay_key: string; // e.g. FROM_30_AT_5_TO_14
-  image_key: string; // e.g. OVERLAY_LEFT_ARROW
-  position_x_percent: number;
-  position_y_percent: number;
-  overlay_size: number;
-  rotation_deg: number;
-  rotation_x_deg: number;
-}
-
-export interface EditStepInput {
-  image_on_approach_url?: string;
-  image_on_approach_file?: File;
-  existing_image_on_approach_key?: string;
-  remove_image_on_approach?: boolean;
-  image_to_next_url?: string;
-  image_to_next_file?: File;
-  existing_image_to_next_key?: string;
-  remove_image_to_next?: boolean;
-  trl_instruction_on_approach?: { lang: string, text?: string }[];
-  trl_instruction_to_next?: { lang: string, text?: string }[];
-  overlay_on_approach?: EditStepOverlay;
-  overlay_to_next?: EditStepOverlay;
 }

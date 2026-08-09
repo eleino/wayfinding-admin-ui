@@ -1,4 +1,4 @@
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateLocation } from "@hooks/useLocations";
 import { useCopyImage, useUploadImage } from "@hooks/useImages";

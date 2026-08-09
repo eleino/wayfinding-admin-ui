@@ -20,7 +20,9 @@ export const EditPathSchema = v.intersect([
   v.object({
     elevated_priority_starts_at: v.optional(v.date("Elevated priority start date must be a valid date")),
     elevated_priority_expires_at: v.optional(v.date("Elevated priority end date must be a valid date")),
-    // trl_path_name_fi: v.pipe(v.string(), v.nonEmpty("Finnish name cannot be empty")),
-    // trl_path_name_en: v.pipe(v.string(), v.nonEmpty("English name cannot be empty")),
   }),
 ]);
+
+type EditPathDetailsInput = v.InferOutput<typeof EditPathSchema>;
+export type EditPathInput = EditPathDetailsInput &
+  Partial<v.InferOutput<typeof StepArraySchema>>;

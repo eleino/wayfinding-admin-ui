@@ -3,7 +3,7 @@ import { useSelectionStore } from "@storage/store";
 import { useGetLocationById,  } from "@hooks/useLocations";
 import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import { LocationForm } from "@components/Locations/LocationForm";
-import type { EditLocationInput } from "@apptypes/location";
+import type { EditLocationInput } from "@schemas/location.schema";
 import type { SearchParams } from "@schemas/router.schema";
 import { useLocationUpdater } from "@hooks/useLocationUpdater";
 import { useLanguages } from "@hooks/useAppInit";

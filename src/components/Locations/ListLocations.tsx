@@ -33,7 +33,7 @@ export const ListLocations = (props: { buildingId: number | undefined, page: str
     return <p>Please select a building to view locations.</p>;
   }
     return (
-        <div className="p-2">
+        <div className="p-2 max-w-3xl">
             {locations.isLoading && <p>Loading locations...</p>}
             {locations.isError && <p>Error loading locations: {String(locations.error)}</p>}
             {page==="qrcodes" && <p>Select a location to view its QR codes.</p>}

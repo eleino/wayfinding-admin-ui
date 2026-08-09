@@ -12,7 +12,10 @@ import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { useLocation } from "@tanstack/react-router";
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
-import { useGetPathInstructionsAllLangs, useUpdateSteps } from "@hooks/useSteps";
+import {
+  useGetPathInstructionsAllLangs,
+  useUpdateSteps,
+} from "@hooks/useSteps";
 import type { PathApiResponse } from "@apptypes/path";
 import { EditStep } from "./EditStep";
 import {
@@ -116,8 +119,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       });
       return;
     }
-      setAllowRearranging(!allowRearranging);
-    
+    setAllowRearranging(!allowRearranging);
   };
 
   if (!buildingId || !pathId) {
@@ -127,21 +129,26 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       </p>
     );
   }
-  if (
-    locationList.isLoading ||
-    pathInstructions.isLoading
-  ) {
+  if (locationList.isLoading || pathInstructions.isLoading) {
     return <p>Loading path data...</p>;
   }
   return (
     <div className="mt-20">
       <div className="flex items-center gap-2">
-      <h2 className="text-xl font-bold my-4">Edit Path Steps</h2>
-      <span className="text-white border border-lab-turquoise rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
-      onClick={() => setShowAlert(
-        { title: "Info", 
-          description: "Rearranging mode allows you to reorder, add, and remove steps, and change a step's location.\n\nNormal mode allows you to change step instructions.\n\nIf an instruction text is missing, that part of the instructions (ie. 'on approach' or 'to next') won't be shown to users on the frontend.\n\nPlease include an image for each instruction you want to display to users to help them navigate.\nAdding an overlay helps show users which way to go and where to turn."
-      })}>?</span></div>
+        <h2 className="text-xl font-bold my-4">Edit Path Steps</h2>
+        <span
+          className="text-white border border-lab-turquoise rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
+          onClick={() =>
+            setShowAlert({
+              title: "Info",
+              description:
+                "Rearranging mode allows you to reorder, add, and remove steps, and change a step's location.\n\nNormal mode allows you to change step instructions.\n\nIf an instruction text is missing, that part of the instructions (ie. 'on approach' or 'to next') won't be shown to users on the frontend.\n\nPlease include an image for each instruction you want to display to users to help them navigate.\nAdding an overlay helps show users which way to go and where to turn.",
+            })
+          }
+        >
+          ?
+        </span>
+      </div>
       <div className="my-4 relative">
         <span className="font-bold">Allow rearranging steps:</span>
         <div className="flex items-center space-x-2">
@@ -201,95 +208,119 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           }}
         >
           <FieldArray of={form} path={["steps"]}>
-            {(stepArray) => (
-              <DragDropContext
-                onDragEnd={(result) => {
-                  if (
-                    !result.destination ||
-                    result.source.index === 0 ||
-                    result.destination.index === 0
-                  )
-                    return; // prevent dragging the first step which must be an entry location
-                  if (result.source.index !== result.destination.index) {
-                    setUnsavedChanges(true);
-                  }
-                  move(form, {
-                    path: ["steps"],
-                    from: result.source.index,
-                    to: result.destination.index,
-                  });
-                }}
-              >
-                <Droppable droppableId="steps">
-                  {(dropProvided) => (
-                    <div {...dropProvided.droppableProps} ref={dropProvided.innerRef}>
-                      {stepArray.items.map((stepItem, stepIndex) => (
-                        <Draggable
-                          key={stepItem}
-                          draggableId={stepItem}
-                          index={stepIndex}
-                          isDragDisabled={!allowRearranging || stepIndex === 0}
-                        >
-                          {(dragProvided) => {
-                                                      const providedStyle = dragProvided.draggableProps.style;
-                          const style = {
-                            ...providedStyle,
-                            // disable transform/transition for the first step to prevent it from moving when other steps are dragged on top of it
-                            transform: stepIndex === 0 ? "none" : providedStyle?.transform,
-                            transition: stepIndex === 0 ? "none" : providedStyle?.transition,
-                          }
-                          
-                          return (
-                            <div
-                              ref={dragProvided.innerRef}
-                              {...dragProvided.draggableProps}
-                              {...dragProvided.dragHandleProps}
-                              style={style}
-                            >
-                              <EditStep
-                                key={stepItem}
-                                stepIndex={stepIndex}
-                                haveStepDataDetails={haveStepDataDetails}
-                                setUnsavedChanges={setUnsavedChanges}
-                                onRemove={() =>
-                                  remove(form, {
-                                    path: ["steps"],
-                                    at: stepIndex,
-                                  })
-                                }
-                              />
-                            </div>
-                          )}}
-                        </Draggable>
-                      ))}
-                      {dropProvided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
-          </FieldArray>
-        </PathEditStepsProvider>
-        <div className="flex justify-between mt-4">
-                <button
-                  type="button"
-                  className={`px-4 py-2 ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded`}
-                  disabled={!allowRearranging}
-                  onClick={() => {
-                    insert(form, {
+            {(stepArray) => {
+              return (
+                <DragDropContext
+                  onDragEnd={(result) => {
+                    if (
+                      !result.destination ||
+                      result.source.index === 0 ||
+                      result.destination.index === 0
+                    )
+                      return; // prevent dragging the first step which must be an entry location
+                    if (result.source.index !== result.destination.index) {
+                      setUnsavedChanges(true);
+                    }
+                    move(form, {
                       path: ["steps"],
-                      initialInput: {
-                        step_order: 0,
-                        location_id: undefined,
-                        distance_to_next_meters: 0,
-                        video_timestamp_seconds: 0,
-                      },
+                      from: result.source.index,
+                      to: result.destination.index,
                     });
                   }}
                 >
-                  Add Step
-                </button>
-          <button type="submit" className={`px-4 py-2 bg-lab-green-dark text-white rounded`} disabled={!unsavedChanges}>
+                  <Droppable droppableId="steps">
+                    {(dropProvided) => (
+                      <div
+                        {...dropProvided.droppableProps}
+                        ref={dropProvided.innerRef}
+                      >
+                        {stepArray.items.map((stepItem, stepIndex) => (
+                          <Draggable
+                            key={stepItem}
+                            draggableId={stepItem}
+                            index={stepIndex}
+                            isDragDisabled={
+                              !allowRearranging || stepIndex === 0
+                            }
+                          >
+                            {(dragProvided) => {
+                              const providedStyle =
+                                dragProvided.draggableProps.style;
+                              const style = {
+                                ...providedStyle,
+                                // disable transform/transition for the first step to prevent it from moving when other steps are dragged on top of it
+                                transform:
+                                  stepIndex === 0
+                                    ? "none"
+                                    : providedStyle?.transform,
+                                transition:
+                                  stepIndex === 0
+                                    ? "none"
+                                    : providedStyle?.transition,
+                              };
+
+                              return (
+                                <div
+                                  ref={dragProvided.innerRef}
+                                  {...dragProvided.draggableProps}
+                                  {...dragProvided.dragHandleProps}
+                                  style={style}
+                                >
+                                  <EditStep
+                                    key={stepItem}
+                                    stepIndex={stepIndex}
+                                    haveStepDataDetails={haveStepDataDetails}
+                                    setUnsavedChanges={setUnsavedChanges}
+                                    onRemove={() =>
+                                      remove(form, {
+                                        path: ["steps"],
+                                        at: stepIndex,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              );
+                            }}
+                          </Draggable>
+                        ))}
+                        {dropProvided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                  {stepArray.errors && (
+                    <div className="text-sm text-red-500 mt-1">
+                      {stepArray.errors[0]}
+                    </div>)}
+                </DragDropContext>
+                
+              );
+            }}
+          </FieldArray>
+        </PathEditStepsProvider>
+        <div className="flex justify-between mt-4">
+          <button
+            type="button"
+            className={`px-4 py-2 ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded disabled:cursor-not-allowed disabled:opacity-50`}
+            disabled={!allowRearranging}
+            onClick={() => {
+              insert(form, {
+                path: ["steps"],
+                initialInput: {
+                  step_order: 0,
+                  location_id: undefined,
+                  distance_to_next_meters: 0,
+                  video_timestamp_seconds: 0,
+                },
+              });
+            }}
+          >
+            Add Step
+          </button>
+          <button
+            type="submit"
+            className={`px-4 py-2 bg-lab-green-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-white rounded`}
+            disabled={!unsavedChanges}
+          >
             Save Steps
           </button>
         </div>

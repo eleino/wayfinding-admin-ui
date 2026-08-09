@@ -92,14 +92,6 @@ export const ShowPath = (props: {
     );
   }
   if (!pathQuery.data) return <p>No path data available.</p>;
-  if (deletePathMutation.isPending) return <p>Deleting path...</p>;
-  if (deletePathMutation.isError) {
-    return (
-      <p className="text-red-500">
-        Error deleting path: {deletePathMutation.error.message}
-      </p>
-    );
-  }
   if (deletePathMutation.isSuccess) {
     return (
       <p className="text-lab-green-dark">
@@ -187,7 +179,10 @@ export const ShowPath = (props: {
             <button
               type="button"
               className="cursor-pointer rounded bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600"
-              onClick={() => setShowDeleteDialog(true)}
+              onClick={() => {
+                deletePathMutation.reset();
+                setShowDeleteDialog(true);
+              }}
             >
               Delete path
             </button>
@@ -197,6 +192,8 @@ export const ShowPath = (props: {
         {showDeleteDialog && (
           <DeleteDialog
             itemName={path.name}
+            isPending={deletePathMutation.isPending}
+            error={deletePathMutation.error}
             onConfirm={handleDeletePath}
             onCancel={() => setShowDeleteDialog(false)}
           />

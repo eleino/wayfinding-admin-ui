@@ -1,4 +1,5 @@
-import type { EditStepInput, StepApiResponse } from "@apptypes/step";
+import type { StepApiResponse } from "@apptypes/step";
+import type { EditStepInput } from "@schemas/step.schema";
 import { TextInput } from "@components/Forms/TextInput";
 import { useForm, Field, handleSubmit, FieldArray } from "@formisch/react";
 import { EditStepSchema } from "@schemas/step.schema";

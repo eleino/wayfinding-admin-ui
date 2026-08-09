@@ -54,3 +54,6 @@ export const EditStepSchema = v.object({
       OverlaySchema
     ),
   });
+
+export type EditStepOverlay = v.InferOutput<typeof OverlaySchema>;
+export type EditStepInput = v.InferOutput<typeof EditStepSchema>;
