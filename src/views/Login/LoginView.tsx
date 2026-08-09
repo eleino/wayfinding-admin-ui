@@ -1,22 +1,16 @@
 // LoginView.tsx
-
 import { useState } from "react";
 import { useLoginMutation } from "@hooks/useLoginMutation";
-import { useNavigate } from "@tanstack/react-router";
 
 export const LoginView = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const loginMutation = useLoginMutation();
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    loginMutation.mutate(
-      { username, password },
-      { onSuccess: () => navigate({ to: "/" }) },
-    );
+    loginMutation.mutate({ username, password });
   };
 
   return (

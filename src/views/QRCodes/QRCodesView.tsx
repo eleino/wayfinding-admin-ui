@@ -1,11 +1,11 @@
 import { LocationsSelections } from "@components/Locations/LocationsSelections";
 import { QRCodePath } from "@components/QRCode/QRCodePath";
-import { getRouteApi } from "@tanstack/react-router";
+import type { SearchParams } from "@schemas/router.schema";
+import { useSearch } from "@tanstack/react-router";
 
-const currRoute = getRouteApi("/qrcodes");
 const QRCodesView = () => {
-  const search = currRoute.useSearch();
-  const locationId = search.locationId as number | undefined;
+  const search = useSearch({ from: "__root__" }) as SearchParams;
+  const locationId = search.locationId;
   const searchParams = { ...search };
 
   return (

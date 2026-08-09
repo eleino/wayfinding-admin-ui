@@ -1,174 +1,202 @@
-// AppRouter.tsx
-// using Tanstack Router
-import { createRootRoute, createRoute, redirect, type LinkProps } from '@tanstack/react-router'
-import { LoginView } from '@views/Login/LoginView';
-import RootLayout from '@components/RootLayout/RootLayout';
-import { getIsAuthenticated } from '@auth/authUtils';
-import { DashboardView } from '@views/Dashboard/DashboardView';
-import ImagesView from '@views/Images/ImagesView';
-import LocationsView from '@views/Locations/LocationsView';
-import PathsView from '@views/Paths/PathsView';
-import QRCodesView from '@views/QRCodes/QRCodesView';
-import SettingsView from '@views/Settings/SettingsView';
-import TranslationsView from '@views/Translations/TranslationsView';
-import { NewLocationView } from '@views/Locations/NewLocationView';
-import { EditLocationView } from '@views/Locations/EditLocationView';
-import { NewPathView } from '@views/Paths/NewPathView';
-import { EditPathView } from '@views/Paths/EditPathView';
-import { searchParamsSchema, type SearchParams } from '@schemas/router.schema';
-import { valibotValidator } from '@tanstack/valibot-adapter';
-import { buildBreadcrumbs } from '@utils/breadcrumbs';
+import {
+  Outlet,
+  createRootRouteWithContext,
+  createRoute,
+  lazyRouteComponent,
+  redirect,
+} from "@tanstack/react-router";
+import type { AuthContextType } from "@auth/authContext";
+import { searchParamsSchema, type SearchParams } from "@schemas/router.schema";
+import { valibotValidator } from "@tanstack/valibot-adapter";
+import { buildBreadcrumbs } from "@utils/breadcrumbs";
 
-interface CrumbItem {
-  id: string
-  label: string
-  to: LinkProps['to']
-  search?: SearchParams
-  onNavigate?: () => void
+type Breadcrumbs = ReturnType<typeof buildBreadcrumbs>;
+
+export interface AppRouterContext {
+  auth: AuthContextType;
+  getBreadcrumbs?: () => Breadcrumbs;
 }
 
-// Extend TanStack's internal typing interfaces
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface RouteContext {
-    getBreadcrumbs?: () => CrumbItem[]
+    getBreadcrumbs?: () => Breadcrumbs;
   }
 }
-const rootRoute = createRootRoute({
-    component: () => <RootLayout />,
-    beforeLoad: ({ location }) => {
-        if (location.pathname === '/login') return;
-        if (!getIsAuthenticated(['admin', 'maintainer'])) {
-            throw redirect({to: '/login'});
-        } else if (location.pathname === '/') {
-            throw redirect({to: '/dashboard'});
-        }
-    },
-    validateSearch: valibotValidator(searchParamsSchema),
-});
 
-const indexRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/dashboard',
-    component: () => <DashboardView />,
+const rootRoute = createRootRouteWithContext<AppRouterContext>()({
+  component: Outlet,
+  validateSearch: valibotValidator(searchParamsSchema),
 });
-
 
 const loginRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/login',
-    component: () => <LoginView />,
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  beforeLoad: ({ context }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: "/dashboard", replace: true });
+    }
+  },
+  component: lazyRouteComponent(
+    () => import("@views/Login/LoginView"),
+    "LoginView",
+  ),
 });
 
-const ImagesRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/images',
-    component: () => <ImagesView />,
+const authenticatedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "_authenticated",
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: "/login", replace: true });
+    }
+  },
+  component: lazyRouteComponent(
+    () => import("@components/RootLayout/RootLayout"),
+  ),
 });
 
-// type LocationsSearch = v.InferOutput<typeof searchParamsSchema>
-
-const LocationsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/locations',
-    component: () => <LocationsView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/locations", deps) }
-        }
+const homeRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/",
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard", replace: true });
+  },
 });
 
-// export const LocationsRoute = baseLocationsRoute as Omit<typeof baseLocationsRoute, 'useSearch'> & {
-//     useSearch: () => LocationsSearch
-// }
-
-// route for editing locations
-const EditLocationRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/locations/edit',
-    component: () => <EditLocationView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/locations", deps, "Edit Location") }
-        }
+const dashboardRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/dashboard",
+  component: lazyRouteComponent(
+    () => import("@views/Dashboard/DashboardView"),
+    "DashboardView",
+  ),
 });
 
-const NewLocationRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/locations/new',
-    component: () => <NewLocationView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/locations", deps, "New Location") }
-        }
+const imagesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/images",
+  component: lazyRouteComponent(() => import("@views/Images/ImagesView")),
 });
 
-const PathsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/paths',
-    component: () => <PathsView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/paths", deps) }
-        }
+const locationsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/locations",
+  component: lazyRouteComponent(() => import("@views/Locations/LocationsView")),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/locations", deps),
+  }),
 });
 
-const EditPathRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/paths/edit',
-    component: () => <EditPathView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/paths", deps, "Edit Path") }
-        }
+const editLocationRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/locations/edit",
+  component: lazyRouteComponent(
+    () => import("@views/Locations/EditLocationView"),
+    "EditLocationView",
+  ),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/locations", deps, "Edit Location"),
+  }),
 });
 
-const NewPathRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/paths/new',
-    component: () => <NewPathView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/paths", deps, "New Path") }
-        }
+const newLocationRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/locations/new",
+  component: lazyRouteComponent(
+    () => import("@views/Locations/NewLocationView"),
+    "NewLocationView",
+  ),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/locations", deps, "New Location"),
+  }),
 });
 
-const QRCodeRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/qrcodes',
-    component: () => <QRCodesView />,
-    loaderDeps: ({ search }) => search as SearchParams,
-    context: ({ deps }) => {
-        return {
-         getBreadcrumbs: () => buildBreadcrumbs("/qrcodes", deps) }
-        }
+const pathsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/paths",
+  component: lazyRouteComponent(() => import("@views/Paths/PathsView")),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/paths", deps),
+  }),
 });
 
-const SettingsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/settings',
-    component: () => <SettingsView />,
+const editPathRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/paths/edit",
+  component: lazyRouteComponent(
+    () => import("@views/Paths/EditPathView"),
+    "EditPathView",
+  ),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/paths", deps, "Edit Path"),
+  }),
 });
 
-const TranslationsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/translations',
-    component: () => <TranslationsView />,
+const newPathRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/paths/new",
+  component: lazyRouteComponent(
+    () => import("@views/Paths/NewPathView"),
+    "NewPathView",
+  ),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/paths", deps, "New Path"),
+  }),
 });
 
-const NotFoundRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '*',
-    component: () => <div>Not Found</div>,
+const qrCodeRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/qrcodes",
+  component: lazyRouteComponent(() => import("@views/QRCodes/QRCodesView")),
+  loaderDeps: ({ search }) => search as SearchParams,
+  context: ({ deps }) => ({
+    getBreadcrumbs: () => buildBreadcrumbs("/qrcodes", deps),
+  }),
 });
 
+const settingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings",
+  component: lazyRouteComponent(() => import("@views/Settings/SettingsView")),
+});
 
-rootRoute.addChildren([indexRoute, loginRoute, LocationsRoute, ImagesRoute, PathsRoute, QRCodeRoute, SettingsRoute, TranslationsRoute, NotFoundRoute, NewLocationRoute, EditLocationRoute, NewPathRoute, EditPathRoute]);
+const translationsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/translations",
+  component: lazyRouteComponent(
+    () => import("@views/Translations/TranslationsView"),
+  ),
+});
 
+const notFoundRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "*",
+  component: () => <div>Not Found</div>,
+});
 
-export const AppRouter = rootRoute;
+const authenticatedRouteTree = authenticatedRoute.addChildren([
+  homeRoute,
+  dashboardRoute,
+  locationsRoute,
+  imagesRoute,
+  pathsRoute,
+  qrCodeRoute,
+  settingsRoute,
+  translationsRoute,
+  newLocationRoute,
+  editLocationRoute,
+  newPathRoute,
+  editPathRoute,
+  notFoundRoute,
+]);
+
+export const AppRouter = rootRoute.addChildren([
+  loginRoute,
+  authenticatedRouteTree,
+]);

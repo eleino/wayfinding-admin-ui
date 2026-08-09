@@ -9,9 +9,12 @@ type LoginInput = { username: string; password: string };
 export const useLoginMutation = () => {
   const { login } = useContext(AuthContext);
   const mutation = useMutation<LoginResultType, Error, LoginInput>({
-    mutationFn: async ({ username, password }) => apiLogin(username, password),
-    onSuccess: (data) => {
-      login(data.accessToken);
+    mutationFn: async ({ username, password }) => {
+      const data = await apiLogin(username, password);
+      if (!login(data.accessToken)) {
+        throw new Error("Your account is not authorized to use the admin interface.");
+      }
+      return data;
     },
   });
   return mutation;
