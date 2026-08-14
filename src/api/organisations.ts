@@ -16,6 +16,16 @@ export const updateOrganisation = async (
   return response.json();
 };
 
+export const updateOrganisationSettings = async (
+  id: number,
+  themeJson: string,
+): Promise<OrganisationOverview["settings"]> => {
+  const response = await apiClient.put(`organizations/${id}/settings`, {
+    json: { theme_json: themeJson },
+  });
+  return response.json();
+};
+
 export const fetchOrganisationById = async (id: number|null): Promise<OrganisationOverview> => {
   if (!id) {
     throw new Error("Organization ID is required to fetch organization details.");

@@ -48,7 +48,7 @@ export const EntityModal = ({ entity, entityId, mode, onClose }: EntityModalProp
         role="dialog"
         aria-modal="true"
         aria-labelledby="entity-modal-title"
-        className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-xl border border-border-grey bg-sidebar-grey p-6 shadow-2xl"
+        className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border-grey bg-sidebar-grey p-6 shadow-2xl"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -118,7 +118,12 @@ export const EntityModal = ({ entity, entityId, mode, onClose }: EntityModalProp
           <EntityEditForm
             entity={entity}
             entityId={entityId}
-            initialName={organisation.data.organization.name}
+            data={{
+              name: organisation.data.organization.name,
+              themeJson: organisation.data.settings?.theme_json,
+              lightLogoKey: organisation.data.settings?.logo_image_key_light,
+              darkLogoKey: organisation.data.settings?.logo_image_key_dark,
+            }}
             onClose={onClose}
           />
         )}
@@ -126,8 +131,14 @@ export const EntityModal = ({ entity, entityId, mode, onClose }: EntityModalProp
           <EntityEditForm
             entity={entity}
             entityId={entityId}
-            initialName={site.data.site.name}
-            initialAddress={site.data.site.address}
+            data={{
+              name: site.data.site.name,
+              address: site.data.site.address,
+              imageKey: site.data.site.img_site_key,
+              nameTranslationKey: site.data.site.trl_site_name_key,
+              descriptionTranslationKey: site.data.site.trl_site_desc_Key,
+              welcomeTranslationKey: site.data.site.trl_site_welcome_msg_key,
+            }}
             onClose={onClose}
           />
         )}
@@ -135,12 +146,19 @@ export const EntityModal = ({ entity, entityId, mode, onClose }: EntityModalProp
           <EntityEditForm
             entity={entity}
             entityId={entityId}
-            initialName={building.data.building.name}
-            initialFloorCount={building.data.building.total_floors}
-            initialAllowedOrganisations={building.data.building.allowed_organizations.map(
-              (item) => item.organization_id,
-            )}
-            organisations={organisations.data}
+            data={{
+              name: building.data.building.name,
+              floorCount: building.data.building.total_floors,
+              imageKey: building.data.building.img_building_key,
+              nameTranslationKey: building.data.building.trl_building_name_key,
+              descriptionTranslationKey:
+                building.data.building.trl_building_desc_key,
+              allowedOrganisations:
+                building.data.building.allowed_organizations.map(
+                  (item) => item.organization_id,
+                ),
+              organisations: organisations.data ?? [],
+            }}
             onClose={onClose}
           />
         )}

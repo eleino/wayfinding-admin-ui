@@ -49,6 +49,7 @@ export interface BuildingOverview {
     name: string;
     site_id: number;
     total_floors: number;
+    img_building_key: string | null;
     trl_building_name_key: string;
     trl_building_desc_key: string;
     allowed_organizations: {

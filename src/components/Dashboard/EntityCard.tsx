@@ -1,4 +1,4 @@
-interface HierarchyCardProps {
+interface EntityCardProps {
   title: string;
   subtitle?: string;
   imageUrl?: string | null;
@@ -10,7 +10,22 @@ interface HierarchyCardProps {
   meta?: string;
 }
 
-export const HierarchyCard = ({
+/**
+ * A card component that displays a title, subtitle, image, and action buttons.
+ * Used for displaying orgs, sites, and buildings on the dashboard.
+ * @param {EntityCardProps} props - The props for the EntityCard component.
+ * @param {string} props.title - The title of the card.
+ * @param {string} [props.subtitle] - The subtitle of the card.
+ * @param {string | null} [props.imageUrl] - The URL of the image to display on the card.
+ * @param {string} [props.imageAlt] - The alt text for the image.
+ * @param {boolean} props.isSelected - Whether the card is selected or not.
+ * @param {() => void} props.onSelect - Callback function when the card is selected.
+ * @param {() => void} props.onView - Callback function when the "View details" button is clicked.
+ * @param {() => void} props.onEdit - Callback function when the "Edit" button is clicked.
+ * @param {string} [props.meta] - Additional metadata to display on the card.
+ * @returns {JSX.Element} The rendered EntityCard component.
+ */
+export const EntityCard = ({
   title,
   subtitle,
   imageUrl,
@@ -20,7 +35,7 @@ export const HierarchyCard = ({
   onView,
   onEdit,
   meta,
-}: HierarchyCardProps) => (
+}: EntityCardProps) => (
   <article
     className={`group relative flex min-h-44 cursor-pointer flex-col rounded-xl border p-4 transition-colors ${
       isSelected

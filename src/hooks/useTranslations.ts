@@ -9,6 +9,7 @@ import {
 import type { CreateTranslationDto } from "@apptypes/dtos/create-translation.dto";
 import type { UpdateTranslationDTO } from "@apptypes/dtos/update-translation.dto";
 import { useLanguages } from "./useAppInit";
+import { ApiError } from "@api/errors";
 
 export const useGetTranslation = (
   key: string | undefined,
@@ -36,9 +37,16 @@ export const useGetTranslationsAllLangs = (
       if (!languageList.data) return [];
       const langs = languageList.data.map((lang) => lang.code);
       const translations = await Promise.all(
-        langs.map((lang) => fetchTranslationByKey(key, lang)),
+        langs.map(async (lang) => {
+          try {
+            return await fetchTranslationByKey(key, lang);
+          } catch (error) {
+            if (error instanceof ApiError && error.status === 404) return null;
+            throw error;
+          }
+        }),
       );
-      return translations;
+      return translations.filter((translation) => translation !== null);
     },
     ...options,
     enabled: !!key && !!languageList.data && options.enabled !== false,

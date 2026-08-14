@@ -3,7 +3,7 @@ import { useGetOrganisationById, useGetOrganisations } from "@hooks/useOrganisat
 import { useGetSites } from "@hooks/useSites";
 import { useGetBuildings } from "@hooks/useBuildings";
 import { useSelectionStore } from "@storage/store";
-import { HierarchyCard } from "./HierarchyCard";
+import { EntityCard } from "./EntityCard";
 import {
   EntityModal,
   type DashboardEntity,
@@ -65,7 +65,7 @@ export const ListOrganisations = () => {
             {organisations.data.map((organisation) => {
               const id = Number(organisation.id);
               return (
-                <HierarchyCard
+                <EntityCard
                   key={organisation.id}
                   title={organisation.name}
                   subtitle="Wayfinding organisation"
@@ -99,7 +99,7 @@ export const ListOrganisations = () => {
         {orgId && orgSites.data?.sites && orgSites.data.sites.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {orgSites.data.sites.map((site) => (
-              <HierarchyCard
+              <EntityCard
                 key={site.id}
                 title={site.name}
                 subtitle={getSiteData(site.id, "address") || "No address set"}
@@ -134,7 +134,7 @@ export const ListOrganisations = () => {
             {buildings.data.map((building) => {
               const id = Number(building.id);
               return (
-                <HierarchyCard
+                <EntityCard
                   key={building.id}
                   title={building.name}
                   subtitle="Building"

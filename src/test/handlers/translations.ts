@@ -54,6 +54,62 @@ const initialTranslations: StoredTranslation[] = [
     type: "to_next_instruction",
     text_value: "Jatka eteenpäin",
   },
+  {
+    translation_id: 8,
+    translation_key: "SITE_10_NAME",
+    language_code: "fi",
+    type: "site_name",
+    text_value: "Pääkampus",
+  },
+  {
+    translation_id: 9,
+    translation_key: "SITE_10_NAME",
+    language_code: "en",
+    type: "site_name",
+    text_value: "Main Site",
+  },
+  {
+    translation_id: 10,
+    translation_key: "SITE_10_DESC",
+    language_code: "fi",
+    type: "site_desc",
+    text_value: "Kampuksen kuvaus",
+  },
+  {
+    translation_id: 11,
+    translation_key: "SITE_10_WELCOME",
+    language_code: "fi",
+    type: "site_welcome",
+    text_value: "Tervetuloa kampukselle",
+  },
+  {
+    translation_id: 12,
+    translation_key: "SITE_10_WELCOME",
+    language_code: "en",
+    type: "site_welcome",
+    text_value: "Welcome to campus",
+  },
+  {
+    translation_id: 13,
+    translation_key: "BUILDING_100_NAME",
+    language_code: "fi",
+    type: "building_name",
+    text_value: "Päärakennus",
+  },
+  {
+    translation_id: 14,
+    translation_key: "BUILDING_100_NAME",
+    language_code: "en",
+    type: "building_name",
+    text_value: "Main Building",
+  },
+  {
+    translation_id: 15,
+    translation_key: "BUILDING_100_DESC",
+    language_code: "fi",
+    type: "building_desc",
+    text_value: "Rakennuksen kuvaus",
+  },
 ];
 
 let translations = initialTranslations.map((translation) => ({
@@ -112,6 +168,19 @@ export const translationHandlers = [
           text_value,
         })),
     });
+  }),
+
+  http.get("*/translations/:key", ({ params, request }) => {
+    const languageCode =
+      new URL(request.url).searchParams.get("lang") ?? "fi";
+    const translation = translations.find(
+      (item) =>
+        item.translation_key === String(params.key) &&
+        item.language_code === languageCode,
+    );
+    return translation
+      ? HttpResponse.json(translation)
+      : HttpResponse.json({ message: "Not found" }, { status: 404 });
   }),
 
   http.post("*/translations", async ({ request }) => {

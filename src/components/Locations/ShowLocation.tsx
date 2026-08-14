@@ -104,6 +104,14 @@ export const ShowLocation = (props: {
               Location Details
             </h2><span className="font-sm text-gray-400">Location ID: {locationId}</span>
             <div className="flex flex-row gap-2 pl-5">
+              <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
+                <Link
+                  to="/locations/edit"
+                  search={{...searchParams, locationId: Number(locationId)}}
+                >
+                  Edit Location
+                </Link>
+              </button>
               <button
                 type="button"
                 className="cursor-pointer rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
@@ -113,14 +121,6 @@ export const ShowLocation = (props: {
                 }}
               >
                 Delete Location
-              </button>
-              <button className="bg-lab-blue rounded py-1 px-2 cursor-pointer no-underline hover:text-lab-turquoise">
-                <Link
-                  to="/locations/edit"
-                  search={{...searchParams, locationId: Number(locationId)}}
-                >
-                  Edit Location
-                </Link>
               </button>
             </div>
           </div>

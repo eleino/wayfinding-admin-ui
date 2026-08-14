@@ -8,26 +8,43 @@ interface TextInputProps extends FieldElementProps {
   required?: boolean;
   placeholder?: string;
   name: string;
+  containerClassName?: string;
+  inputClassName?: string;
 }
 
-export const TextInput = ({ ...props }: TextInputProps) => {
-  const { name, required, label, input, errors } = props;
+export const TextInput = ({
+  name,
+  required,
+  label,
+  input,
+  errors,
+  containerClassName = "mb-4 w-full",
+  inputClassName = "w-120 rounded border border-border-grey bg-black p-2",
+  ...fieldProps
+}: TextInputProps) => {
+  const normalizedName = normalizeString(name);
+
   return (
-    <div className="mb-4 w-full">
-      <label htmlFor={normalizeString(name)} className="block mb-1 ml-1 font-medium">
+    <div className={containerClassName}>
+      <label htmlFor={normalizedName} className="mb-1 ml-1 block font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
         type="text"
-        {...props}
-        name={normalizeString(name)}
-        value={input}
+        {...fieldProps}
+        id={normalizedName}
+        name={normalizedName}
+        value={input ?? ""}
         required={required}
         aria-invalid={!!errors}
-        aria-errormessage={`${normalizeString(name)}-error`}
-        className="w-120 p-2 border border-border-grey rounded bg-black"
+        aria-errormessage={errors ? `${normalizedName}-error` : undefined}
+        className={inputClassName}
       />
-      {errors && <div className="text-red-500">{errors[0]}</div>}
+      {errors && (
+        <div id={`${normalizedName}-error`} className="text-red-500" role="alert">
+          {errors[0]}
+        </div>
+      )}
     </div>
   );
 };
