@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { ExistingImageGroup, SelectableImage } from "@apptypes/image";
 import { ExistingImagePicker } from "./ExistingImagePicker";
+import imageCompression from "browser-image-compression";
 
 interface ImageDropBoxProps {
   onFileSelect: (file: File | undefined) => void;
@@ -62,13 +63,27 @@ export const ImageDropBox = ({
     setIsRemoveDisabled(false);
   };
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     // add file size reduction here, max size 1 MB
     // logos need to remain png to maintain transparency
     // everything else can be converted to jpeg
+    // only do compression if file size is greater than 1 MB
+    let optimizedFile = file;
+    if (file.size > 1 * 1024 * 1024) {
+      optimizedFile = await imageCompression(file, {
+        maxSizeMB: 0.75,
+        maxWidthOrHeight: 1600,
+        initialQuality: 0.8,
+        useWebWorker: true,
+      });
+    // convert blob back to file
+      optimizedFile = new File([optimizedFile], file.name, {
+        type: optimizedFile.type || file.type,
+      });
+    }
     clearRemoveCooldown();
     onExistingImageSelect?.(undefined);
-    onFileSelect(file);
+    onFileSelect(optimizedFile);
     setHasPendingReplacement(true);
 
     const reader = new FileReader();
