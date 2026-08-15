@@ -36,3 +36,7 @@ export const createSite = async (
   });
   return response.json();
 };
+
+export const deleteSite = async (id: number): Promise<void> => {
+  await apiClient.delete(`sites/${id}`);
+};

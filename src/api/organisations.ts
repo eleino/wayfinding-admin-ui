@@ -34,6 +34,10 @@ export const createOrganisation = async (
   return response.json();
 };
 
+export const deleteOrganisation = async (id: number): Promise<void> => {
+  await apiClient.delete(`organizations/${id}`);
+};
+
 export const updateOrganisationSettings = async (
   id: number,
   themeJson: string,

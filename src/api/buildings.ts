@@ -58,3 +58,7 @@ export const createBuilding = async (
   });
   return response.json();
 };
+
+export const deleteBuilding = async (id: number): Promise<void> => {
+  await apiClient.delete(`buildings/${id}`);
+};

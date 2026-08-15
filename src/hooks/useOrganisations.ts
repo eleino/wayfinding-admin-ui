@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createOrganisation,
+  deleteOrganisation,
   fetchOrganisationById,
   fetchOrganisations,
   updateOrganisation,
@@ -76,6 +77,18 @@ export const useCreateOrganisation = () => {
       queryClient.invalidateQueries({
         queryKey: ["organisations", variables.parentId],
       });
+    },
+  });
+};
+
+export const useDeleteOrganisation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteOrganisation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
     },
   });
 };

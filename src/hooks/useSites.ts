@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createSite, fetchSiteById, fetchSites, updateSite } from "@api/sites";
+import { createSite, deleteSite, fetchSiteById, fetchSites, updateSite } from "@api/sites";
 
 export const useGetSites = (orgId: number | null, options = {}) => {
   const query = useQuery({
@@ -48,6 +48,18 @@ export const useCreateSite = () => {
       queryClient.invalidateQueries({
         queryKey: ["organisations", variables.organisationId],
       });
+    },
+  });
+};
+
+export const useDeleteSite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteSite,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
     },
   });
 };

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createBuilding,
+  deleteBuilding,
   fetchBuildingById,
   fetchBuildings,
   updateBuilding,
@@ -64,6 +65,18 @@ export const useCreateBuilding = () => {
       queryClient.invalidateQueries({
         queryKey: ["sites", "detail", variables.siteId],
       });
+    },
+  });
+};
+
+export const useDeleteBuilding = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteBuilding,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["buildings"] });
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
     },
   });
 };
