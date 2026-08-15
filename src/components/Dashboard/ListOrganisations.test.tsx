@@ -44,6 +44,66 @@ describe("ListOrganisations", () => {
     ).toBeInTheDocument();
   });
 
+  test("creates organisations, sites, and buildings from their section headers", async () => {
+    const screen = await renderWithQuery(<ListOrganisations />);
+
+    await screen.getByRole("button", { name: "Add site" }).click();
+    await screen.getByLabelText("Internal name").fill("New Site");
+    await screen.getByLabelText("Address").fill("New Street 1");
+    await screen
+      .getByRole("group", { name: "Translated name" })
+      .getByLabelText("English")
+      .fill("New Site");
+    await screen
+      .getByLabelText("Upload image")
+      .upload(new File(["site"], "site.png", { type: "image/png" }));
+    await screen.getByRole("button", { name: "Add site" }).last().click();
+    await expect.poll(() => dashboardRequests.siteCreates).toEqual([
+      { organisationId: 1, name: "New Site", address: "New Street 1" },
+    ]);
+    await expect.poll(() => dashboardRequests.imageUploads).toContainEqual({
+      type: "site",
+      key: "CREATED_SITE_IMAGE",
+      itemId: "11",
+    });
+    await expect.poll(() => translationRequests.created).toContainEqual({
+      translation_key: "CREATED_SITE_NAME",
+      language_code: "en",
+      type: "site_name",
+      text_value: "New Site",
+    });
+
+    await screen.getByRole("button", { name: "Add building" }).click();
+    await screen.getByLabelText("Internal name").fill("New Building");
+    await screen.getByLabelText("Number of floors").fill("3");
+    await screen.getByRole("button", { name: "Add building" }).last().click();
+    await expect.poll(() => dashboardRequests.buildingCreates).toEqual([
+      {
+        siteId: 11,
+        name: "New Building",
+        totalFloors: 3,
+        organisations: [1],
+      },
+    ]);
+
+    useSelectionStore.getState().setOrgId(1);
+    await screen.getByRole("button", { name: "Add organisation" }).click();
+    await screen.getByLabelText("Name").fill("New Organisation");
+    await screen
+      .getByLabelText("Upload image")
+      .first()
+      .upload(new File(["logo"], "logo.png", { type: "image/png" }));
+    await screen.getByRole("button", { name: "Add organisation" }).last().click();
+    await expect.poll(() => dashboardRequests.organisationCreates).toEqual([
+      { parentId: 1, name: "New Organisation" },
+    ]);
+    await expect.poll(() => dashboardRequests.imageUploads).toContainEqual({
+      type: "logo",
+      key: "CREATED_ORGANIZATION_LIGHT_LOGO",
+      itemId: "3",
+    });
+  });
+
   test("loads organisation details and saves edits through the API", async () => {
     const screen = await renderWithQuery(<ListOrganisations />);
     const card = screen.getByRole("article", { hasText: "North Campus" });

@@ -42,3 +42,17 @@ export interface SiteOverview {
         }
     };
 }
+
+// POST /organizations/:orgId/sites
+export interface SiteCreationResponse {
+    site_id: number;
+    name: string;
+    organization: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
+    img_site_key: string;
+    trl_site_name_key: string;
+    trl_site_desc_Key: string;
+    trl_site_welcome_msg_key: string;
+}

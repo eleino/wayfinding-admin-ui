@@ -12,11 +12,11 @@ export interface ChildOrganisation {
 
 // Note: on backend these are currently only set for LUT (org 5)
 export interface OrgTheme {
-    palette: {
-        primary: {
+    palette?: {
+        primary?: {
             main: string;
         }
-        secondary: {
+        secondary?: {
             main: string;
         }
     }
@@ -49,4 +49,13 @@ export interface OrganisationOverview {
             limit: number;
         }
     }
+}
+
+// POST /organizations/:orgId/children
+export interface ChildOrgCreationResponse {
+    organization_id: number;
+    name: string;
+    slug: string;
+    logo_image_key_light: string;
+    logo_image_key_dark: string;
 }

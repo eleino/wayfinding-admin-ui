@@ -19,18 +19,19 @@ export const getThemeColor = (theme: ThemeJson, mode: "light" | "dark", colorTyp
 
 export const buildThemeJson = (colors: Record<string, string>): string => {
   const newTheme: ThemeJson = {
-    light: {
+    dark: colors.darkPrimaryColor || colors.darkSecondaryColor ? {
       palette: {
-        primary: { main: colors.lightPrimaryColor },
-        secondary: { main: colors.lightSecondaryColor },
+        primary: colors.darkPrimaryColor ? { main: colors.darkPrimaryColor } : undefined,
+        secondary: colors.darkSecondaryColor ? { main: colors.darkSecondaryColor } : undefined,
       },
-    },
-    dark: {
+    } : {},
+     light: colors.lightPrimaryColor || colors.lightSecondaryColor ? {
       palette: {
-        primary: { main: colors.darkPrimaryColor },
-        secondary: { main: colors.darkSecondaryColor },
+        primary: colors.lightPrimaryColor ? { main: colors.lightPrimaryColor } : undefined,
+        secondary: colors.lightSecondaryColor ? { main: colors.lightSecondaryColor } : undefined,
       },
-    },
+    } : {},
+    default: colors.defaultTheme || 'light',
   };
 
   return JSON.stringify(newTheme);

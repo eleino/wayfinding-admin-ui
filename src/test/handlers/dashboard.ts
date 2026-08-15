@@ -28,6 +28,14 @@ export const dashboardRequests = {
     totalFloors: number;
     organisations: number[];
   }>,
+  organisationCreates: [] as Array<{ parentId: number; name: string }>,
+  siteCreates: [] as Array<{ organisationId: number; name: string; address: string }>,
+  buildingCreates: [] as Array<{
+    siteId: number;
+    name: string;
+    totalFloors: number;
+    organisations: number[];
+  }>,
   imageUploads: [] as Array<{ type: string; key: string; itemId: string }>,
   imageCopies: [] as Array<{ type: string; key: string; sourceKey: string }>,
   deletedImageKeys: [] as string[],
@@ -41,6 +49,9 @@ export const resetDashboardMockData = () => {
   dashboardRequests.organisationSettingsUpdates = [];
   dashboardRequests.siteUpdates = [];
   dashboardRequests.buildingUpdates = [];
+  dashboardRequests.organisationCreates = [];
+  dashboardRequests.siteCreates = [];
+  dashboardRequests.buildingCreates = [];
   dashboardRequests.imageUploads = [];
   dashboardRequests.imageCopies = [];
   dashboardRequests.deletedImageKeys = [];
@@ -108,6 +119,21 @@ export const dashboardHandlers = [
     });
   }),
 
+  http.post("*/organizations/:orgId/children", async ({ params, request }) => {
+    const body = (await request.json()) as { name: string };
+    dashboardRequests.organisationCreates.push({
+      parentId: Number(params.orgId),
+      name: body.name,
+    });
+    return HttpResponse.json({
+      organization_id: 3,
+      name: body.name,
+      slug: body.name.toLowerCase().replaceAll(" ", "-"),
+      logo_image_key_light: "CREATED_ORGANIZATION_LIGHT_LOGO",
+      logo_image_key_dark: "CREATED_ORGANIZATION_DARK_LOGO",
+    });
+  }),
+
   http.put("*/organizations/:orgId/settings", async ({ params, request }) => {
     const body = (await request.json()) as { theme_json: string };
     dashboardRequests.organisationSettingsUpdates.push({
@@ -155,6 +181,27 @@ export const dashboardHandlers = [
     });
   }),
 
+  http.post("*/organizations/:orgId/sites", async ({ params, request }) => {
+    const body = (await request.json()) as { name: string; address: string };
+    dashboardRequests.siteCreates.push({
+      organisationId: Number(params.orgId),
+      name: body.name,
+      address: body.address,
+    });
+    return HttpResponse.json({
+      site_id: 11,
+      name: body.name,
+      organization: "North Campus",
+      address: body.address,
+      latitude: 61.05,
+      longitude: 28.18,
+      img_site_key: "CREATED_SITE_IMAGE",
+      trl_site_name_key: "CREATED_SITE_NAME",
+      trl_site_desc_Key: "CREATED_SITE_DESCRIPTION",
+      trl_site_welcome_msg_key: "CREATED_SITE_WELCOME",
+    });
+  }),
+
   http.get("*/buildings/:buildingId/overview", ({ params }) =>
     HttpResponse.json({
       building: {
@@ -197,6 +244,30 @@ export const dashboardHandlers = [
         organization_id: organizationId,
         name: organizationId === 1 ? "North Campus" : "South Campus",
       })),
+    });
+  }),
+
+  http.post("*/sites/:siteId/buildings", async ({ params, request }) => {
+    const body = (await request.json()) as {
+      name: string;
+      total_floors: number;
+      organizations: number[];
+    };
+    dashboardRequests.buildingCreates.push({
+      siteId: Number(params.siteId),
+      name: body.name,
+      totalFloors: body.total_floors,
+      organisations: body.organizations,
+    });
+    return HttpResponse.json({
+      building_id: 101,
+      name: body.name,
+      site_id: Number(params.siteId),
+      total_floors: body.total_floors,
+      img_building_key: "BUILDING_101_IMG",
+      trl_building_name_key: "BUILDING_101_NAME",
+      trl_building_desc_key: "BUILDING_101_DESC",
+      allowed_organizations: [],
     });
   }),
 

@@ -1,6 +1,17 @@
-import type { BuildingOverview, ListBuildingNamesAPI, ListBuilding } from "@apptypes/building";
+import type {
+  BuildingCreationResponse,
+  BuildingOverview,
+  ListBuildingNamesAPI,
+  ListBuilding,
+} from "@apptypes/building";
 import apiClient from "./client";
 import type { UpdateBuildingDTO } from "@apptypes/dtos/update-building.dto";
+
+export interface CreateBuildingDTO {
+  name: string;
+  total_floors: number;
+  organizations: number[];
+}
 
 // TODO: implement pagination if the number of buildings can grow larger, returns 10 by default
 // pagination data is under the meta object in the response
@@ -35,5 +46,15 @@ export const updateBuilding = async (
   { id, building }: { id: number; building: UpdateBuildingDTO },
 ): Promise<BuildingOverview["building"]> => {
   const response = await apiClient.put(`buildings/${id}`, { json: building });
+  return response.json();
+};
+
+export const createBuilding = async (
+  siteId: number,
+  building: CreateBuildingDTO,
+): Promise<BuildingCreationResponse> => {
+  const response = await apiClient.post(`sites/${siteId}/buildings`, {
+    json: building,
+  });
   return response.json();
 };

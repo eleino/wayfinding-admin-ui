@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { updateOrganisation, updateOrganisationSettings } from "@api/organisations";
 import { updateSite } from "@api/sites";
 import { updateBuilding } from "@api/buildings";
@@ -82,12 +83,12 @@ const saveTranslation = async (change: DashboardTranslationChange) => {
     const textValue = translation.text_value.trim();
     const existingValue = change.existing[translation.language_code];
 
-    if (!textValue && existingValue !== undefined) {
+    if (!textValue && existingValue !== undefined) { // deleted translation
       operations.push(deleteTranslation(change.key, translation.language_code));
       continue;
     }
     if (!textValue) continue;
-    if (existingValue === undefined) {
+    if (existingValue === undefined) { // new translation
       operations.push(
         createTranslation({
           translation_key: change.key,
@@ -98,7 +99,7 @@ const saveTranslation = async (change: DashboardTranslationChange) => {
       );
       continue;
     }
-    if (existingValue !== textValue) {
+    if (existingValue !== textValue) { // updated translation
       operations.push(
         updateTranslation(
           change.key,
@@ -114,9 +115,11 @@ const saveTranslation = async (change: DashboardTranslationChange) => {
 
 export const useDashboardEntityUpdater = () => {
   const queryClient = useQueryClient();
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (update: DashboardEntityUpdate) => {
+      setLoadingMessage(`Updating ${update.entity}...`);
       if (update.entity === "organisation" && update.values) {
         await updateOrganisation({ id: update.id, organisation: update.values });
       } else if (update.entity === "site" && update.values) {
@@ -125,14 +128,23 @@ export const useDashboardEntityUpdater = () => {
         await updateBuilding({ id: update.id, building: update.values });
       }
 
-      await Promise.all([
-        ...(update.entity === "organisation" &&
+      if (
+        update.entity === "organisation" &&
         update.themeJson !== update.initialThemeJson
-          ? [updateOrganisationSettings(update.id, update.themeJson)]
-          : []),
-        ...update.images.map(saveImage),
-        ...update.translations.map(saveTranslation),
-      ]);
+      ) {
+        setLoadingMessage("Saving organisation settings...");
+        await updateOrganisationSettings(update.id, update.themeJson);
+      }
+
+      if (update.images.length > 0) {
+        setLoadingMessage("Saving images...");
+        await Promise.all(update.images.map(saveImage));
+      }
+
+      if (update.translations.length > 0) {
+        setLoadingMessage("Saving translations...");
+        await Promise.all(update.translations.map(saveTranslation));
+      }
     },
     onSuccess: (_data, update) =>
       Promise.all([
@@ -150,5 +162,8 @@ export const useDashboardEntityUpdater = () => {
           }),
         ),
       ]),
+    onSettled: () => setLoadingMessage(null),
   });
+
+  return { ...mutation, loadingMessage };
 };

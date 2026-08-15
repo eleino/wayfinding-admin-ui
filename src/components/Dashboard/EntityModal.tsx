@@ -19,7 +19,7 @@ interface EntityModalProps {
 const DetailRow = ({ label, value }: { label: string; value: string | number }) => (
   <div className="border-b border-border-grey py-3 last:border-b-0">
     <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</dt>
-    <dd className="mt-1 break-words">{value}</dd>
+    <dd className="mt-1 wrap-break-word">{value}</dd>
   </div>
 );
 

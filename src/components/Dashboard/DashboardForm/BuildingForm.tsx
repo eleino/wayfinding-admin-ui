@@ -124,6 +124,7 @@ export const BuildingForm = ({
       />
       <SaveActions
         isSaving={updater.isPending}
+        loadingMessage={updater.loadingMessage}
         hasError={updater.isError}
         hasChanges={form.isDirty}
         onClose={onClose}

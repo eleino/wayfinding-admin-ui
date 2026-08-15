@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchBuildingById, fetchBuildings, updateBuilding } from "@api/buildings";
+import {
+  createBuilding,
+  fetchBuildingById,
+  fetchBuildings,
+  updateBuilding,
+} from "@api/buildings";
 import { useEffect } from "react";
 import { useSelectionStore } from "@storage/store";
 
@@ -39,6 +44,26 @@ export const useUpdateBuilding = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
       queryClient.invalidateQueries({ queryKey: ["buildings", "detail", variables.id] });
+    },
+  });
+};
+
+export const useCreateBuilding = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      siteId,
+      building,
+    }: {
+      siteId: number;
+      building: { name: string; total_floors: number; organizations: number[] };
+    }) => createBuilding(siteId, building),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["buildings"] });
+      queryClient.invalidateQueries({
+        queryKey: ["sites", "detail", variables.siteId],
+      });
     },
   });
 };

@@ -70,3 +70,18 @@ export interface BuildingOverview {
     }
   };
 };
+
+// POST /sites/:siteId/buildings
+export interface BuildingCreationResponse {
+    building_id: number;
+    name: string;
+    site_id: number;
+    total_floors: number;
+    img_building_key: string;
+    trl_building_name_key: string;
+    trl_building_desc_key: string;
+    allowed_organizations: {
+        organization_id: number;
+        name: string;
+    }[];
+}
