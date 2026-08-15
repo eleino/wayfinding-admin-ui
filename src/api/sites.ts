@@ -1,6 +1,11 @@
 import apiClient from "./client";
-import type { Site, SiteOverview } from "@apptypes/site";
+import type { Site, SiteCreationResponse, SiteOverview } from "@apptypes/site";
 import type { UpdateSiteDTO } from "@apptypes/dtos/update-site.dto";
+
+export interface CreateSiteDTO {
+  name: string;
+  address: string;
+}
 
 export const fetchSites = async (orgId: number | null): Promise<Site[]> => {
     if (!orgId) {
@@ -20,4 +25,18 @@ export const updateSite = async (
 ): Promise<SiteOverview["site"]> => {
   const response = await apiClient.put(`sites/${id}`, { json: site });
   return response.json();
+};
+
+export const createSite = async (
+  organisationId: number,
+  site: CreateSiteDTO,
+): Promise<SiteCreationResponse> => {
+  const response = await apiClient.post(`organizations/${organisationId}/sites`, {
+    json: site,
+  });
+  return response.json();
+};
+
+export const deleteSite = async (id: number): Promise<void> => {
+  await apiClient.delete(`sites/${id}`);
 };

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOrganisationById, fetchOrganisations, updateOrganisation } from "@api/organisations";
+import {
+  createOrganisation,
+  deleteOrganisation,
+  fetchOrganisationById,
+  fetchOrganisations,
+  updateOrganisation,
+} from "@api/organisations";
 import { useEffect } from "react";
 import { useSelectionStore } from "@storage/store";
 
@@ -51,6 +57,38 @@ export const useUpdateOrganisation = () => {
     onSuccess: (_data, orgData) => {
       queryClient.invalidateQueries({ queryKey: ["organisations"] });
       queryClient.invalidateQueries({ queryKey: ["organisations", orgData.id] });
+    },
+  });
+};
+
+export const useCreateOrganisation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      parentId,
+      organisation,
+    }: {
+      parentId: number;
+      organisation: { name: string };
+    }) => createOrganisation(parentId, organisation),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
+      queryClient.invalidateQueries({
+        queryKey: ["organisations", variables.parentId],
+      });
+    },
+  });
+};
+
+export const useDeleteOrganisation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteOrganisation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organisations"] });
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
     },
   });
 };

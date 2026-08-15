@@ -10,9 +10,10 @@ export const useAppInit = () => {
   return query;
 };
 
-export const useLanguages = () =>
+export const useLanguages = (options = {}) =>
   useQuery({
     queryKey: ["appInit"],
     queryFn: initApp,
     select: (data) => data.languages,
+    ...options,
   });

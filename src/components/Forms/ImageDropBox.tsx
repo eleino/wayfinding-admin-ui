@@ -63,6 +63,9 @@ export const ImageDropBox = ({
   };
 
   const handleFile = (file: File) => {
+    // add file size reduction here, max size 1 MB
+    // logos need to remain png to maintain transparency
+    // everything else can be converted to jpeg
     clearRemoveCooldown();
     onExistingImageSelect?.(undefined);
     onFileSelect(file);

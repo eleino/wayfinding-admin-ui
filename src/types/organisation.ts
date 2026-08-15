@@ -12,24 +12,25 @@ export interface ChildOrganisation {
 
 // Note: on backend these are currently only set for LUT (org 5)
 export interface OrgTheme {
-    palette: {
-        primary: {
+    palette?: {
+        primary?: {
             main: string;
         }
-        secondary: {
+        secondary?: {
             main: string;
         }
     }
 }
+
+export interface ThemeJson {
+    dark?: OrgTheme;
+    light?: OrgTheme;
+    default?: string;
+}
 export interface OrgSettings {
-    organization_id: number;
     logo_image_key_light: string;
     logo_image_key_dark: string;
-    theme_json: {
-        dark: OrgTheme;
-        light: OrgTheme;
-        default: string;
-    }
+    theme_json: ThemeJson | null
 }
 
 // GET /organizations/:orgId/overview
@@ -41,11 +42,20 @@ export interface OrganisationOverview {
     };
     children: ChildOrganisation[];
     sites: SiteListItem[];
-    settings: OrgSettings;
+    settings: OrgSettings | null;
     meta: {
         sites: {
             total: number;
             limit: number;
         }
     }
+}
+
+// POST /organizations/:orgId/children
+export interface ChildOrgCreationResponse {
+    organization_id: number;
+    name: string;
+    slug: string;
+    logo_image_key_light: string;
+    logo_image_key_dark: string;
 }

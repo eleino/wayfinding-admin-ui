@@ -3,12 +3,13 @@ import { useGetOrganisationById, useGetOrganisations } from "@hooks/useOrganisat
 import { useGetSites } from "@hooks/useSites";
 import { useGetBuildings } from "@hooks/useBuildings";
 import { useSelectionStore } from "@storage/store";
-import { HierarchyCard } from "./HierarchyCard";
+import { EntityCard } from "./EntityCard";
 import {
   EntityModal,
   type DashboardEntity,
   type DashboardModalMode,
 } from "./EntityModal";
+import { NewEntityModal } from "./NewEntityModal";
 
 interface OpenModal {
   entity: DashboardEntity;
@@ -35,6 +36,7 @@ export const ListOrganisations = () => {
   const orgSites = useGetOrganisationById(orgId ?? null, { enabled: !!orgId });
   const buildings = useGetBuildings(siteId ?? null, { enabled: !!siteId });
   const [openModal, setOpenModal] = useState<OpenModal | null>(null);
+  const [newEntity, setNewEntity] = useState<DashboardEntity | null>(null);
 
   const showModal = (
     entity: DashboardEntity,
@@ -49,13 +51,24 @@ export const ListOrganisations = () => {
   return (
     <div className="mt-8 space-y-10">
       <section aria-labelledby="organisations-heading">
-        <div className="mb-4">
-          <h2 id="organisations-heading" className="text-2xl font-semibold">
-            Organisations
-          </h2>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 id="organisations-heading" className="text-2xl font-semibold">
+              Organisations
+            </h2>
           <p className="mt-1 text-sm text-gray-400">
             Select an organisation to browse its sites.
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNewEntity("organisation")}
+            disabled={!orgId}
+            title={!orgId ? "Select an organisation first" : undefined}
+            className="cursor-pointer rounded bg-lab-blue px-3 py-2 text-sm font-medium text-white hover:bg-lab-blue/80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add organisation
+          </button>
         </div>
         {organisations.isLoading && <SectionState>Loading organisations…</SectionState>}
         {organisations.isError && <SectionState>Organisations could not be loaded.</SectionState>}
@@ -65,7 +78,7 @@ export const ListOrganisations = () => {
             {organisations.data.map((organisation) => {
               const id = Number(organisation.id);
               return (
-                <HierarchyCard
+                <EntityCard
                   key={organisation.id}
                   title={organisation.name}
                   subtitle="Wayfinding organisation"
@@ -84,13 +97,24 @@ export const ListOrganisations = () => {
       </section>
 
       <section aria-labelledby="sites-heading">
-        <div className="mb-4">
-          <h2 id="sites-heading" className="text-2xl font-semibold">
-            Sites
-          </h2>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 id="sites-heading" className="text-2xl font-semibold">
+              Sites
+            </h2>
           <p className="mt-1 text-sm text-gray-400">
             {orgId ? "Sites belonging to the selected organisation." : "Select an organisation first."}
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNewEntity("site")}
+            disabled={!orgId}
+            title={!orgId ? "Select an organisation first" : undefined}
+            className="cursor-pointer rounded bg-lab-blue px-3 py-2 text-sm font-medium text-white hover:bg-lab-blue/80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add site
+          </button>
         </div>
         {!orgId && <SectionState>Select an organisation to view sites.</SectionState>}
         {orgId && (sites.isLoading || orgSites.isLoading) && <SectionState>Loading sites…</SectionState>}
@@ -99,7 +123,7 @@ export const ListOrganisations = () => {
         {orgId && orgSites.data?.sites && orgSites.data.sites.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {orgSites.data.sites.map((site) => (
-              <HierarchyCard
+              <EntityCard
                 key={site.id}
                 title={site.name}
                 subtitle={getSiteData(site.id, "address") || "No address set"}
@@ -117,13 +141,24 @@ export const ListOrganisations = () => {
       </section>
 
       <section aria-labelledby="buildings-heading">
-        <div className="mb-4">
-          <h2 id="buildings-heading" className="text-2xl font-semibold">
-            Buildings
-          </h2>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 id="buildings-heading" className="text-2xl font-semibold">
+              Buildings
+            </h2>
           <p className="mt-1 text-sm text-gray-400">
             {siteId ? "Buildings belonging to the selected site." : "Select a site first."}
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNewEntity("building")}
+            disabled={!siteId}
+            title={!siteId ? "Select a site first" : undefined}
+            className="cursor-pointer rounded bg-lab-blue px-3 py-2 text-sm font-medium text-white hover:bg-lab-blue/80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add building
+          </button>
         </div>
         {!siteId && <SectionState>Select a site to view buildings.</SectionState>}
         {siteId && buildings.isLoading && <SectionState>Loading buildings…</SectionState>}
@@ -134,10 +169,12 @@ export const ListOrganisations = () => {
             {buildings.data.map((building) => {
               const id = Number(building.id);
               return (
-                <HierarchyCard
+                <EntityCard
                   key={building.id}
                   title={building.name}
                   subtitle="Building"
+                  imageUrl={building.image_url}
+                  imageAlt={building.name}
                   meta={`Building ID ${id}`}
                   isSelected={id === buildingId}
                   onSelect={() => setBuildingId(id)}
@@ -154,6 +191,15 @@ export const ListOrganisations = () => {
         <EntityModal
           {...openModal}
           onClose={() => setOpenModal(null)}
+        />
+      )}
+      {newEntity && (
+        <NewEntityModal
+          entity={newEntity}
+          organisationId={orgId ?? undefined}
+          siteId={siteId ?? undefined}
+          organisations={organisations.data ?? []}
+          onClose={() => setNewEntity(null)}
         />
       )}
     </div>

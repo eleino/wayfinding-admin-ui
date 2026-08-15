@@ -40,7 +40,6 @@ export const LocationForm = (props: {
   const locationForm = useForm({
     schema: LocationSchema,
     initialInput: initialValues,
-    validate: "initial",
   });
 
   return (
