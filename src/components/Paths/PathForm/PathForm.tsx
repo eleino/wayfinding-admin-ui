@@ -298,7 +298,8 @@ export const PathForm = (props: {
         )}
         <button
           type="submit"
-          className={`px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 ${isEditMode ? "" : "bottom-5"}`}
+          className={`px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 ${isEditMode ? "" : "bottom-5"} enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}
+          disabled={!pathForm.isDirty || !pathForm.isValid}
         >
           Save Path
         </button>

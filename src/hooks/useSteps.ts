@@ -13,10 +13,7 @@ export const useGetStepById = (id: number | null, lang?: string, options = {}) =
 }
 
 export const useGetPathInstructions = (id: number | null, lang: string = "fi", fromLocation?: number, options = {}) => {
-  if (!id) {
-    throw new Error("Path ID is required to fetch path instructions.");
-  }
-  const query = useQuery({ queryKey: ["pathInstructions", id, lang, fromLocation], queryFn: () => fetchPathInstructions(id, lang, fromLocation), ...options });
+  const query = useQuery({ queryKey: ["pathInstructions", id, lang, fromLocation], queryFn: () => fetchPathInstructions(id, lang, fromLocation), ...options, enabled: !!id });
   return query;
 }
 
@@ -25,9 +22,6 @@ export const useGetPathInstructionsAllLangs = (
   fromLocation?: number,
   options: { enabled?: boolean } = {},
 ) => {
-  if (!id) {
-    throw new Error("Path ID is required to fetch path instructions.");
-  }
   const languageList = useLanguages();
 
   const query = useQuery({ queryKey: ["pathInstructionsAllLangs", id, fromLocation], queryFn: async () => {
@@ -37,7 +31,7 @@ export const useGetPathInstructionsAllLangs = (
       promises.push(fetchPathInstructions(id, lang.code, fromLocation));
     });
     return Promise.all(promises);
-  }, ...options, enabled: !!languageList.data && options.enabled !== false });
+  }, ...options, enabled: !!id && !!languageList.data && options.enabled !== false });
   return query;
 }
 
@@ -46,10 +40,10 @@ export const useUpdateSteps = (options = {}) => {
   const languageList = useLanguages();
   const mutation = useMutation({
     mutationFn: ({ pathId, stepsData }: { pathId: number, stepsData: UpdateStepDTO[] }) => updateSteps(pathId, stepsData),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const pathId = data.length > 0 ? data[0].path_id : null;
       if (pathId) {
-        queryClient.invalidateQueries({ queryKey: ["path", pathId] });
+        await queryClient.invalidateQueries({ queryKey: ["path", pathId] });
         if (languageList.data) {
           languageList.data.forEach((lang) => {
             queryClient.invalidateQueries({ queryKey: ["pathInstructions", pathId, lang.code] });

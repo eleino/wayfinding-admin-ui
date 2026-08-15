@@ -7,6 +7,7 @@ import {
   Form,
   remove,
   insert,
+  reset,
 } from "@formisch/react";
 import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { useLocation } from "@tanstack/react-router";
@@ -29,6 +30,7 @@ import { useLanguages } from "@hooks/useAppInit";
 export const EditStepList = (props: { pathData: PathApiResponse }) => {
   const { pathData } = props;
   const [allowRearranging, setAllowRearranging] = useState(false);
+  const [mutationLoading, setMutationLoading] = useState(false);
   const { search } = useLocation();
   const buildingId = search.buildingId;
   const pathId = search.pathId;
@@ -39,7 +41,6 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
     pathData.path.start_location_id,
   );
   const updateStepsMutation = useUpdateSteps();
-  const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
   const languageList = useLanguages();
 
@@ -85,15 +86,18 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       console.error("Error: Missing path ID or steps data for updating steps.");
       return;
     }
+    setMutationLoading(true);
     updateStepsMutation.mutate(
       { pathId, stepsData },
       {
-        onSuccess: () => {
-          console.log("Steps updated successfully.");
-          setUnsavedChanges(false);
+        onSuccess: (_savedSteps, { stepsData }) => {
+          // Invalidate the query to refetch the updated steps data
+          reset(form, { initialInput: stepsData, path: ["steps"] });
+          setMutationLoading(false);
         },
         onError: (error) => {
           console.error("Error updating steps:", error);
+          setMutationLoading(false);
         },
       },
     );
@@ -110,7 +114,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       });
       return;
     }
-    if (unsavedChanges && allowRearranging) {
+    if (form.isDirty && allowRearranging) {
       // if we allow toggling without saving, the instruction keys for steps may be incorrect if any rearranging was done
       setShowAlert({
         title: "Unsaved Changes",
@@ -218,9 +222,6 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
                       result.destination.index === 0
                     )
                       return; // prevent dragging the first step which must be an entry location
-                    if (result.source.index !== result.destination.index) {
-                      setUnsavedChanges(true);
-                    }
                     move(form, {
                       path: ["steps"],
                       from: result.source.index,
@@ -270,7 +271,6 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
                                     key={stepItem}
                                     stepIndex={stepIndex}
                                     haveStepDataDetails={haveStepDataDetails}
-                                    setUnsavedChanges={setUnsavedChanges}
                                     onRemove={() =>
                                       remove(form, {
                                         path: ["steps"],
@@ -290,9 +290,9 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
                   {stepArray.errors && (
                     <div className="text-sm text-red-500 mt-1">
                       {stepArray.errors[0]}
-                    </div>)}
+                    </div>
+                  )}
                 </DragDropContext>
-                
               );
             }}
           </FieldArray>
@@ -316,10 +316,14 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           >
             Add Step
           </button>
+          {mutationLoading && (
+            <span className="text-sm text-gray-400 ml-2">Saving...</span>
+          )}
+
           <button
             type="submit"
             className={`px-4 py-2 bg-lab-green-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-white rounded`}
-            disabled={!unsavedChanges}
+            disabled={!form.isDirty}
           >
             Save Steps
           </button>

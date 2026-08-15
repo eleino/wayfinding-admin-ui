@@ -22,7 +22,8 @@ export const LocationModal = (props: {
   } = props;
   const locationCreator = useLocationCreator();
   const languageList = useLanguages();
-  const handleSubmit = async (data: EditLocationInput) => {
+  const submitForm = async (data: EditLocationInput) => {
+    console.log("submitting", data);
     if (!buildingId) return;
     const result = await locationCreator.mutateAsync(buildingId, data);
     if (!result.error && result.data?.location.location_id) {
@@ -35,6 +36,7 @@ export const LocationModal = (props: {
       <div className="bg-sidebar-grey rounded p-6 w-150 relative h-[90vh] overflow-y-auto scrollbar-thin">
         <div className="sticky w-full top-0 left-0 flex justify-end">
           <button
+            type="button"
             onClick={closeModal}
             className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl hover:border-lab-turquoise hover:text-lab-turquoise transition-colors z-50"
           >
@@ -45,9 +47,7 @@ export const LocationModal = (props: {
         <LocationForm
           locationData={locationData}
           isEntryLocation={isEntryLocation}
-          handleSubmit={(data) => {
-            handleSubmit(data);
-          }}
+          submitForm={submitForm}
           languageList={languageList.data || []}
         />
         {locationCreator.isLoading && (

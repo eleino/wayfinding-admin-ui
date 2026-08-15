@@ -13,9 +13,9 @@ export const EditStep = (props: {
   stepIndex: number;
   haveStepDataDetails: boolean;
   onRemove: () => void;
-  setUnsavedChanges: (hasUnsavedChanges: boolean) => void;
+  // setUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }) => {
-  const { stepIndex, onRemove, haveStepDataDetails, setUnsavedChanges } = props;
+  const { stepIndex, onRemove, haveStepDataDetails } = props;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [stepError, setStepError] = useState(false);
   const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(false);
@@ -161,7 +161,7 @@ export const EditStep = (props: {
               itemName={`Step ${stepIndex + 1}`}
               onConfirm={() => {
                 onRemove();
-                setUnsavedChanges(true);
+                // setUnsavedChanges(true);
                 setShowDeleteConfirm(false);
               }}
               onCancel={() => setShowDeleteConfirm(false)}
@@ -176,7 +176,6 @@ export const EditStep = (props: {
           entryLocations={entryLocations}
           stepIndex={stepIndex}
           setStepError={setStepError}
-          setUnsavedChanges={setUnsavedChanges}
         />
       ) : (
         <p className="pt-1">Location: {currentStep?.name}</p>
@@ -203,7 +202,7 @@ export const EditStep = (props: {
                       min="0"
                       onChange={(event) => {
                         field.onChange(Number(event.target.value));
-                        setUnsavedChanges(true);
+                        // setUnsavedChanges(true);
                       }}
                       className="w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />
@@ -232,7 +231,7 @@ export const EditStep = (props: {
                         field.onChange(
                           value === "" ? undefined : Number(value),
                         );
-                        setUnsavedChanges(true);
+                        // setUnsavedChanges(true);
                       }}
                       className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
                     />
@@ -373,9 +372,6 @@ export const EditStep = (props: {
                   ),
                 )}
               </div>
-              {/* FI: {stepInstructions.to_next.fi.text}
-              <br />
-              EN: {stepInstructions.to_next.en.text} */}
             </div>
           </div>
         </div>

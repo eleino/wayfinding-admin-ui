@@ -89,7 +89,6 @@ describe("EditStep", () => {
         stepIndex={0}
         haveStepDataDetails
         onRemove={vi.fn()}
-        setUnsavedChanges={vi.fn()}
       />,
       {
         children: <></>,

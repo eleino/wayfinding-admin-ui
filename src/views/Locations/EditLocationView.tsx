@@ -108,7 +108,7 @@ export const EditLocationView = () => {
           <LocationForm
             locationId={locationId}
             locationData={allLocationData}
-            handleSubmit={handleUpdateLocation}
+            submitForm={handleUpdateLocation}
             languageList={languageList.data}
           />
         </div>
