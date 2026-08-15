@@ -85,7 +85,11 @@ export const dashboardHandlers = [
 
   http.get("*/sites/:siteId/buildings", ({ params }) =>
     HttpResponse.json({
-      data: params.siteId === "10" ? [{ id: 100, name: "Main Building" }] : [],
+      data: params.siteId === "10" ? [{
+        id: 100,
+        name: "Main Building",
+        image_url: "https://example.com/main-building.png",
+      }] : [],
       meta: { buildings: { total: params.siteId === "10" ? 1 : 0, limit: 10 } },
     }),
   ),

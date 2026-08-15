@@ -29,6 +29,9 @@ describe("ListOrganisations", () => {
 
     await expect.element(screen.getByText("Main Site")).toBeInTheDocument();
     await expect.element(screen.getByText("Main Building")).toBeInTheDocument();
+    await expect
+      .element(screen.getByAltText("Main Building"))
+      .toHaveAttribute("src", "https://example.com/main-building.png");
 
     await screen.getByText("South Campus").click();
 

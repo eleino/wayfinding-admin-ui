@@ -19,6 +19,7 @@ export interface BuildingType {
 export interface ListBuilding {
   id: number;
   name: string;
+  image_url: string | null;
 }
 
 // returned by GET /sites/:siteId/buildings

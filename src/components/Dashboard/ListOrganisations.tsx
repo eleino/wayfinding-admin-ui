@@ -173,6 +173,8 @@ export const ListOrganisations = () => {
                   key={building.id}
                   title={building.name}
                   subtitle="Building"
+                  imageUrl={building.image_url}
+                  imageAlt={building.name}
                   meta={`Building ID ${id}`}
                   isSelected={id === buildingId}
                   onSelect={() => setBuildingId(id)}
