@@ -148,10 +148,16 @@ export const StepOverlay = (props: StepOverlayProps) => {
   const handleOverlayAdd = () => {
     setUseOverlay(true);
     if (!overlayField.input) {
+      if (!selectedOverlay.key) {
+      setSelectedOverlay({
+        url: overlayImages?.data?.[0]?.url,
+        key: overlayImages?.data?.[0]?.key,
+      });
+    }
       setInput(form, {
         path: [`overlay_${direction}`],
-        input: {
-          image_key: selectedOverlay.key || "",
+        input: { // selected or first overlay image, or default values if none selected
+          image_key: selectedOverlay.key || overlayImages?.data?.[0]?.key || "",
           overlay_size: 20,
           position_x_percent: 0,
           position_y_percent: -20,
@@ -270,7 +276,6 @@ export const StepOverlay = (props: StepOverlayProps) => {
                 <img
                   ref={overlayImageRef}
                   src={selectedOverlay.url}
-                  alt="Selected Overlay"
                   className="absolute"
                   onLoad={updatePositionRanges}
                   style={{

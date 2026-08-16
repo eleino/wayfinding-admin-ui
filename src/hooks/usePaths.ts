@@ -23,10 +23,7 @@ export const useGetPaths = (buildingId: number | undefined, options = {}) => {
 }
 
 export const useGetPathById = (id: number | undefined, options = {}) => {
-  if (!id) {
-    throw new Error("Path ID is required to fetch a specific path.");
-  }
-  const query = useQuery({ queryKey: ["path", id], queryFn: () => fetchPathById(id), ...options });
+  const query = useQuery({ queryKey: ["path", id], queryFn: () => fetchPathById(id), ...options, enabled: !!id });
   return query;
 }
 

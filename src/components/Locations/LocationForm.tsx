@@ -1,5 +1,5 @@
 // form for creating and editing locations
-import { Field, FieldArray, Form, useForm } from "@formisch/react";
+import { Field, FieldArray, Form, useForm, handleSubmit } from "@formisch/react";
 import type { EditLocationInput } from "@schemas/location.schema";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
@@ -10,12 +10,12 @@ import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
-  handleSubmit: (data: EditLocationInput) => void;
+  submitForm: (data: EditLocationInput) => void;
   isEntryLocation?: boolean;
   languageList: AppInitLanguage[];
   locationId?: number;
 }) => {
-  const { locationData, handleSubmit, isEntryLocation, languageList, locationId } = props;
+  const { locationData, submitForm, isEntryLocation, languageList, locationId } = props;
   const imageLibrary = useLocationImageLibrary(locationId);
   const languageCodes = languageList.map((lang) => lang.code) || [];
 
@@ -42,13 +42,18 @@ export const LocationForm = (props: {
     initialInput: initialValues,
   });
 
+  const onSave = handleSubmit(locationForm, submitForm);
+
   return (
     <div>
       <Form
         of={locationForm}
         style={{ width: "100%" }}
         onSubmit={(data) => {
-          handleSubmit(data);
+          if (locationForm.isValid) {
+            console.log("Submitting location form data:", data);
+            onSave();
+          }
         }}
         className="space-y-4"
       >
@@ -223,8 +228,9 @@ export const LocationForm = (props: {
         </Field>
         <div className="flex justify-end my-5">
           <button
-            type="submit"
+            type="button"
             className="bg-lab-green-dark rounded cursor-pointer w-40 p-1"
+            onClick={onSave}
           >
             Save Location
           </button>

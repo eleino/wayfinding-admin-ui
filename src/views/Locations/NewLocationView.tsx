@@ -60,7 +60,7 @@ export const NewLocationView = () => {
       </Link>
       <div className="border-border-grey bg-sidebar-grey p-4 mt-4 w-150">
         {buildingId ? (
-          <LocationForm handleSubmit={handleCreateLocation} languageList={languageList.data} />
+          <LocationForm submitForm={handleCreateLocation} languageList={languageList.data} />
         ) : (
           <div>Please select a building to add a location.</div>
         )}

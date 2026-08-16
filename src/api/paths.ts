@@ -11,7 +11,10 @@ export const fetchPaths = async (building_id: number): Promise<Path[]> => {
   return json.data;
 }
 
-export const fetchPathById = async (id: number): Promise<PathApiResponse> => {
+export const fetchPathById = async (id: number | undefined): Promise<PathApiResponse> => {
+  if (!id) {
+    throw new Error("Path ID is required to fetch a specific path.");
+  }
   const response = await apiClient.get(`paths/${id}/overview`);
   return response.json();
 }

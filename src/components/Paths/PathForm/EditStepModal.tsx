@@ -74,6 +74,8 @@ const ModalWrapper = ({
     <div className="bg-sidebar-grey rounded p-6 w-220 relative max-h-[90vh] min-h-[20vh] overflow-y-auto scrollbar-thin">
       <div className="sticky w-full top-0 left-0 flex justify-end ">
         <button
+          type="button"
+          aria-label="Close modal"
           onClick={closeModal}
           className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl hover:border-lab-turquoise hover:text-lab-turquoise transition-colors"
         >

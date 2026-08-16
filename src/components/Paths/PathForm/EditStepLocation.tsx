@@ -13,11 +13,10 @@ interface EditStepLocationProps {
   entryLocations: EntranceLocation[] | undefined;
   stepIndex: number;
   setStepError: (hasError: boolean) => void;
-  setUnsavedChanges?: (hasUnsavedChanges: boolean) => void;
 }
 
 export const EditStepLocation = (props: EditStepLocationProps) => {
-  const { form, locationList, entryLocations, stepIndex, setStepError, setUnsavedChanges } = props;
+  const { form, locationList, entryLocations, stepIndex, setStepError } = props;
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const { search } = useLocation();
   const buildingId = search.buildingId;
@@ -55,7 +54,6 @@ export const EditStepLocation = (props: EditStepLocationProps) => {
                           closeModal={() => setIsLocationModalOpen(false)}
                           setLocationId={(id) => {
                             field.onChange(id);
-                            setUnsavedChanges?.(true);
                           }}
                           isEntryLocation={stepIndex === 0}
                           heading="Create New Location"
@@ -71,7 +69,6 @@ export const EditStepLocation = (props: EditStepLocationProps) => {
                     required
                     onChange={(event) => {
                       field.onChange(Number(event.target.value));
-                      setUnsavedChanges?.(true);
                     }}
                     className="w-80 p-2 mb-2 border border-border-grey rounded bg-black"
                   >
@@ -93,7 +90,6 @@ export const EditStepLocation = (props: EditStepLocationProps) => {
                     required
                     onChange={(event) => {
                       field.onChange(Number(event.target.value));
-                      setUnsavedChanges?.(true);
                     }}
                     className="w-80 p-1 mb-2 border border-border-grey rounded bg-black"
                   >

@@ -266,7 +266,8 @@ export const EditStepInstructions = (props: {
               <button
                 type="button"
                 onClick={onSave}
-                className="mt-4 px-4 py-2 bg-lab-green-dark text-white rounded cursor-pointer"
+                className="mt-4 px-4 py-2 bg-lab-green-dark text-white rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!instructionsForm.isDirty || !instructionsForm.isValid}
               >
                 Save step
               </button>
