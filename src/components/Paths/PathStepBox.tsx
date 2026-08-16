@@ -3,6 +3,10 @@ import type {
   StepInstructionImage,
   StepInstructionsItem,
 } from "@apptypes/step";
+import type { EditStepInput } from "@schemas/step.schema";
+import { createPortal } from "react-dom";
+import { useMemo, useState } from "react";
+import { EditStepModal } from "./PathForm/EditStepModal";
 
 export interface LocalizedStepInstructions {
   languageCode: string;
@@ -46,7 +50,7 @@ const InstructionImage = ({
           width: `${image.overlay.overlay_size}%`,
           height: "auto",
           transform: `translate(${image.overlay.position_x_percent}%, ${image.overlay.position_y_percent}%) perspective(6cm) rotateX(${image.overlay.rotation_x_deg}deg) rotate(${image.overlay.rotation_deg}deg)`,
-          zIndex: 100,
+          zIndex: 10,
         }}
       />
     )}
@@ -120,40 +124,97 @@ export const PathStepBox = ({
   step: PathStep;
   instructions: LocalizedStepInstructions[];
   onApproachOverride?: InstructionOverride;
-}) => (
-  <article className="rounded-xl border border-border-grey bg-sidebar-grey p-5 shadow">
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lab-blue font-bold">
-          {step.order}
-        </span>
-        <div>
-          <h3 className="font-semibold text-white">{step.name}</h3>
-          <p className="text-sm text-gray-400">Location #{step.location_id}</p>
+}) => {
+  const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(false);
+
+  const stepInstructions = useMemo(() => {
+    const baseInstruction = instructions[0]?.step;
+    if (!baseInstruction) return undefined;
+
+    const getTranslations = (
+      translationKey: string,
+    ): EditStepInput["trl_instruction_on_approach"] =>
+      instructions.map(({ languageCode, step: localizedStep }) => ({
+        lang: languageCode,
+        text:
+          localizedStep.translations[languageCode]?.find(
+            (translation) => translation.translation_key === translationKey,
+          )?.text_value ?? "",
+      }));
+
+    return {
+      stepInstructionTranslations: {
+        trl_instruction_on_approach: getTranslations(
+          baseInstruction.trl_instruction_on_approach_key,
+        ),
+        trl_instruction_to_next: getTranslations(
+          baseInstruction.trl_instruction_to_next_key,
+        ),
+      },
+      trl_instruction_on_approach_key:
+        baseInstruction.trl_instruction_on_approach_key,
+      trl_instruction_to_next_key:
+        baseInstruction.trl_instruction_to_next_key,
+    };
+  }, [instructions]);
+
+  return (
+    <article className="rounded-xl border border-border-grey bg-sidebar-grey p-5 shadow">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lab-blue font-bold">
+            {step.order}
+          </span>
+          <div>
+            <h3 className="font-semibold text-white">{step.name}</h3>
+            <p className="text-sm text-gray-400">Location #{step.location_id}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="flex flex-wrap gap-2 text-xs text-gray-300">
+            <span className="rounded-full bg-black/40 px-3 py-1">
+              {step.distance_to_next_meters} m to next
+            </span>
+            <span className="rounded-full bg-black/40 px-3 py-1">
+              Video at {step.video_timestamp_seconds} s
+            </span>
+          </div>
+          <button
+            type="button"
+            className="rounded bg-lab-blue px-3 py-1 text-sm text-white hover:text-lab-turquoise"
+            onClick={() => setIsInstructionModalOpen(true)}
+          >
+            Edit Step Instructions
+          </button>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2 text-xs text-gray-300">
-        <span className="rounded-full bg-black/40 px-3 py-1">
-          {step.distance_to_next_meters} m to next
-        </span>
-        <span className="rounded-full bg-black/40 px-3 py-1">
-          Video at {step.video_timestamp_seconds} s
-        </span>
-      </div>
-    </div>
 
-    <div className="mt-4 grid gap-4 lg:grid-cols-2">
-      <InstructionPreview
-        title="On approach"
-        direction="on_approach"
-        instructions={instructions}
-        instructionOverride={onApproachOverride}
-      />
-      <InstructionPreview
-        title="To next step"
-        direction="to_next"
-        instructions={instructions}
-      />
-    </div>
-  </article>
-);
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <InstructionPreview
+          title="On approach"
+          direction="on_approach"
+          instructions={instructions}
+          instructionOverride={onApproachOverride}
+        />
+        <InstructionPreview
+          title="To next step"
+          direction="to_next"
+          instructions={instructions}
+        />
+      </div>
+
+      {isInstructionModalOpen &&
+        createPortal(
+          <EditStepModal
+            stepIndex={step.order - 1}
+            stepId={step.id}
+            stepInstructions={stepInstructions}
+            closeModal={() => setIsInstructionModalOpen(false)}
+            locationName={step.name}
+            firstApproachImageUrl={onApproachOverride?.image?.url}
+          />,
+          document.body,
+        )}
+    </article>
+  );
+};
