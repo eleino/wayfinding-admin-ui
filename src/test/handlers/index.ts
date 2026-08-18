@@ -5,6 +5,7 @@ import { authHandlers } from './auth';
 import { pathHandlers } from './paths';
 import { qrCodeHandlers } from './qrcodes';
 import { instructionHandlers } from './instructions';
+import { userHandlers } from './users';
 
 export const handlers = [
     ...locationHandlers,
@@ -14,4 +15,5 @@ export const handlers = [
     ...pathHandlers,
     ...qrCodeHandlers,
     ...instructionHandlers,
+    ...userHandlers,
 ];

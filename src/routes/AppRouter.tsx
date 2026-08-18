@@ -160,10 +160,10 @@ const qrCodeRoute = createRoute({
   }),
 });
 
-const settingsRoute = createRoute({
+const usersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
-  path: "/settings",
-  component: lazyRouteComponent(() => import("@views/Settings/SettingsView")),
+  path: "/users",
+  component: lazyRouteComponent(() => import("@views/Users/UsersView")),
 });
 
 const translationsRoute = createRoute({
@@ -187,7 +187,7 @@ const authenticatedRouteTree = authenticatedRoute.addChildren([
   imagesRoute,
   pathsRoute,
   qrCodeRoute,
-  settingsRoute,
+  usersRoute,
   translationsRoute,
   newLocationRoute,
   editLocationRoute,
