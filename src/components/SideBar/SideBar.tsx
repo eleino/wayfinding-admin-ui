@@ -42,7 +42,7 @@ const SideBar = (props: { handleLogout: () => void }) => {
         buildingId: buildingId || savedBuildingId,
       },
     },
-    { name: "Settings", path: "/settings", search: {} },
+    { name: "Users", path: "/users", search: {} },
   ];
   return (
     <div className="w-50 bg-sidebar-grey flex-none h-150 rounded shadow-lg border border-border-grey">

@@ -38,6 +38,6 @@ describe("AppRouter authentication", () => {
   });
 
   it("allows authenticated users to access protected routes", async () => {
-    await expect(loadRoute("/settings", true)).resolves.toBe("/settings");
+    await expect(loadRoute("/users", true)).resolves.toBe("/users");
   });
 });

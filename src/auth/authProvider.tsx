@@ -6,12 +6,14 @@ import {
   isTokenAuthorized,
 } from "./authUtils";
 import { AuthContext } from "./authContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() => {
     const storedToken = localStorage.getItem("authToken");
     if (storedToken && isTokenAuthorized(storedToken)) return storedToken;
@@ -27,6 +29,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
   const userRole = useMemo(() => (token ? getUserRoleFromToken(token) : null), [token]);
 
+  const clearUserQueries = useCallback(() => {
+    queryClient.removeQueries({ queryKey: ["users"] });
+  }, [queryClient]);
+
   const login = useCallback((newToken: string) => {
     if (!isTokenAuthorized(newToken)) {
       console.warn("Attempted to login with an invalid token.");
@@ -34,17 +40,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     localStorage.setItem("authToken", newToken);
+    clearUserQueries();
     setToken(newToken);
     return true;
-  }, []);
+  }, [clearUserQueries]);
 
   const logout = useCallback(() => {
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);
     }
-    setToken(null);
     localStorage.removeItem("authToken");
-  }, []);
+    clearUserQueries();
+    setToken(null);
+  }, [clearUserQueries]);
 
   useEffect(() => {
     if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
@@ -61,12 +69,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const syncAuthAcrossTabs = (event: StorageEvent) => {
       if (event.key !== "authToken") return;
+      clearUserQueries();
       setToken(event.newValue && isTokenAuthorized(event.newValue) ? event.newValue : null);
     };
 
     window.addEventListener("storage", syncAuthAcrossTabs);
     return () => window.removeEventListener("storage", syncAuthAcrossTabs);
-  }, []);
+  }, [clearUserQueries]);
 
   const value = useMemo(
     () => ({ isAuthenticated, userRole, login, logout }),
