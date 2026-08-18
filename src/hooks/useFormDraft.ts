@@ -97,7 +97,6 @@ export const FormDraftAutosaver = (props: {
   }, [mapValues, values]);
 
   // Save the form draft whenever the form values change
-  // remove draft if form is not dirty
   useEffect(() => {
     if (form.isDirty) save(mapValuesRef.current(valuesRef.current));
   }, [form, save, snapshot]);

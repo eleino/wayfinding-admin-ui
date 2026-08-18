@@ -6,7 +6,6 @@ import { AuthProvider } from './auth/authProvider.tsx'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './api/queryClient.ts'
 
-// testing testing
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
