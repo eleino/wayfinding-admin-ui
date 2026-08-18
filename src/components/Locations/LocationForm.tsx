@@ -1,12 +1,17 @@
 // form for creating and editing locations
-import { Field, FieldArray, Form, useForm, handleSubmit } from "@formisch/react";
+import { Field, FieldArray, Form, useForm, handleSubmit, reset, setInput } from "@formisch/react";
 import type { EditLocationInput } from "@schemas/location.schema";
 import { TextInput } from "@components/Forms/TextInput";
 import { ToggleBox } from "@components/Forms/ToggleBox";
 import { ImageDropBox } from "@components/Forms/ImageDropBox";
-import { LocationSchema } from "@schemas/location.schema";
+import { createLocationSchema } from "@schemas/location.schema";
 import type { AppInitLanguage } from "@apptypes/init";
 import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
+import { FormDraftAutosaver, useFormDraft } from "@hooks/useFormDraft";
+import { isDraftForRoute, type DraftRoute } from "@storage/drafts";
+import type { SearchParams } from "@schemas/router.schema";
+import { ConfirmDialog } from "@components/Forms/ConfirmDialog";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const LocationForm = (props: {
   locationData?: EditLocationInput | null;
@@ -14,8 +19,12 @@ export const LocationForm = (props: {
   isEntryLocation?: boolean;
   languageList: AppInitLanguage[];
   locationId?: number;
+  draftRoute: DraftRoute;
+  draftSearch: SearchParams;
+  onCancel: () => void;
+  maxFloor: number;
 }) => {
-  const { locationData, submitForm, isEntryLocation, languageList, locationId } = props;
+  const { locationData, submitForm, isEntryLocation, languageList, locationId, draftRoute, draftSearch, onCancel, maxFloor } = props;
   const imageLibrary = useLocationImageLibrary(locationId);
   const languageCodes = languageList.map((lang) => lang.code) || [];
 
@@ -24,7 +33,13 @@ export const LocationForm = (props: {
     return language ? language.name : code;
   };
 
-  const initialValues = locationData || {
+  const { draft, save, dismiss: dismissDraft } = useFormDraft({
+    kind: "location",
+    label: locationData ? `Edit location: ${locationData.location_name}` : "New location",
+    route: draftRoute,
+    search: draftSearch,
+  });
+  const baseInitialValues = locationData || {
     location_name: "",
     is_entry_location: isEntryLocation || false,
     floor_number: 1,
@@ -37,15 +52,61 @@ export const LocationForm = (props: {
     existingImageKey: undefined,
     removeImage: false,
   };
+  const [serverInitialValues] = useState(() => baseInitialValues);
+  const draftValues = draft && isDraftForRoute(draft, draftRoute, draftSearch)
+    ? draft.values
+    : undefined;
+  const restoredValues = useMemo(
+    () =>
+      draftValues
+        ? { ...serverInitialValues, ...draftValues, imageFile: undefined }
+        : serverInitialValues,
+    [draftValues, serverInitialValues],
+  );
   const locationForm = useForm({
-    schema: LocationSchema,
-    initialInput: initialValues,
+    schema: useMemo(() => createLocationSchema(maxFloor), [maxFloor]),
+    initialInput: serverInitialValues,
   });
+  const hasRestoredDraft = useRef(false);
+
+  // restore draft values if they exist and haven't been restored yet
+  useEffect(() => {
+    if (!draftValues || hasRestoredDraft.current) return;
+    setInput(locationForm, { input: restoredValues });
+    hasRestoredDraft.current = true;
+  }, [draftValues, locationForm, restoredValues]);
+
+  const [pendingAction, setPendingAction] = useState<"cancel" | "reset" | null>(null);
 
   const onSave = handleSubmit(locationForm, submitForm);
 
+  const handleCancel = () => {
+    if (locationForm.isDirty || draft) {
+      setPendingAction("cancel");
+      return;
+    }
+    dismissDraft();
+    onCancel();
+  };
+
+  const handleReset = () => {
+    setPendingAction("reset");
+  };
+
+  const confirmAction = () => {
+    if (pendingAction === "cancel") {
+      dismissDraft();
+      onCancel();
+      return;
+    }
+    reset(locationForm, { initialInput: serverInitialValues });
+    dismissDraft();
+    setPendingAction(null);
+  };
+
   return (
     <div>
+      <FormDraftAutosaver form={locationForm} save={save} />
       <Form
         of={locationForm}
         style={{ width: "100%" }}
@@ -53,6 +114,8 @@ export const LocationForm = (props: {
           if (locationForm.isValid) {
             console.log("Submitting location form data:", data);
             onSave();
+          } else {
+            console.log("Location form is invalid, cannot submit:", locationForm.errors);
           }
         }}
         className="space-y-4"
@@ -100,7 +163,7 @@ export const LocationForm = (props: {
                 {...field.props}
                 value={Number(field.input)}
                 min="1"
-                max="3"
+                max={maxFloor}
                 className="border-border-grey w-50 bg-black p-2"
                 onChange={(e) => field.onChange(Number(e.target.value))}
               />
@@ -226,16 +289,32 @@ export const LocationForm = (props: {
             </Field>
           )}
         </Field>
-        <div className="flex justify-end my-5">
+        <div className="flex justify-end gap-2 my-5">
+          <button type="button" className="border border-border-grey rounded cursor-pointer w-24 p-1" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button type="button" className="border border-border-grey rounded cursor-pointer w-24 p-1" onClick={handleReset}>
+            Reset
+          </button>
           <button
             type="button"
-            className="bg-lab-green-dark rounded cursor-pointer w-40 p-1"
+            className="bg-lab-green-dark rounded cursor-pointer w-40 p-1 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onSave}
+            disabled={!locationForm.isDirty}
           >
             Save Location
           </button>
         </div>
       </Form>
+      {pendingAction && (
+        <ConfirmDialog
+          title={pendingAction === "cancel" ? "Discard location changes?" : "Reset location form?"}
+          description={pendingAction === "cancel" ? "Your unsaved changes and saved draft will be removed." : "The form will return to its original values and the saved draft will be removed."}
+          confirmLabel={pendingAction === "cancel" ? "Discard changes" : "Reset form"}
+          onConfirm={confirmAction}
+          onCancel={() => setPendingAction(null)}
+        />
+      )}
     </div>
   );
 };

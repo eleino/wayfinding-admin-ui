@@ -3,6 +3,7 @@ import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLanguages } from "./useAppInit";
 import type { StepInstructionsList } from "@apptypes/step";
+import { useState } from "react";
 
 export const useGetStepById = (id: number | null, lang?: string, options = {}) => {
   if (!id) {
@@ -38,6 +39,7 @@ export const useGetPathInstructionsAllLangs = (
 export const useUpdateSteps = (options = {}) => {
   const queryClient = useQueryClient();
   const languageList = useLanguages();
+  const [error, setError] = useState<Error | null>(null);
   const mutation = useMutation({
     mutationFn: ({ pathId, stepsData }: { pathId: number, stepsData: UpdateStepDTO[] }) => updateSteps(pathId, stepsData),
     onSuccess: async (data) => {
@@ -51,7 +53,14 @@ export const useUpdateSteps = (options = {}) => {
         }
       }
     },
+    onError: (err: unknown) => {
+      if (err instanceof Error) {
+        setError(err);
+      } else {
+        setError(new Error("An unknown error occurred while updating steps."));
+      }
+    },
     ...options
   });
-  return mutation;
+  return { ...mutation, error };
 }

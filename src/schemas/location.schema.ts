@@ -22,14 +22,14 @@ export const NameTranslationSchema = v.object({
 });
 
 
-export const LocationSchema = v.object({
+export const createLocationSchema = (maxFloor: number) => v.object({
   location_name: v.pipe(v.string(), v.nonEmpty("Name cannot be empty")),
   is_entry_location: v.boolean(),
   floor_number: v.pipe(
     v.number("Floor number is required and must be a number between 1 and 3"),
     v.integer(),
     v.toMinValue(1),
-    v.toMaxValue(3),
+    v.toMaxValue(maxFloor),
   ),
   trl_location_name: v.array(NameTranslationSchema),
   trl_at_current_location_msg: v.pipe(
@@ -48,6 +48,9 @@ export const LocationSchema = v.object({
   existingImageKey: v.optional(v.string()),
   removeImage: v.optional(v.boolean()),
 });
+
+// Retained for existing type exports; forms should use createLocationSchema.
+export const LocationSchema = createLocationSchema(3);
 
 export type LocationInput = v.InferOutput<typeof LocationSchema>;
 export type EditLocationInput = LocationInput & {

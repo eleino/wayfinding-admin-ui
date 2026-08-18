@@ -13,12 +13,12 @@ export const EditStep = (props: {
   stepIndex: number;
   haveStepDataDetails: boolean;
   onRemove: () => void;
-  // setUnsavedChanges: (hasUnsavedChanges: boolean) => void;
+  openInstructionStepId?: number;
 }) => {
-  const { stepIndex, onRemove, haveStepDataDetails } = props;
+  const { stepIndex, onRemove, haveStepDataDetails, openInstructionStepId } =
+    props;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [stepError, setStepError] = useState(false);
-  const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(false);
   const {
     form,
     locationList,
@@ -30,6 +30,9 @@ export const EditStep = (props: {
   } = usePathEditSteps();
   const stepNro = stepIndex + 1;
   const currentStep = pathData.steps?.[stepIndex];
+  const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(
+    () => openInstructionStepId && currentStep?.id === openInstructionStepId,
+  );
 
   // capture current step instructions for all languages
   const currentStepInstructions = useMemo(() => {
@@ -51,7 +54,8 @@ export const EditStep = (props: {
         );
         return languageCode && step ? { languageCode, step } : null;
       })
-      .filter( // filter out null values and assert the type of the remaining entries
+      .filter(
+        // filter out null values and assert the type of the remaining entries
         (
           entry,
         ): entry is { languageCode: string; step: StepInstructionsItem } =>
@@ -161,7 +165,6 @@ export const EditStep = (props: {
               itemName={`Step ${stepIndex + 1}`}
               onConfirm={() => {
                 onRemove();
-                // setUnsavedChanges(true);
                 setShowDeleteConfirm(false);
               }}
               onCancel={() => setShowDeleteConfirm(false)}
@@ -315,7 +318,9 @@ export const EditStep = (props: {
           </div>
         </div>
         <div className="flex flex-col text-end flex-1 max-w-1/2">
-          <div className="font-bold text-lab-turquoise">Instruction to next:</div>
+          <div className="font-bold text-lab-turquoise">
+            Instruction to next:
+          </div>
           <div className="wrap-break-word text-sm text-gray-400">
             {currentStepInstructions?.trl_instruction_to_next_key}
           </div>

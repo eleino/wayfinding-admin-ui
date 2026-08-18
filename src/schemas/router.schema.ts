@@ -6,6 +6,7 @@ export const searchParamsSchema = v.object({
     buildingId: v.optional(v.number()),
     locationId: v.optional(v.number()),
     pathId: v.optional(v.number()),
+    stepId: v.optional(v.number()),
     created: v.optional(v.boolean()),
     type: v.optional(v.string()),
 })

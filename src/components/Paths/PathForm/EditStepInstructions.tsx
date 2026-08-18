@@ -1,13 +1,21 @@
 import type { StepApiResponse } from "@apptypes/step";
 import type { EditStepInput } from "@schemas/step.schema";
 import { TextInput } from "@components/Forms/TextInput";
-import { useForm, Field, handleSubmit, FieldArray } from "@formisch/react";
+import { useForm, Field, handleSubmit, FieldArray, reset, setInput } from "@formisch/react";
 import { EditStepSchema } from "@schemas/step.schema";
 import { StepOverlay } from "./StepOverlay";
 import type { Translation } from "@apptypes/translation";
 import type { ImageResponse } from "@apptypes/image";
 import { useInstructionsUpdater } from "@hooks/useInstructionsUpdater";
 import { useLocationImageLibrary } from "@hooks/useLocationImageLibrary";
+import { useLanguages } from "@hooks/useAppInit";
+import { useLocation } from "@tanstack/react-router";
+import { FormDraftAutosaver, useFormDraft } from "@hooks/useFormDraft";
+import { isDraftForRoute } from "@storage/drafts";
+import type { SearchParams } from "@schemas/router.schema";
+import { ConfirmDialog } from "@components/Forms/ConfirmDialog";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { fillTranslationsForLanguages } from "./stepInstructionTranslations";
 
 export const EditStepInstructions = (props: {
   stepInstructions?: {
@@ -36,6 +44,8 @@ export const EditStepInstructions = (props: {
 
   const instructionsUpdater = useInstructionsUpdater();
   const imageLibrary = useLocationImageLibrary(stepData.step.location_id);
+  const languageList = useLanguages();
+  const { search } = useLocation();
   const currentStepInstructions = stepInstructions?.stepInstructionTranslations;
 
   const instructionKeys = {
@@ -60,16 +70,28 @@ export const EditStepInstructions = (props: {
       (img) => img.url === overlay_to_next?.overlay_image_url,
     )?.key || "";
 
-  const initialValues = {
+  const draftSearch = { ...search, stepId: stepData.step.path_step_id } as SearchParams;
+  const { draft, save, dismiss: dismissDraft } = useFormDraft({
+    kind: "step-instruction",
+    label: `Step instructions: ${locationName || `step ${stepData.step.step_order}`}`,
+    route: "/paths/edit",
+    search: draftSearch,
+  });
+  const baseInitialValues = {
     trl_instruction_on_approach:
-      stepIndex === 0
-        ? firstApproachTranslations?.map((trl) => ({
-            lang: trl.language_code,
-            text: trl.text_value,
-          })) || []
-        : currentStepInstructions?.trl_instruction_on_approach || [],
-    trl_instruction_to_next:
-      currentStepInstructions?.trl_instruction_to_next || [],
+      fillTranslationsForLanguages(
+        languageList.data,
+        stepIndex === 0
+          ? firstApproachTranslations?.map((trl) => ({
+              lang: trl.language_code,
+              text: trl.text_value,
+            }))
+          : currentStepInstructions?.trl_instruction_on_approach,
+      ),
+    trl_instruction_to_next: fillTranslationsForLanguages(
+      languageList.data,
+      currentStepInstructions?.trl_instruction_to_next,
+    ),
 
     image_on_approach_file: undefined,
     existing_image_on_approach_key: undefined,
@@ -78,7 +100,6 @@ export const EditStepInstructions = (props: {
     existing_image_to_next_key: undefined,
     remove_image_to_next: false,
     overlay_on_approach: overlay_on_approach && {
-      // also need overlay_key and image_key when sending data to backend
       image_key: approachOverlayKey,
       position_x_percent: Number(overlay_on_approach?.position_x_percent) || 0,
       position_y_percent: Number(
@@ -98,25 +119,71 @@ export const EditStepInstructions = (props: {
       overlay_size: Number(overlay_to_next?.overlay_size) || 15,
     },
   };
+  const [serverInitialValues] = useState(() => baseInitialValues);
+  const draftValues = draft && isDraftForRoute(draft, "/paths/edit", draftSearch)
+    ? draft.values
+    : undefined;
+  const restoredValues = useMemo(
+    () =>
+      draftValues
+        ? {
+            ...serverInitialValues,
+            ...draftValues,
+            image_on_approach_file: undefined,
+            image_to_next_file: undefined,
+          }
+        : serverInitialValues,
+    [draftValues, serverInitialValues],
+  );
 
   const instructionsForm = useForm({
     schema: EditStepSchema,
-    initialInput: initialValues,
+    initialInput: serverInitialValues,
     validate: "blur",
   });
+  const hasRestoredDraft = useRef(false);
+  // restore draft values if they exist and haven't been restored yet
+  useEffect(() => {
+    if (!draftValues || hasRestoredDraft.current) return;
+    setInput(instructionsForm, { input: restoredValues as never });
+    hasRestoredDraft.current = true;
+  }, [draftValues, instructionsForm, restoredValues]);
+  const [pendingAction, setPendingAction] = useState<"cancel" | "reset" | null>(null);
 
   const handleInstructionsSubmit = async (values: EditStepInput) => {
     const result = await instructionsUpdater.mutateAsync(
       values,
-      initialValues,
+      serverInitialValues,
       stepData,
     );
     if (!result.error) {
+      dismissDraft();
       closeModal();
     }
   };
 
   const onSave = handleSubmit(instructionsForm, handleInstructionsSubmit);
+  const handleCancel = () => {
+    if (instructionsForm.isDirty || draft) {
+      setPendingAction("cancel");
+      return;
+    }
+    dismissDraft();
+    closeModal();
+  };
+  const handleReset = () => {
+    setPendingAction("reset");
+  };
+  const confirmAction = () => {
+    if (pendingAction === "cancel") {
+      dismissDraft();
+      closeModal();
+      return;
+    }
+    reset(instructionsForm, { initialInput: serverInitialValues });
+    dismissDraft();
+    setPendingAction(null);
+  };
 
   if (instructionsUpdater.isLoading) {
     return <div>{instructionsUpdater.loadingMessage}</div>;
@@ -137,7 +204,10 @@ export const EditStepInstructions = (props: {
           <h2 className="text-xl font-bold mb-4">
             Edit Step {stepData.step.step_order}
           </h2>
-          <div className="space-y-4">
+          <div
+            className="space-y-4"
+          >
+            <FormDraftAutosaver form={instructionsForm} save={save} />
             <p className="ml-1">
               Location:{" "}
               <span className="text-lab-turquoise">{locationName}</span> (id:{" "}
@@ -262,16 +332,39 @@ export const EditStepInstructions = (props: {
                 existingImagesError={imageLibrary.error}
               />
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="mt-4 px-4 py-2 border border-border-grey text-white rounded cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="mt-4 px-4 py-2 border border-border-grey text-white rounded cursor-pointer"
+              >
+                Reset
+              </button>
               <button
                 type="button"
                 onClick={onSave}
                 className="mt-4 px-4 py-2 bg-lab-green-dark text-white rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={!instructionsForm.isDirty || !instructionsForm.isValid}
+                disabled={!instructionsForm.isDirty}
               >
                 Save step
               </button>
             </div>
+            {pendingAction && (
+              <ConfirmDialog
+                title={pendingAction === "cancel" ? "Discard step instruction changes?" : "Reset step instructions?"}
+                description={pendingAction === "cancel" ? "Your unsaved changes and saved instruction draft will be removed." : "The instructions will return to their original values and the saved draft will be removed."}
+                confirmLabel={pendingAction === "cancel" ? "Discard changes" : "Reset instructions"}
+                onConfirm={confirmAction}
+                onCancel={() => setPendingAction(null)}
+              />
+            )}
           </div>
         </div>
       )}

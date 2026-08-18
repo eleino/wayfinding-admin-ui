@@ -15,7 +15,7 @@ export const CreateStep = (props: CreateStepProps) => {
   } = props;
   const [stepError, setStepError] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { form, locationList, entryLocations, calcPathLength } = usePathCreateSteps();
+  const { form, locationList, entryLocations, calcPathLength, onDraftChange } = usePathCreateSteps();
 
   return (
     <div
@@ -30,8 +30,7 @@ export const CreateStep = (props: CreateStepProps) => {
             <div className="text-center self-center w-15 py-5 border border-dashed m-1 border-lab-turquoise text-lab-turquoise font-bold text-2xl rounded">
               {field.input}
             </div>
-          );
-        }}
+          )}}
       </Field>
       <div>
         <span
@@ -58,6 +57,7 @@ export const CreateStep = (props: CreateStepProps) => {
           entryLocations={entryLocations}
           stepIndex={stepIndex}
           setStepError={setStepError}
+          onDraftChange={onDraftChange}
         />
         <div className="flex flex-row gap-4">
           <Field

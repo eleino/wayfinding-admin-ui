@@ -8,11 +8,12 @@ import {
   remove,
   insert,
   reset,
+  setInput,
 } from "@formisch/react";
 import { useGetEntryLocations, useGetLocations } from "@hooks/useLocations";
 import { useLocation } from "@tanstack/react-router";
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useGetPathInstructionsAllLangs,
   useUpdateSteps,
@@ -26,6 +27,10 @@ import {
 import type { UpdateStepDTO } from "@apptypes/dtos/update-step.dto";
 import { PathEditStepsProvider } from "../PathContext/PathEditStepsContext";
 import { useLanguages } from "@hooks/useAppInit";
+import { FormDraftAutosaver, useFormDraft } from "@hooks/useFormDraft";
+import { isDraftForRoute } from "@storage/drafts";
+import type { SearchParams } from "@schemas/router.schema";
+import { ConfirmDialog } from "@components/Forms/ConfirmDialog";
 
 export const EditStepList = (props: { pathData: PathApiResponse }) => {
   const { pathData } = props;
@@ -42,7 +47,15 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
   );
   const updateStepsMutation = useUpdateSteps();
   const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const languageList = useLanguages();
+  const draftSearch = { ...search, stepId: undefined } as SearchParams;
+  const { draft, save: saveDraft, dismiss: dismissDraft } = useFormDraft({
+    kind: "path",
+    label: `Edit path steps: ${pathData.path.name}`,
+    route: "/paths/edit",
+    search: draftSearch,
+  });
 
   const steps = pathData.steps?.map((step) => ({
     step_order: step.order,
@@ -51,12 +64,36 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
     video_timestamp_seconds: step.video_timestamp_seconds,
   }));
 
+  const savedSteps = draft && isDraftForRoute(draft, "/paths/edit", draftSearch)
+    ? (draft.values.steps as typeof steps | undefined)
+    : undefined;
   const form = useForm({
     schema: StepArraySchema,
     initialInput: {
       steps: steps || [],
     },
   });
+  const hasRestoredDraft = useRef(false);
+  // restore draft values if they exist and haven't been restored yet
+  useEffect(() => {
+    if (!savedSteps || hasRestoredDraft.current) return;
+    setInput(form, { input: { steps: savedSteps } });
+    hasRestoredDraft.current = true;
+  }, [form, savedSteps]);
+  const saveCurrentDraft = () =>
+    saveDraft({
+      ...(draft?.values ?? {}),
+      steps: getInput(form, { path: ["steps"] }),
+    });
+
+  const handleReset = () => {
+    setShowResetConfirm(true);
+  };
+  const confirmReset = () => {
+    reset(form, { initialInput: { steps: steps || [] } });
+    dismissDraft();
+    setShowResetConfirm(false);
+  };
 
   const haveStepDataDetails =
     (pathData.steps &&
@@ -93,11 +130,25 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
         onSuccess: (_savedSteps, { stepsData }) => {
           // Invalidate the query to refetch the updated steps data
           reset(form, { initialInput: stepsData, path: ["steps"] });
+          dismissDraft();
           setMutationLoading(false);
+          setShowAlert({
+            title: "Steps updated successfully",
+            description: "The steps have been updated successfully.",
+            type: "success",
+          });
         },
         onError: (error) => {
           console.error("Error updating steps:", error);
           setMutationLoading(false);
+          setShowAlert({
+            title: "Error",
+            description:
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred while updating steps.",
+            type: "error",
+          });
         },
       },
     );
@@ -111,6 +162,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       setShowAlert({
         title: "Rearranging Not Available",
         description: "Rearranging steps is not currently available.",
+        type: "error",
       });
       return;
     }
@@ -120,6 +172,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
         title: "Unsaved Changes",
         description:
           "You have unsaved changes. Save or cancel them before toggling off rearranging mode.",
+        type: "info",
       });
       return;
     }
@@ -147,6 +200,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
               title: "Info",
               description:
                 "Rearranging mode allows you to reorder, add, and remove steps, and change a step's location.\n\nNormal mode allows you to change step instructions.\n\nIf an instruction text is missing, that part of the instructions (ie. 'on approach' or 'to next') won't be shown to users on the frontend.\n\nPlease include an image for each instruction you want to display to users to help them navigate.\nAdding an overlay helps show users which way to go and where to turn.",
+              type: "info"
             })
           }
         >
@@ -187,6 +241,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
               title={showAlert.title}
               description={showAlert.description}
               onConfirm={() => setShowAlert(null)}
+              type={showAlert.type || "error"}
             />
           )}
         </div>
@@ -198,7 +253,15 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           necessary.
         </p>
       </div>
-      <Form of={form} onSubmit={handleStepsSubmit}>
+      <FormDraftAutosaver
+        form={form}
+        save={saveDraft}
+        mapValues={(values) => ({ ...(draft?.values ?? {}), steps: values.steps })}
+      />
+      <Form
+        of={form}
+        onSubmit={handleStepsSubmit}
+      >
         <p className="pb-2">Total path length: {calcPathLength()} meters</p>
         <PathEditStepsProvider
           value={{
@@ -227,6 +290,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
                       from: result.source.index,
                       to: result.destination.index,
                     });
+                    saveCurrentDraft();
                   }}
                 >
                   <Droppable droppableId="steps">
@@ -268,14 +332,18 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
                                   style={style}
                                 >
                                   <EditStep
-                                    key={stepItem}
-                                    stepIndex={stepIndex}
-                                    haveStepDataDetails={haveStepDataDetails}
+                                  key={stepItem}
+                                  stepIndex={stepIndex}
+                                  haveStepDataDetails={haveStepDataDetails}
+                                  openInstructionStepId={search.stepId}
                                     onRemove={() =>
-                                      remove(form, {
-                                        path: ["steps"],
-                                        at: stepIndex,
-                                      })
+                                      {
+                                        remove(form, {
+                                          path: ["steps"],
+                                          at: stepIndex,
+                                        });
+                                        saveCurrentDraft();
+                                      }
                                     }
                                   />
                                 </div>
@@ -302,19 +370,28 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
             type="button"
             className={`px-4 py-2 ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded disabled:cursor-not-allowed disabled:opacity-50`}
             disabled={!allowRearranging}
-            onClick={() => {
+          onClick={() => {
               insert(form, {
                 path: ["steps"],
                 initialInput: {
                   step_order: 0,
-                  location_id: undefined,
+                  location_id: 0,
                   distance_to_next_meters: 0,
                   video_timestamp_seconds: 0,
                 },
               });
+              saveCurrentDraft();
             }}
           >
             Add Step
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 border border-border-grey text-white rounded enabled:cursor-pointer disabled:opacity-50"
+            onClick={handleReset}
+            disabled={!form.isDirty}
+          >
+            Reset Steps
           </button>
           {mutationLoading && (
             <span className="text-sm text-gray-400 ml-2">Saving...</span>
@@ -329,6 +406,15 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           </button>
         </div>
       </Form>
+      {showResetConfirm && (
+        <ConfirmDialog
+          title="Reset path steps?"
+          description="The steps will return to their original values and the saved path draft will be removed."
+          confirmLabel="Reset steps"
+          onConfirm={confirmReset}
+          onCancel={() => setShowResetConfirm(false)}
+        />
+      )}
     </div>
   );
 };

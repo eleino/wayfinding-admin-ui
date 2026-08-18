@@ -4,6 +4,13 @@ import { PathForm } from "@components/Paths/PathForm/PathForm";
 import type { EditPathInput } from "@schemas/path.schema";
 import type { UpdatePathDTO } from "@apptypes/dtos/update-path.dto";
 import type { SearchParams } from "@schemas/router.schema";
+import { useNavigate } from "@tanstack/react-router";
+import { useContext } from "react";
+import { AuthContext } from "@auth/authContext";
+import { useDraftStore } from "@storage/drafts";
+import { useState } from "react";
+import { AlertDialog, type AlertDialogType } from "@components/Forms/AlertDialog";
+
 export const EditPathView = () => {
     const search = useSearch({ from: '__root__' }) as SearchParams;
     const pathId = search.pathId;
@@ -11,6 +18,7 @@ export const EditPathView = () => {
     const created = search.created;
     const pathDataQuery = useGetPathById(pathId);
     const path = pathDataQuery.data?.path;
+    const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
     const initPathData = {
         path_name: path?.name || "",
         priority: path?.priority || 1,
@@ -33,6 +41,9 @@ export const EditPathView = () => {
         })) || [],
     }
     const updatePathMutation = useUpdatePath();
+    const navigate = useNavigate();
+    const { userId } = useContext(AuthContext);
+    const dismissDraft = useDraftStore((state) => state.dismissDraft);
 
     const handleSubmit = (updatedPathData: EditPathInput) => {
         if (!pathId) return;
@@ -53,6 +64,15 @@ export const EditPathView = () => {
         }
 
         updatePathMutation.mutate({ pathId:pathId, pathData }, {
+            onSuccess: () => {
+                if (userId) dismissDraft(userId, "path");
+                setShowAlert({
+                    title: "Path updated successfully",
+                    description: "The path has been updated successfully.",
+                    type: "success",
+                });
+                
+            },
             onError: (error) => {
                 console.error("Error updating path:", error);
             }
@@ -69,7 +89,20 @@ export const EditPathView = () => {
         <div className="p-4">
             <h1 className="">Edit Path</h1>
             {created && <p className="text-lab-green-dark mb-4">Path created successfully! You can now edit the path details and step instructions.</p>}
-            <PathForm pathData={pathDataQuery.data} handleSubmit={handleSubmit} pathError={updatePathMutation.error} />
+            <PathForm
+              pathData={pathDataQuery.data}
+              handleSubmit={handleSubmit}
+              pathError={updatePathMutation.error}
+              onCancel={() => navigate({ to: "/paths", search: { orgId: search.orgId, siteId: search.siteId, buildingId: search.buildingId } })}
+            />
+            {showAlert && (
+                <AlertDialog
+                    title={showAlert.title}
+                    description={showAlert.description}
+                    onConfirm={() => setShowAlert(null)}
+                    type={showAlert.type || "error"}
+                />
+            )}
         </div>
     );
 }
