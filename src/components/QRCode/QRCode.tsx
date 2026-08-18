@@ -51,11 +51,11 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
       .then((blob) => {
         const item = new ClipboardItem({ "image/png": blob });
         navigator.clipboard.write([item]);
-        setShowAlert({ title: "Qr Code copied", description: "QR code image copied to clipboard!" });
+        setShowAlert({ title: "Qr Code copied", description: "QR code image copied to clipboard!", type: "success" });
       })
       .catch((err) => {
         console.error("Failed to copy image: ", err);
-        setShowAlert({ title: "Error", description: "Failed to copy QR code image." });
+        setShowAlert({ title: "Error", description: "Failed to copy QR code image.", type: "error" });
       });
   };
 
@@ -130,6 +130,7 @@ export const QRCode = (props: { locationId: number; pathId?: number }) => {
             title={showAlert.title}
             description={showAlert.description}
             onConfirm={() => setShowAlert(null)}
+            type={showAlert.type || "error"}
           />
         )}
         <button

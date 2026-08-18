@@ -19,7 +19,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedToken && isTokenAuthorized(storedToken)) return storedToken;
 
     localStorage.removeItem("authToken");
+    localStorage.removeItem("authUserId");
     return null;
+  });
+  const [userId, setUserId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem("authUserId");
+    return storedUserId ? Number(storedUserId) : null;
   });
   const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -33,13 +38,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     queryClient.removeQueries({ queryKey: ["users"] });
   }, [queryClient]);
 
-  const login = useCallback((newToken: string) => {
+  const login = useCallback((newToken: string, newUserId?: number) => {
     if (!isTokenAuthorized(newToken)) {
       console.warn("Attempted to login with an invalid token.");
       return false;
     }
 
     localStorage.setItem("authToken", newToken);
+    if (newUserId !== undefined) {
+      localStorage.setItem("authUserId", String(newUserId));
+      setUserId(newUserId);
+    }
     clearUserQueries();
     setToken(newToken);
     return true;
@@ -50,8 +59,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearTimeout(logoutTimerRef.current);
     }
     localStorage.removeItem("authToken");
+    localStorage.removeItem("authUserId");
     clearUserQueries();
     setToken(null);
+    setUserId(null);
   }, [clearUserQueries]);
 
   useEffect(() => {
@@ -70,7 +81,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const syncAuthAcrossTabs = (event: StorageEvent) => {
       if (event.key !== "authToken") return;
       clearUserQueries();
-      setToken(event.newValue && isTokenAuthorized(event.newValue) ? event.newValue : null);
+      const nextToken = event.newValue && isTokenAuthorized(event.newValue) ? event.newValue : null;
+      setToken(nextToken);
+      setUserId(nextToken ? Number(localStorage.getItem("authUserId")) || null : null);
     };
 
     window.addEventListener("storage", syncAuthAcrossTabs);
@@ -78,8 +91,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [clearUserQueries]);
 
   const value = useMemo(
-    () => ({ isAuthenticated, userRole, login, logout }),
-    [isAuthenticated, userRole, login, logout],
+    () => ({ isAuthenticated, userRole, userId, login, logout }),
+    [isAuthenticated, userRole, userId, login, logout],
   );
 
   return (

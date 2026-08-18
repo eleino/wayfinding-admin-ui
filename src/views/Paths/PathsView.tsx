@@ -1,6 +1,7 @@
 import { ShowPath } from "@components/Paths/ShowPath";
 import { PathSelections } from "@components/Paths/PathSelections";
 import { useLocation } from "@tanstack/react-router";
+import { DraftBanner } from "@components/Forms/DraftBanner";
 
 
 const PathsView = () => {
@@ -11,6 +12,7 @@ const PathsView = () => {
   return (
     <div className="p-4">
       <h1>Paths</h1>
+      <DraftBanner kinds={["path", "step-instruction"]} />
 
       {pathId ? (
         <ShowPath pathId={pathId} searchParams={searchParams} />

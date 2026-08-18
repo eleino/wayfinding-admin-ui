@@ -11,10 +11,11 @@ import type { SearchParams } from "@schemas/router.schema";
 
 type CreateStepListProps = {
   form: FormStore<typeof CreatePathSchema>;
+  onDraftChange: () => void;
 };
 
 export const CreateStepList = (props: CreateStepListProps) => {
-  const { form } = props;
+  const { form, onDraftChange } = props;
   const {buildingId} = useSearch({from: '__root__'}) as SearchParams;
   const locationList = useGetLocations(buildingId);
   const entryLocations = useGetEntryLocations(buildingId);
@@ -36,7 +37,7 @@ export const CreateStepList = (props: CreateStepListProps) => {
         <p>Loading locations...</p>
       ) : (
         <div className="p-4">
-          <PathCreateStepsProvider value={{ form, locationList: locationList.data, entryLocations: entryLocations.data, calcPathLength }}>
+          <PathCreateStepsProvider value={{ form, locationList: locationList.data, entryLocations: entryLocations.data, calcPathLength, onDraftChange }}>
 
         <FieldArray of={form} path={["steps"]}>
           {(stepArray) => (
@@ -48,6 +49,7 @@ export const CreateStepList = (props: CreateStepListProps) => {
                   from: result.source.index,
                   to: result.destination.index,
                 });
+                onDraftChange();
               }}
             >
               <Droppable droppableId="steps">
@@ -78,7 +80,10 @@ export const CreateStepList = (props: CreateStepListProps) => {
                             <CreateStep
                               key={stepItem}
                               stepIndex={stepIndex}
-                              onRemove={() => remove(form, { path: ["steps"], at: stepIndex })}
+                              onRemove={() => {
+                                remove(form, { path: ["steps"], at: stepIndex });
+                                onDraftChange();
+                              }}
                             />
                           </div>
                         )}}
@@ -104,11 +109,12 @@ export const CreateStepList = (props: CreateStepListProps) => {
             path: ["steps"],
             initialInput: {
               step_order: 0,
-              location_id: undefined,
+              location_id: 0,
               distance_to_next_meters: 0,
               video_timestamp_seconds: 0,
             },
           });
+          onDraftChange();
         }}
       >
         Add Step

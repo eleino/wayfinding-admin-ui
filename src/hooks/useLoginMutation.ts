@@ -11,7 +11,7 @@ export const useLoginMutation = () => {
   const mutation = useMutation<LoginResultType, Error, LoginInput>({
     mutationFn: async ({ username, password }) => {
       const data = await apiLogin(username, password);
-      if (!login(data.accessToken)) {
+      if (!login(data.accessToken, data.id)) {
         throw new Error("Your account is not authorized to use the admin interface.");
       }
       return data;

@@ -1,30 +1,50 @@
 import type { PathApiResponse } from "@apptypes/path";
 import type { EditPathInput } from "@schemas/path.schema";
-import { Field, Form, useForm, type FormStore } from "@formisch/react";
+import { Field, Form, useForm, type FormStore, getInput, reset, setInput } from "@formisch/react";
 import { TextInput } from "@components/Forms/TextInput";
 import { useGetOrganisations } from "@hooks/useOrganisations";
 import { CreatePathSchema, EditPathSchema } from "@schemas/path.schema";
 import { useLocation } from "@tanstack/react-router";
 import { CreateStepList } from "./CreateStepList";
 import { EditStepList } from "./EditStepList";
+import { FormDraftAutosaver, useFormDraft } from "@hooks/useFormDraft";
+import { isDraftForRoute } from "@storage/drafts";
+import type { SearchParams } from "@schemas/router.schema";
+import { ConfirmDialog } from "@components/Forms/ConfirmDialog";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const PathForm = (props: {
   pathData?: PathApiResponse | null;
   handleSubmit: (updatedPathData: EditPathInput) => void;
   pathError?: Error | null;
+  onCancel: () => void;
 }) => {
   const { search } = useLocation();
   const buildingId = search.buildingId;
-  const { pathData, handleSubmit, pathError } = props;
+  const { pathData, handleSubmit, pathError, onCancel } = props;
   const isEditMode = !!pathData;
   const schema = isEditMode ? EditPathSchema : CreatePathSchema;
   const orgList = useGetOrganisations();
-  const initialValues = {
+  const draftRoute = isEditMode ? "/paths/edit" : "/paths/new";
+  const draftSearch = { ...search, stepId: undefined } as SearchParams;
+  const { draft, save, saveAfterInput, dismiss: dismissDraft } = useFormDraft({
+    kind: "path",
+    label: pathData ? `Edit path: ${pathData.path.name}` : "New path",
+    route: draftRoute,
+    search: draftSearch,
+  });
+  const baseInitialValues = {
     path_name: pathData?.path.name || "",
     priority: pathData?.path.priority || 0,
     estimated_time_minutes: pathData?.path.estimated_time_minutes || 0,
     accessibility_level: pathData?.path.accessibility_level || 0,
     video_instruction_url: pathData?.path.video_instruction_url || "",
+    elevated_priority_starts_at: pathData?.path.elevated_priority_starts_at
+      ? new Date(pathData.path.elevated_priority_starts_at)
+      : undefined,
+    elevated_priority_expires_at: pathData?.path.elevated_priority_expires_at
+      ? new Date(pathData.path.elevated_priority_expires_at)
+      : undefined,
     organizations: pathData?.path.allowed_organizations
       ? pathData?.path.allowed_organizations.map((org) =>
           Number(org.organization_id),
@@ -34,11 +54,63 @@ export const PathForm = (props: {
         : [],
     steps: [], // always initially empty in Create mode, handled separately in Edit mode
   };
+  const [serverInitialValues] = useState(() => baseInitialValues);
+  const savedDetails = draft && isDraftForRoute(draft, draftRoute, draftSearch)
+    ? (draft.values.details as Partial<typeof baseInitialValues> | undefined)
+    : undefined;
+  const restoredValues = useMemo(
+    () =>
+      savedDetails
+        ? {
+            ...serverInitialValues,
+            ...savedDetails,
+            elevated_priority_starts_at: savedDetails.elevated_priority_starts_at
+              ? new Date(savedDetails.elevated_priority_starts_at)
+              : undefined,
+            elevated_priority_expires_at: savedDetails.elevated_priority_expires_at
+              ? new Date(savedDetails.elevated_priority_expires_at)
+              : undefined,
+          }
+        : serverInitialValues,
+    [savedDetails, serverInitialValues],
+  );
   const pathForm = useForm({
     schema,
-    initialInput: initialValues,
-    validate: "blur",
+    initialInput: serverInitialValues,
   });
+  const hasRestoredDraft = useRef(false);
+  useEffect(() => {
+    if (!savedDetails || hasRestoredDraft.current) return;
+    setInput(pathForm, { input: restoredValues as never });
+    hasRestoredDraft.current = true;
+  }, [pathForm, restoredValues, savedDetails]);
+  const [pendingAction, setPendingAction] = useState<"cancel" | "reset" | null>(null);
+  const readCurrentDraft = () => ({
+    ...(draft?.values ?? {}),
+    details: getInput(pathForm),
+  });
+  const saveCurrentDraft = () => saveAfterInput(readCurrentDraft);
+  const handleCancel = () => {
+    if (pathForm.isDirty || draft) {
+      setPendingAction("cancel");
+      return;
+    }
+    dismissDraft();
+    onCancel();
+  };
+  const handleReset = () => {
+    setPendingAction("reset");
+  };
+  const confirmAction = () => {
+    if (pendingAction === "cancel") {
+      dismissDraft();
+      onCancel();
+      return;
+    }
+    reset(pathForm, { initialInput: serverInitialValues });
+    dismissDraft();
+    setPendingAction(null);
+  };
   if (!buildingId && !isEditMode) {
     return (
       <p className="text-red-500">
@@ -51,6 +123,7 @@ export const PathForm = (props: {
   }
   return (
     <div className="relative w-200 bg-sidebar-grey rounded p-2 pb-10">
+      <FormDraftAutosaver form={pathForm} save={save} mapValues={readCurrentDraft} />
       <Form
         of={pathForm}
         onSubmit={(data) => {
@@ -294,18 +367,36 @@ export const PathForm = (props: {
         {!isEditMode && (
           <CreateStepList
             form={pathForm as FormStore<typeof CreatePathSchema>}
+            onDraftChange={saveCurrentDraft}
           />
         )}
-        <button
-          type="submit"
-          className={`px-4 py-2 bg-lab-green-dark text-white rounded absolute right-5 ${isEditMode ? "" : "bottom-5"} enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}
-          disabled={!pathForm.isDirty || !pathForm.isValid}
-        >
-          Save Path
-        </button>
+        <div className={`flex gap-2 ${isEditMode ? "mt-4 justify-end" : "absolute right-5 bottom-5"}`}>
+          <button type="button" className="px-4 py-2 border border-border-grey rounded cursor-pointer" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button type="button" className="px-4 py-2 border border-border-grey rounded enabled:cursor-pointer disabled:opacity-50" onClick={handleReset} disabled={!pathForm.isDirty}>
+            Reset
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-lab-green-dark text-white rounded enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!pathForm.isDirty || !pathForm.isValid}
+          >
+            Save Path
+          </button>
+        </div>
         {pathError && <p className="text-red-500">{pathError.message}</p>}
       </Form>
       {isEditMode && <EditStepList pathData={pathData} />}
+      {pendingAction && (
+        <ConfirmDialog
+          title={pendingAction === "cancel" ? "Discard path changes?" : "Reset path form?"}
+          description={pendingAction === "cancel" ? "Your unsaved changes and saved path draft will be removed." : "The form will return to its original values and the saved draft will be removed."}
+          confirmLabel={pendingAction === "cancel" ? "Discard changes" : "Reset form"}
+          onConfirm={confirmAction}
+          onCancel={() => setPendingAction(null)}
+        />
+      )}
     </div>
   );
 };

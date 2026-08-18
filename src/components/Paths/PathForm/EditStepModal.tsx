@@ -3,6 +3,7 @@ import { useGetStepById } from "@hooks/useSteps";
 import { useGetTranslationsAllLangs } from "@hooks/useTranslations";
 import { EditStepInstructions } from "./EditStepInstructions";
 import { useGetImagesByType } from "@hooks/useImages";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 
 /**
  * Modal for editing step instructions and overlay.
@@ -18,6 +19,18 @@ export const EditStepModal = (props: {
 }) => {
   // we should get all other necessary data from fetching step overview
   const { stepId, stepInstructions, closeModal, stepIndex, locationName } = props;
+  const { search } = useLocation();
+  const navigate = useNavigate();
+  const closeAndClearStepId = () => {
+    closeModal();
+    if (search.stepId !== undefined) {
+      navigate({
+        to: "/paths/edit",
+        search: { ...search, stepId: undefined },
+        replace: true,
+      });
+    }
+  };
 
   const stepOverview = useGetStepById(stepId);
   const firstApproachTranslations = useGetTranslationsAllLangs(
@@ -36,19 +49,19 @@ export const EditStepModal = (props: {
 
   if (isLoading)
     return (
-      <ModalWrapper closeModal={closeModal}>
+      <ModalWrapper closeModal={closeAndClearStepId}>
         <div>Loading step data...</div>
       </ModalWrapper>
     );
   if (!hasData)
     return (
-      <ModalWrapper closeModal={closeModal}>
+      <ModalWrapper closeModal={closeAndClearStepId}>
         <div className="text-red-500">Error loading data.</div>
       </ModalWrapper>
     );
 
   return (
-    <ModalWrapper closeModal={closeModal}>
+    <ModalWrapper closeModal={closeAndClearStepId}>
       <EditStepInstructions
         {...props}
         firstApproachTranslations={firstApproachTranslations.data}
@@ -58,6 +71,7 @@ export const EditStepModal = (props: {
         stepInstructions={stepInstructions}
         overlayImages={overlayImages.data}
         firstApproachImageUrl={props.firstApproachImageUrl}
+        closeModal={closeAndClearStepId}
       />
     </ModalWrapper>
   );

@@ -9,6 +9,7 @@ import { AppRouter } from "./AppRouter";
 const createAuth = (isAuthenticated: boolean): AuthContextType => ({
   isAuthenticated,
   userRole: isAuthenticated ? "admin" : null,
+  userId: null,
   login: vi.fn(() => false),
   logout: vi.fn(),
 });

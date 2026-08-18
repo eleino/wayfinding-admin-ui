@@ -3,6 +3,11 @@ import { LocationForm } from "./LocationForm";
 import type { EditLocationInput } from "@schemas/location.schema";
 import { useLanguages } from "@hooks/useAppInit";
 import { useLocationCreator } from "@hooks/useLocationCreator";
+import { useContext, useState } from "react";
+import { AuthContext } from "@auth/authContext";
+import { useDraftStore } from "@storage/drafts";
+import { useGetBuildingById } from "@hooks/useBuildings";
+import { AlertDialog, type AlertDialogType } from "@components/Forms/AlertDialog";
 
 export const LocationModal = (props: {
   locationData?: EditLocationInput | null;
@@ -22,13 +27,23 @@ export const LocationModal = (props: {
   } = props;
   const locationCreator = useLocationCreator();
   const languageList = useLanguages();
+  const { userId } = useContext(AuthContext);
+  const dismissDraft = useDraftStore((state) => state.dismissDraft);
+  const building = useGetBuildingById(buildingId);
+  const [showAlert, setShowAlert] = useState<AlertDialogType | null>(null);
   const submitForm = async (data: EditLocationInput) => {
-    console.log("submitting", data);
     if (!buildingId) return;
     const result = await locationCreator.mutateAsync(buildingId, data);
     if (!result.error && result.data?.location.location_id) {
+      if (userId) dismissDraft(userId, "location");
       setLocationId(result.data.location.location_id);
       closeModal();
+    } else if (result.error) {
+      setShowAlert({
+        title: "Error creating location",
+        description: result.error instanceof Error ? result.error.message : String(result.error),
+        type: "error",
+      });
     }
   };
   return (
@@ -44,12 +59,22 @@ export const LocationModal = (props: {
           </button>
         </div>
         <h2 className="text-xl font-bold mb-4">{heading}</h2>
-        <LocationForm
-          locationData={locationData}
-          isEntryLocation={isEntryLocation}
-          submitForm={submitForm}
-          languageList={languageList.data || []}
-        />
+        {building.isLoading ? (
+          <p>Loading building data...</p>
+        ) : building.data ? (
+          <LocationForm
+            locationData={locationData}
+            isEntryLocation={isEntryLocation}
+            submitForm={submitForm}
+            languageList={languageList.data || []}
+            draftRoute="/locations/new"
+            draftSearch={{ buildingId: buildingId || undefined }}
+            onCancel={closeModal}
+            maxFloor={building.data.building.total_floors}
+          />
+        ) : (
+          <p className="text-red-500">Error loading building data.</p>
+        )}
         {locationCreator.isLoading && (
           <div>{locationCreator.loadingMessage}</div>
         )}
@@ -57,6 +82,14 @@ export const LocationModal = (props: {
           <div className="text-red-500">
             Error creating location: {locationCreator.error.message}
           </div>
+        )}
+        {showAlert && (
+          <AlertDialog
+            title={showAlert.title}
+            description={showAlert.description}
+            onConfirm={() => setShowAlert(null)}
+            type={showAlert.type || "error"}
+          />
         )}
       </div>
     </div>

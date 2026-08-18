@@ -4,6 +4,9 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSelectionStore } from "@storage/store";
 import { useCreatePath } from "@hooks/usePaths";
+import { useContext } from "react";
+import { AuthContext } from "@auth/authContext";
+import { useDraftStore } from "@storage/drafts";
 
 export const NewPathView = () => {
   const { search } = useLocation();
@@ -17,6 +20,8 @@ export const NewPathView = () => {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
+  const { userId } = useContext(AuthContext);
+  const dismissDraft = useDraftStore((state) => state.dismissDraft);
 
   const handleSubmit = (data: EditPathInput) => {
     const pathData = {
@@ -36,6 +41,7 @@ export const NewPathView = () => {
       { buildingId, pathData },
       {
         onSuccess: (data) => {
+          if (userId) dismissDraft(userId, "path");
           const newPathId = data.path_id;
           queryClient.invalidateQueries({ queryKey: ["paths"] });
           navigate({
@@ -68,7 +74,10 @@ export const NewPathView = () => {
         ← Back to paths list
       </Link>
       <div className="bg-sidebar-grey  p-2 rounded shadow-md">
-        <PathForm handleSubmit={handleSubmit} />
+        <PathForm
+          handleSubmit={handleSubmit}
+          onCancel={() => navigate({ to: "/paths", search: { orgId: savedOrgId, siteId: savedSiteId, buildingId: savedBuildingId } })}
+        />
         {createPathMutation.isError && (
           <p className="text-red-500 mt-2">
             Error creating path:{" "}

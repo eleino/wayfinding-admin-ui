@@ -8,6 +8,7 @@ type PathCreateStepsContextValue = {
     locationList?: ListLocation[] | undefined;
     entryLocations?: EntranceLocation[] | undefined;
     calcPathLength: () => void;
+    onDraftChange: () => void;
 }
 
 const PathCreateStepsContext = createContext<PathCreateStepsContextValue | null>(null);
