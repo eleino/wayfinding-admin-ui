@@ -30,7 +30,6 @@ export const useDraftStore = create<DraftState>()(
     (set) => ({
       draftsByUser: {},
       saveDraft: (userId, draft) => {
-        console.log("Saving draft for user", userId, draft);
         set((state) => ({
           draftsByUser: {
             ...state.draftsByUser,
