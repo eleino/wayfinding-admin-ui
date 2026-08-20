@@ -13,10 +13,10 @@ const RootLayout = () => {
 
   return (
     <div className="p-10 w-full h-full bg-black">
-      <div className="flex flex-col rounded-xl shadow-lg bg-sidebar-grey/50">
-        <div className="flex flex-row gap-4">
+      <div className="mx-auto flex w-full max-w-10/12">
+        <div className="flex w-full flex-row gap-4">
           <SideBar handleLogout={logout} />
-          <main className="min-w-0 flex-1 max-w-5xl">
+          <main className="min-w-0 flex-1 max-w-7xl">
             <BreadCrumbs />
             <Outlet />
           </main>

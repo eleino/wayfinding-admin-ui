@@ -33,7 +33,7 @@ export const TranslationCard = ({
             Translations missing: {missingCount}
           </span>
         )}
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex gap-2 pb-2">
           <button
             type="button"
             aria-label={`Edit ${translationKey}`}
@@ -52,7 +52,7 @@ export const TranslationCard = ({
           </button>
         </div>
       </div>
-      <dl className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <dl className="grid gap-3 md:grid-cols-2 sm:grid-cols-1">
         {languages.map((language) => {
           const text = translations[language.code]?.trim();
           return (

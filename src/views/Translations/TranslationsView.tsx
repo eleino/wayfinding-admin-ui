@@ -17,7 +17,7 @@ const TranslationsView = () => {
   }
 
   return (
-    <main className="min-h-full w-full min-w-0 bg-sidebar-grey p-5">
+    <main className="min-h-full w-full min-w-0 p-5">
       <h1>Translations</h1>
       <p className="mb-5">
         Manage app translations here. Location and path-specific translations
