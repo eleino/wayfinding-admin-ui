@@ -80,7 +80,7 @@ export const TranslationsManager = ({
   };
 
   return (
-    <section aria-label="App translations" className="w-full min-w-0">
+    <section aria-label="App translations" className="w-full min-w-0 bg-sidebar-grey p-4 rounded">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <TranslationSearch
           search={search}

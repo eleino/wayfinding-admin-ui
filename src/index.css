@@ -16,6 +16,7 @@
     font-family: "Inter", sans-serif;
     background-color: black;
     color: var(--color-lab-gray-light);
+    scrollbar-gutter: stable;
   }
   a {
     color: var(--color-lab-gray-light);

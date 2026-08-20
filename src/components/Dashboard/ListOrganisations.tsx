@@ -51,7 +51,7 @@ export const ListOrganisations = () => {
   return (
     <div className="mt-8 space-y-10">
       <section aria-labelledby="organisations-heading">
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h2 id="organisations-heading" className="text-2xl font-semibold">
               Organisations
@@ -74,7 +74,7 @@ export const ListOrganisations = () => {
         {organisations.isError && <SectionState>Organisations could not be loaded.</SectionState>}
         {organisations.data?.length === 0 && <SectionState>No organisations found.</SectionState>}
         {organisations.data && organisations.data.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
             {organisations.data.map((organisation) => {
               const id = Number(organisation.id);
               return (
@@ -97,7 +97,7 @@ export const ListOrganisations = () => {
       </section>
 
       <section aria-labelledby="sites-heading">
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h2 id="sites-heading" className="text-2xl font-semibold">
               Sites
@@ -141,7 +141,7 @@ export const ListOrganisations = () => {
       </section>
 
       <section aria-labelledby="buildings-heading">
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h2 id="buildings-heading" className="text-2xl font-semibold">
               Buildings

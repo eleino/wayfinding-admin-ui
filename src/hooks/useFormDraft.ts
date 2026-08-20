@@ -81,9 +81,10 @@ export const FormDraftAutosaver = (props: {
   mapValues?: (values: Record<string, unknown>) => Record<string, unknown>;
 }) => {
   const { form, save, mapValues = (values) => values } = props;
-  // An empty path represents the root form object. Reading it recursively
-  // subscribes this component to every Formisch field, not DOM events.
-  const rootField = useField(form, { path: [] });
+  // Formisch v1's path types exclude the root path, but the runtime still
+  // resolves [] to the root store. Unlike getInput, useField also installs the
+  // React signal listener needed to re-render when any nested value changes.
+  const rootField = useField(form, { path: [] as never });
   const values = rootField.input as Record<string, unknown>;
   const snapshot = JSON.stringify(values, (_key, value) =>
     value instanceof File ? undefined : value,

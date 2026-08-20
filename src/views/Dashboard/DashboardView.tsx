@@ -5,7 +5,7 @@ import { DraftBanner } from "@components/Forms/DraftBanner";
 
 export const DashboardView = () => {
   return (
-    <div className="w-[calc(100vw-20rem)] max-w-350 min-w-0 pb-12 p-4">
+    <div className="min-w-0 pb-12 p-4">
       <div className="mb-6">
         <h1 className="mb-1">Dashboard</h1>
       </div>
