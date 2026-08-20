@@ -12,9 +12,9 @@ const RootLayout = () => {
   useAppInit();
 
   return (
-    <div className="p-10 w-full h-full bg-black">
-      <div className="mx-auto flex w-full max-w-10/12">
-        <div className="flex w-full flex-row gap-4">
+    <div className="h-full w-full bg-black p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto flex sm:w-full md:max-w-10/12">
+        <div className="flex w-full flex-col gap-4 md:flex-row">
           <SideBar handleLogout={logout} />
           <main className="min-w-0 flex-1 max-w-7xl">
             <BreadCrumbs />

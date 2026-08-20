@@ -19,13 +19,13 @@ export const GridView = (props: GridViewProps) => {
 
   if (props)
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid lg:grid-cols-2 sm:grid-cols-1 2xl:grid-cols-3 gap-4">
       {items.map((item) => (
         <Link
           to=""
           search={{ orgId, siteId, buildingId, [props.type + "Id"]: item.id }}
           key={item.id}
-          className="border cursor-pointer w-120 hover:border-lab-green-dark p-2 rounded"
+          className="border cursor-pointer max-w-120 hover:border-lab-green-dark p-2 rounded"
           onClick={() => setSelectedItem(item.id)}
         >
           <div key={item.id}>
@@ -35,7 +35,7 @@ export const GridView = (props: GridViewProps) => {
               <img
                 src={item.imageUrl}
                 alt={item.title}
-                className="w-300 object-cover mb-2"
+                className="object-cover mb-2"
               />
             ) : <p className="h-80 flex items-center justify-center text-gray-500 mb-2">No image</p>}
 
