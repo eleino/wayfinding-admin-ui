@@ -117,20 +117,20 @@ export const EditStep = (props: {
     <div
       className={`border p-4 mb-4 bg-sidebar-grey rounded relative ${stepError ? "border-red-500" : "border-lab-green-dark"} `}
     >
-      <div className="flex flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <Field of={form} path={["steps", stepIndex, "step_order"]}>
           {(field) => {
             if (field.input !== stepNro) {
               field.onChange(stepNro);
             }
             return (
-              <p className="font-bold text-lab-turquoise p-2 border-2 border-dashed rounded border-lab-turquoise">
+              <p className="font-bold text-center text-lab-turquoise p-2 border-2 border-dashed rounded border-lab-turquoise">
                 Step {field.input}
               </p>
             );
           }}
         </Field>
-        <div className="absolute right-4 top-4 flex flex-row gap-3">
+        <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
           <button
             className={`bg-${allowRearranging ? "gray-300 border border-border-grey" : "lab-blue cursor-pointer"} text-white px-4 py-1 rounded`}
             onClick={() => setIsInstructionModalOpen(true)}
@@ -183,9 +183,9 @@ export const EditStep = (props: {
       ) : (
         <p className="pt-1">Location: {currentStep?.name}</p>
       )}
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         {haveStepDataDetails ? (
-          <div className="flex flex-row gap-4 pb-2">
+          <div className="flex flex-col gap-4 pb-2 sm:flex-row">
             <Field
               of={form}
               path={["steps", stepIndex, "distance_to_next_meters"]}
@@ -207,7 +207,7 @@ export const EditStep = (props: {
                         field.onChange(Number(event.target.value));
                         // setUnsavedChanges(true);
                       }}
-                      className="w-50 pl-2 p-1 border border-border-grey rounded bg-black"
+                      className="w-full max-w-50 rounded border border-border-grey bg-black p-1 pl-2"
                     />
                     {field.errors && (
                       <div className="text-red-500 ml-1">{field.errors}</div>
@@ -236,7 +236,7 @@ export const EditStep = (props: {
                         );
                         // setUnsavedChanges(true);
                       }}
-                      className="ml-1 w-50 pl-2 p-1 border border-border-grey rounded bg-black"
+                      className="w-full max-w-50 rounded border border-border-grey bg-black p-1 pl-2 sm:ml-1"
                     />
                     {field.errors && (
                       <div className="text-red-500">{field.errors}</div>
@@ -251,8 +251,8 @@ export const EditStep = (props: {
         )}
       </div>
 
-      <div className="flex flex-row">
-        <div className="flex flex-col flex-1 gap-1 max-w-1/2">
+      <div className="flex flex-col gap-6 md:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <p className="font-bold text-lab-turquoise">
             Instruction on approach:
           </p>
@@ -317,7 +317,7 @@ export const EditStep = (props: {
             </div>
           </div>
         </div>
-        <div className="flex flex-col text-end flex-1 max-w-1/2">
+        <div className="flex min-w-0 flex-1 flex-col md:text-end">
           <div className="font-bold text-lab-turquoise">
             Instruction to next:
           </div>
@@ -325,7 +325,7 @@ export const EditStep = (props: {
             {currentStepInstructions?.trl_instruction_to_next_key}
           </div>
           <div className="flex flex-row gap-2">
-            <div className="relative w-20 flex-none">
+            <div className="relative w-20 flex-none md:order-2">
               {currentStepInstructions?.stepInstructionTranslations
                 ?.img_to_next ? (
                 <img
@@ -367,7 +367,7 @@ export const EditStep = (props: {
                 ""
               )}
             </div>
-            <div className="text-end w-full">
+            <div className="w-full md:order-1 md:text-end">
               <div className="flex flex-col gap-1">
                 {currentStepInstructions?.stepInstructionTranslations?.trl_instruction_to_next.map(
                   (trl) => (

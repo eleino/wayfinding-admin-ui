@@ -19,7 +19,7 @@ export const TextInput = ({
   input,
   errors,
   containerClassName = "mb-4 w-full",
-  inputClassName = "w-120 rounded border border-border-grey bg-black p-2",
+  inputClassName = "w-full max-w-120 rounded border border-border-grey bg-black p-2",
   ...fieldProps
 }: TextInputProps) => {
   const normalizedName = normalizeString(name);

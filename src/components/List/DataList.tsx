@@ -48,7 +48,7 @@ export const DataList = <T extends DataListItem>({
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {columns.map((column) => (
-              <span key={column.key} className="flex items-center text-center">
+              <span key={column.key} className="flex items-center text-center truncate">
                 {column.render ? (
                   column.render(item)
                 ) : column.type === "image" ? (
@@ -74,7 +74,7 @@ export const DataList = <T extends DataListItem>({
                     {String(item[column.key] ?? `${column.key} is undefined`)}
                   </Link>
                 ) : (
-                  String(item[column.key] ?? `${column.key} is undefined`)
+                  <span className="truncate">{String(item[column.key] ?? `${column.key} is undefined`)}</span>
                 )}
               </span>
             ))}

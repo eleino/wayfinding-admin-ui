@@ -15,25 +15,25 @@ export const UserList = ({ onCreate, onEdit, onDelete }: UserListProps) => {
   const [search, setSearch] = useState("");
   const users = useGetUsers({ name: search.trim() || undefined });
   const columns: DataListColumn<User>[] = [
-    { key: "username", label: "Username", width: "2fr" },
+    { key: "username", label: "Username", width: "2.5fr" },
     {
       key: "email",
       label: "Email",
       width: "3fr",
-      render: (user) => user.email || "Not set",
+      render: (user) => <span className="truncate">{user.email || "Not set"}</span>,
     },
     {
       key: "role",
       label: "Role",
-      width: "1fr",
+      width: "2.2fr",
       render: (user) => <span className="capitalize">{user.role}</span>,
     },
     {
       key: "id",
       label: "Actions",
-      width: "10rem",
+      width: "2fr",
       render: (user) => (
-        <div className="flex justify-start gap-4">
+        <div className="flex items-start sm:justify-start sm:gap-4 flex-col sm:flex-row">
           <button
             type="button"
             onClick={() => onEdit(user)}

@@ -332,25 +332,25 @@ export const EditStepInstructions = (props: {
                 existingImagesError={imageLibrary.error}
               />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="mt-4 px-4 py-2 border border-border-grey text-white rounded cursor-pointer"
+                className="mt-4 w-full rounded border border-border-grey px-4 py-2 text-white cursor-pointer sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleReset}
-                className="mt-4 px-4 py-2 border border-border-grey text-white rounded cursor-pointer"
+                className="mt-4 w-full rounded border border-border-grey px-4 py-2 text-white cursor-pointer sm:w-auto"
               >
                 Reset
               </button>
               <button
                 type="button"
                 onClick={onSave}
-                className="mt-4 px-4 py-2 bg-lab-green-dark text-white rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-4 w-full rounded bg-lab-green-dark px-4 py-2 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 disabled={!instructionsForm.isDirty}
               >
                 Save step
