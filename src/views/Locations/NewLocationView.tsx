@@ -83,7 +83,7 @@ export const NewLocationView = () => {
       >
         ← Back to locations list
       </Link>
-      <div className="border-border-grey bg-sidebar-grey p-4 mt-4 w-150">
+      <div className="border-border-grey bg-sidebar-grey p-4 mt-4 w-full rounded">
         {buildingId ? (
           <LocationForm
             submitForm={handleCreateLocation}

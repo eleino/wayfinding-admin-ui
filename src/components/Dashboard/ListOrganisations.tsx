@@ -81,7 +81,7 @@ export const ListOrganisations = () => {
                 <EntityCard
                   key={organisation.id}
                   title={organisation.name}
-                  subtitle="Wayfinding organisation"
+                  subtitle=""
                   imageUrl={organisation.logoUrl}
                   imageAlt={`${organisation.name} logo`}
                   meta={`Organisation ID ${id}`}

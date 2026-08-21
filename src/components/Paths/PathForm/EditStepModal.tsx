@@ -84,14 +84,19 @@ const ModalWrapper = ({
   children: React.ReactNode;
   closeModal: () => void;
 }) => (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div className="bg-sidebar-grey rounded p-6 w-220 relative max-h-[90vh] min-h-[20vh] overflow-y-auto scrollbar-thin">
-      <div className="sticky w-full top-0 left-0 flex justify-end ">
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Edit step instructions"
+      className="relative h-full min-h-[20vh] w-full overflow-x-hidden overflow-y-auto rounded bg-sidebar-grey p-4 scrollbar-thin sm:h-auto sm:max-h-[90vh] sm:max-w-5xl sm:p-6"
+    >
+      <div className="sticky top-0 z-10 -mt-1 flex w-full justify-end pb-2">
         <button
           type="button"
           aria-label="Close modal"
           onClick={closeModal}
-          className="cursor-pointer border border-border-grey bg-sidebar-grey/90 rounded w-10 h-10 text-2xl hover:border-lab-turquoise hover:text-lab-turquoise transition-colors"
+          className="h-10 w-10 cursor-pointer rounded border border-border-grey bg-sidebar-grey/90 text-2xl transition-colors hover:border-lab-turquoise hover:text-lab-turquoise"
         >
           &times;
         </button>

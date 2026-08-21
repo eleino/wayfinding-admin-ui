@@ -131,7 +131,7 @@ export const EditLocationView = () => {
       ) : locationData.error ? (
         <p className="text-red-500">Error loading location data</p>
       ) : location ? (
-        <div className="bg-sidebar-grey p-4 rounded w-150">
+        <div className="bg-sidebar-grey p-4 rounded w-full">
           <LocationForm
             locationId={locationId}
             locationData={allLocationData}

@@ -19,6 +19,11 @@ export const NumberSlider = (props: {
 
   const currentMin = range?.min ?? min;
   const currentMax = range?.max ?? max;
+  const isVertical = orientation.startsWith("vertical");
+  const mediumVerticalWritingClass =
+    orientation === "vertical-rl"
+      ? "md:writing-vertical-rl"
+      : "md:writing-vertical-lr";
   
   const adjustValues = (change: number) => {
     const newValue = Number(value) + change;
@@ -35,11 +40,17 @@ export const NumberSlider = (props: {
     disabled:hover:text-lab-turquoise disabled:cursor-default aspect-square
   `;
   return (
-    <div className="flex flex-col text-center gap-1">
-      <label className={`text-sm text-gray-300 writing-${orientation}`}>
+    <div
+      className={`flex flex-col gap-1 text-center ${isVertical ? `w-12 items-center h-full md:w-auto ${mediumVerticalWritingClass}` : ""}`}
+    >
+      <label
+        className={`text-sm text-gray-300 ${isVertical ? `w-full text-xs leading-tight writing-horizontal-tb md:w-auto md:text-sm ${mediumVerticalWritingClass}` : `writing-${orientation}`}`}
+      >
         {label}
       </label>
-      <div className={`flex font-bold items-center writing-${orientation}`}>
+      <div
+        className={`flex items-center font-bold ${isVertical ? `h-auto md:h-full flex-col md:flex-row ${mediumVerticalWritingClass}` : `writing-${orientation}`}`}
+      >
         <button
           className={buttonClass}
           onClick={() => adjustValues(-1)}
@@ -54,7 +65,7 @@ export const NumberSlider = (props: {
           max={currentMax}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className={`w-full writing-${orientation}`}
+          className={isVertical ? `h-18 w-5 writing-${orientation} md:h-full md:w-full` : `w-full writing-${orientation}`}
         />
         <button
           className={buttonClass}

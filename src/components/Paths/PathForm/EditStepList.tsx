@@ -209,7 +209,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
       </div>
       <div className="my-4 relative">
         <span className="font-bold">Allow rearranging steps:</span>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label
             htmlFor="rearrange"
             className="flex rounded-xl items-center cursor-pointer focus-within:ring-2 focus-within:ring-lab-blue"
@@ -365,10 +365,10 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
             }}
           </FieldArray>
         </PathEditStepsProvider>
-        <div className="flex justify-between mt-4">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
           <button
             type="button"
-            className={`px-4 py-2 ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded disabled:cursor-not-allowed disabled:opacity-50`}
+            className={`w-full px-4 py-2 sm:w-auto ${allowRearranging ? "bg-lab-blue cursor-pointer" : "bg-sidebar-grey border border-border-grey"} text-white rounded disabled:cursor-not-allowed disabled:opacity-50`}
             disabled={!allowRearranging}
           onClick={() => {
               insert(form, {
@@ -387,7 +387,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
           </button>
           <button
             type="button"
-            className="px-4 py-2 border border-border-grey text-white rounded enabled:cursor-pointer disabled:opacity-50"
+            className="w-full rounded border border-border-grey px-4 py-2 text-white enabled:cursor-pointer disabled:opacity-50 sm:w-auto"
             onClick={handleReset}
             disabled={!form.isDirty}
           >
@@ -399,7 +399,7 @@ export const EditStepList = (props: { pathData: PathApiResponse }) => {
 
           <button
             type="submit"
-            className={`px-4 py-2 bg-lab-green-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-white rounded`}
+            className="w-full rounded bg-lab-green-dark px-4 py-2 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             disabled={!form.isDirty}
           >
             Save Steps

@@ -122,7 +122,7 @@ export const PathForm = (props: {
     return <p>Loading organizations...</p>;
   }
   return (
-    <div className="relative w-200 bg-sidebar-grey rounded p-2 pb-10">
+    <div className="relative w-full bg-sidebar-grey rounded p-2 pb-10">
       <FormDraftAutosaver form={pathForm} save={save} mapValues={readCurrentDraft} />
       <Form
         of={pathForm}
@@ -217,12 +217,12 @@ export const PathForm = (props: {
                     {field.errors && (
                       <p className="text-red-500">{field.errors}</p>
                     )}
-                  </div>
-                  <span className="text-sm text-gray-400 w-0 whitespace-nowrap">
+                  <span className="ml-2 text-sm text-gray-400 sm:w-0 sm:whitespace-nowrap">
                     0 = no special accessibility<br />
                     1 = accessible; only shown to users with accessibility needs<br />
                     2 = available to everyone (including users with accessibility needs)
                   </span>
+                  </div>
                 </div>
               )}
             </Field>

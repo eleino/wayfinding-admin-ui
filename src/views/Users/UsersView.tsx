@@ -72,7 +72,7 @@ const UsersView = () => {
   const isSaving = createUser.isPending || updateUser.isPending || updateUserRole.isPending;
 
   return (
-    <div className="max-w-5xl p-5">
+    <div className="p-5">
       <h1>Users</h1>
       <UserInfo
         user={currentUser.data}

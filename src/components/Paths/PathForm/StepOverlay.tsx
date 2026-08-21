@@ -172,7 +172,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
   };
 
   return (
-    <div className="pb-10">
+    <section className="min-w-0 pb-10">
       <h2 className="text-lg font-semibold">Change image</h2>
       <ImageDropBox
         imageUrl={props.imageUrl}
@@ -217,21 +217,24 @@ export const StepOverlay = (props: StepOverlayProps) => {
         </button>
       )}
       {previewImage && useOverlay && (
-        <div className="flex mt-4 flex-col">
+        <div className="mt-4 flex flex-col">
           <p>Select an overlay:</p>
-          <div className="flex flex-row mt-2">
+          <div className="mt-2 flex gap-2">
             {overlayImages?.data?.map((overlay) => (
-              <div
+              <button
+                type="button"
                 key={overlay.key}
-                className="mr-4 cursor-pointer"
+                aria-pressed={selectedOverlay.url === overlay.url}
+                aria-label={`Select overlay ${overlay.key}`}
+                className={`cursor-pointer rounded border-2 w-30 h-30 flex justify-center p-1 ${selectedOverlay.url === overlay.url ? "border-lab-blue" : "border-gray-300"}`}
                 onClick={() => handleOverlaySelect(overlay.url, overlay.key)}
               >
                 <img
                   src={overlay.url}
                   alt={overlay.key}
-                  className={`w-24 h-24 object-contain ${selectedOverlay.url === overlay.url ? "border-4 border-lab-blue" : "border-2 border-gray-300"}`}
+                  className="h-25 object-contain p-2"
                 />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -241,8 +244,8 @@ export const StepOverlay = (props: StepOverlayProps) => {
           <h2 className="text-lg font-semibold mt-10">
             Adjust overlay position and rotation
           </h2>
-          <div className="grid grid-cols-[auto_auto_auto] grid-rows-[auto_auto] gap-4 items-center mt-5">
-            <div className="flex flex-col gap-4 items-center justify-center writing-vertical-lr">
+          <div className="mt-5 grid grid-cols-[auto_auto] items-center gap-3 md:gap-5 md:grid-cols-[auto_minmax(18rem,25rem)_minmax(10rem,1fr)]">
+            <div className="flex flex-col items-center justify-center h-full gap-4 md:col-start-1 md:row-start-1 md:writing-vertical-lr">
               <NumberSlider
                 label="Rotation X"
                 value={overlayField.input!.rotation_x_deg!}
@@ -264,18 +267,19 @@ export const StepOverlay = (props: StepOverlayProps) => {
               />
             </div>
 
-            <div className="relative w-100 h-auto top-0 left-0">
+            <div className="relative mx-auto w-full md:col-start-2 md:row-start-1 max-w-100">
               <img
                 ref={previewImageRef}
                 src={previewImage}
                 alt="Preview"
-                className="relative w-full h-full top-0 left-0 object-contain"
+                className="relative h-auto w-full object-contain"
                 onLoad={updatePositionRanges}
               />
-              {selectedOverlay && (
+              {selectedOverlay.url && (
                 <img
                   ref={overlayImageRef}
                   src={selectedOverlay.url}
+                  alt=""
                   className="absolute"
                   onLoad={updatePositionRanges}
                   style={{
@@ -296,26 +300,8 @@ export const StepOverlay = (props: StepOverlayProps) => {
               )}
             </div>
 
-            <div className="flex flex-col justify-center gap-8">
-              <NumberSlider
-                label="Overlay size"
-                value={overlayField.input!.overlay_size!}
-                onChange={(value) =>
-                  handleOverlayChange({ overlay_size: value })
-                }
-                min={10}
-                max={30}
-              />
-              <button
-                type="button"
-                className="mt-2 px-2 py-2 bg-lab-blue text-white rounded"
-                onClick={() => handleOverlayRemove()}
-              >
-                Remove Overlay
-              </button>
-            </div>
-
-            <div className="col-start-2 flex flex-row gap-2 justify-center">
+            <div className="col-span-1 flex flex-col gap-4 col-start-2">
+              <div>
               <NumberSlider
                 label="Position X"
                 value={overlayField.input!.position_x_percent!}
@@ -333,10 +319,29 @@ export const StepOverlay = (props: StepOverlayProps) => {
                 min={-180}
                 max={180}
               />
+              </div>
+            </div>
+            <div className="col-span-1 grid gap-4 col-start-2 sm:grid-cols-2 md:col-start-3 md:row-start-1 md:col-span-1 md:grid-cols-1">
+              <NumberSlider
+                label="Overlay size"
+                value={overlayField.input!.overlay_size!}
+                onChange={(value) =>
+                  handleOverlayChange({ overlay_size: value })
+                }
+                min={10}
+                max={30}
+              />
+              <button
+                type="button"
+                className="rounded bg-lab-blue px-3 py-2 text-white"
+                onClick={handleOverlayRemove}
+              >
+                Remove Overlay
+              </button>
             </div>
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 };
