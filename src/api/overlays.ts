@@ -5,7 +5,6 @@ import type { CreateOverlayDto } from "@apptypes/dtos/create-overlay.dto";
 // overlays are fetched using fetchImagesByType with type "overlay"
 
 export const createOverlay = async (dto: CreateOverlayDto): Promise<OverlayResponse> => {
-  console.log("Creating overlay with data:", dto);
   const response = await apiClient.post("overlays", {
     json: dto
   });

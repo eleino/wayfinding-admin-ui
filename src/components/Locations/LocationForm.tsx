@@ -110,12 +110,9 @@ export const LocationForm = (props: {
       <Form
         of={locationForm}
         style={{ width: "100%" }}
-        onSubmit={(data) => {
+        onSubmit={() => {
           if (locationForm.isValid) {
-            console.log("Submitting location form data:", data);
             onSave();
-          } else {
-            console.log("Location form is invalid, cannot submit:", locationForm.errors);
           }
         }}
         className="space-y-4"

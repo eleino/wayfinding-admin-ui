@@ -75,6 +75,11 @@ export const EditPathView = () => {
             },
             onError: (error) => {
                 console.error("Error updating path:", error);
+                setShowAlert({
+                    title: "Error updating path",
+                    description: error instanceof Error ? error.message : String(error),
+                    type: "error",
+                });
             }
         });
     }
