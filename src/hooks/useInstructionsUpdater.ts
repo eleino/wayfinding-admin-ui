@@ -151,11 +151,8 @@ export const useInstructionsUpdater = () => {
 
           // handle overlays
           const newOverlayData = updatedInstructionData[`overlay_${dir}`];
-          console.log("New overlay data for direction", dir, ":", newOverlayData);
           const initialOverlayData = initialData[`overlay_${dir}`];
-          console.log("Initial overlay data for direction", dir, ":", initialOverlayData);
           if (newOverlayData && !initialOverlayData) {
-            console.log("Creating new overlay for direction", dir);
             // create new overlay
             overlayTasks.push(
               createOverlayMutation.mutateAsync({

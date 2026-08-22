@@ -30,7 +30,6 @@ export const ImageList = (props: { searchParams: SearchParams }) => {
     enabled: !!selectedType,
   });
   const allImages = images?.pages.flatMap((page) => page.data) || [];
-  console.log("Fetched images:", allImages);
 
   // reset shownImages and page when type changes
   const handleTypeChange = (type: string) => {

@@ -12,7 +12,6 @@ export interface BreadcrumbItem {
 }
 
 export const buildBreadcrumbs = (basePath: string, search: SearchParams, currentPageLabel?: string) => {
-    // console.log("buildBreadcrumbs called with basePath:", basePath, "search:", search, "currentPageLabel:", currentPageLabel);
     const store = useSelectionStore.getState();
     const matchedOrg = store.orgList.find((org) => org.id === search.orgId);
     const matchedSite = store.siteList.find((site) => site.id === search.siteId);

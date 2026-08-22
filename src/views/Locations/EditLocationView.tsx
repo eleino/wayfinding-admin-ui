@@ -60,7 +60,6 @@ export const EditLocationView = () => {
   const handleUpdateLocation = async (
     updatedLocationData: EditLocationInput,
   ) => {
-    console.log(location)
     if (!locationId || !location) return;
 
     const result = await locationUpdater.mutateAsync(locationId, location, allLocationData, updatedLocationData);
