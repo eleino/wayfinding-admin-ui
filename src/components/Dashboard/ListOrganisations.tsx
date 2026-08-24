@@ -74,7 +74,7 @@ export const ListOrganisations = () => {
         {organisations.isError && <SectionState>Organisations could not be loaded.</SectionState>}
         {organisations.data?.length === 0 && <SectionState>No organisations found.</SectionState>}
         {organisations.data && organisations.data.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {organisations.data.map((organisation) => {
               const id = Number(organisation.id);
               return (
@@ -172,7 +172,7 @@ export const ListOrganisations = () => {
                 <EntityCard
                   key={building.id}
                   title={building.name}
-                  subtitle="Building"
+                  subtitle=""
                   imageUrl={building.image_url}
                   imageAlt={building.name}
                   meta={`Building ID ${id}`}

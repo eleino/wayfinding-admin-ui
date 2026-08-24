@@ -15,6 +15,15 @@ describe("RecentFeedback", () => {
     await expect.element(
       screen.getByText("The directions at the north entrance were unclear."),
     ).toBeInTheDocument();
+    await expect.element(
+      screen.getByText("The elevator route was inaccessible."),
+    ).toBeInTheDocument();
+    await expect.element(screen.getByText("Path #42")).toBeInTheDocument();
+
+    await screen.getByRole("tab", { name: "General" }).click();
+    await expect.element(
+      screen.getByText("The elevator route was inaccessible."),
+    ).not.toBeInTheDocument();
     await screen.getByRole("button", { name: "View" }).click();
     await screen.getByLabelText("Status").selectOptions("resolved");
 

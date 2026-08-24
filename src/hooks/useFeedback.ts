@@ -1,13 +1,14 @@
 import {
   deleteFeedback,
   fetchGeneralFeedback,
+  fetchPathFeedback,
   updateFeedbackStatus,
 } from "@api/feedback";
-import { feedbackStatuses, type FeedbackStatus } from "@apptypes/feedback";
+import type { FeedbackStatus } from "@apptypes/feedback";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { combineFeedbackByMostRecent } from "@utils/feedback";
 
-const feedbackQueryKey = ["feedback", "general"];
+const feedbackQueryKey = ["feedback"];
 
 /**
  * Custom hook to fetch recent feedback from the API.
@@ -19,9 +20,7 @@ export const useGetRecentFeedback = () =>
   useQuery({
     queryKey: feedbackQueryKey,
     queryFn: () =>
-      Promise.all(
-        feedbackStatuses.map((status) => fetchGeneralFeedback(status)),
-      ),
+      Promise.all([fetchGeneralFeedback(), fetchPathFeedback()]),
     select: combineFeedbackByMostRecent,
   });
 
