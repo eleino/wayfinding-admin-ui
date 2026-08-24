@@ -13,7 +13,7 @@ export const UserInfo = ({ user, isLoading, error, onEdit }: UserInfoProps) => {
   if (!user) return null;
 
   return (
-    <section aria-labelledby="your-profile-heading" className=" max-w-xl rounded border border-border-grey bg-sidebar-grey p-4">
+    <section aria-labelledby="your-profile-heading" className=" max-w-3xl rounded border border-border-grey bg-sidebar-grey p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="your-profile-heading" className="text-xl font-semibold">Your profile</h2>
         <button
@@ -24,9 +24,9 @@ export const UserInfo = ({ user, isLoading, error, onEdit }: UserInfoProps) => {
           Edit profile
         </button>
       </div>
-      <dl className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 items-center">
+      <dl className="mt-4 w-full grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] items-center">
         <div><dt className="text-sm text-gray-400">Username</dt><dd>{user.username}</dd></div>
-        <div><dt className="text-sm text-gray-400">Email</dt><dd>{user.email || "Not set"}</dd></div>
+        <div className="min-w-0"><dt className="text-sm text-gray-400">Email</dt><dd className="truncate">{user.email || "Not set"}</dd></div>
         <div><dt className="text-sm text-gray-400">Role</dt><dd className="capitalize">{user.role}</dd></div>
       </dl>
     </section>

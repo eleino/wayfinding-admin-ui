@@ -4,10 +4,20 @@ import type { Feedback, FeedbackStatus } from "@apptypes/feedback";
 const initialFeedback: Feedback[] = [
   {
     feedback_id: 7,
+    feedback_type: "general",
     feedback_text: "The directions at the north entrance were unclear.",
     status: "pending",
     submitted_at: "2026-08-04T09:00:00.000Z",
     updated_at: "2026-08-04T09:00:00.000Z",
+  },
+  {
+    feedback_id: 8,
+    feedback_type: "path",
+    path_id: 42,
+    feedback_text: "The elevator route was inaccessible.",
+    status: "pending",
+    submitted_at: "2026-08-05T09:00:00.000Z",
+    updated_at: "2026-08-05T09:00:00.000Z",
   },
 ];
 
@@ -353,9 +363,37 @@ export const dashboardHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get("*/feedback/general", ({ request }) => {
-    const status = new URL(request.url).searchParams.get("status");
-    return HttpResponse.json(feedback.filter((item) => item.status === status));
+  http.get("*/feedback/general", () => {
+    return HttpResponse.json(
+      feedback
+        .filter((item) => item.feedback_type === "general")
+        .map((item) => ({
+          feedback_id: item.feedback_id,
+          feedback_text: item.feedback_text,
+          status: item.status,
+          submitted_at: item.submitted_at,
+          updated_at: item.updated_at,
+        })),
+    );
+  }),
+
+  http.get("*/feedback/paths", () => {
+    return HttpResponse.json(
+      feedback.flatMap((item) =>
+        item.feedback_type === "path"
+          ? [
+              {
+                feedback_id: item.feedback_id,
+                path_id: item.path_id,
+                feedback_text: item.feedback_text,
+                status: item.status,
+                submitted_at: item.submitted_at,
+                updated_at: item.updated_at,
+              },
+            ]
+          : [],
+      ),
+    );
   }),
 
   http.put("*/feedback/:feedbackId/status", async ({ params, request }) => {

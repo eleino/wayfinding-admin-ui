@@ -39,7 +39,7 @@ export const PathList = (props: { buildingId: number | undefined }) => {
   }));
 
   return (
-    <div className="p-2">
+    <div className="p-2 max-w-4xl">
       {paths.isLoading && <p>Loading paths...</p>}
       {paths.isError && <p>Error loading paths: {paths.error.message}</p>}
       {metrics.isError && (

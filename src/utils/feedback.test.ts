@@ -4,6 +4,7 @@ import { combineFeedbackByMostRecent } from "./feedback";
 
 const createFeedback = (feedbackId: number, submittedAt: string): Feedback => ({
   feedback_id: feedbackId,
+  feedback_type: "general",
   feedback_text: `Feedback ${feedbackId}`,
   status: "pending",
   submitted_at: submittedAt,

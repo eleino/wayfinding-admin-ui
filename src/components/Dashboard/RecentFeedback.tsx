@@ -49,6 +49,11 @@ const FeedbackItem = ({ feedback }: { feedback: Feedback }) => {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className={`rounded-full bg-white/10 px-2 py-1 text-xs font-semibold ${feedback.feedback_type === "general" ? "text-gray-200" : "text-lab-turquoise"}`}>
+              {feedback.feedback_type === "general"
+                ? "General"
+                : `Path #${feedback.path_id}`}
+            </span>
             <span
               className={`rounded-full px-2 py-1 text-xs font-semibold capitalize ${statusStyles[feedback.status]}`}
             >
@@ -141,19 +146,44 @@ const FeedbackItem = ({ feedback }: { feedback: Feedback }) => {
 
 export const RecentFeedback = () => {
   const feedback = useGetRecentFeedback();
+  const [filter, setFilter] = useState<"all" | "general" | "path">("all");
+  const visibleFeedback = feedback.data?.filter(
+    (item) => filter === "all" || item.feedback_type === filter,
+  );
 
   return (
     <section className="flex min-h-105 flex-col rounded-xl border border-border-grey bg-sidebar-grey p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold">Recent feedback</h2>
-          <p className="mt-1 text-sm text-gray-400">Latest general user comments</p>
+          <p className="mt-1 text-sm text-gray-400">
+            Latest general and path-specific user comments
+          </p>
         </div>
-        {feedback.data && (
+        {visibleFeedback && (
           <span className="rounded-full bg-black px-3 py-1 text-sm">
-            {feedback.data.length}
+            {visibleFeedback.length}
           </span>
         )}
+      </div>
+
+      <div className="mt-4 flex gap-2" role="tablist" aria-label="Feedback type">
+        {(["all", "general", "path"] as const).map((type) => (
+          <button
+            key={type}
+            type="button"
+            role="tab"
+            aria-selected={filter === type}
+            onClick={() => setFilter(type)}
+            className={`cursor-pointer rounded-full px-3 py-1 text-sm capitalize ${
+              filter === type
+                ? "bg-lab-turquoise text-black"
+                : "bg-black text-gray-300"
+            }`}
+          >
+            {type === "path" ? "Paths" : type}
+          </button>
+        ))}
       </div>
 
       {feedback.isLoading && <p className="m-auto text-gray-400">Loading feedback…</p>}
@@ -169,12 +199,14 @@ export const RecentFeedback = () => {
           </button>
         </div>
       )}
-      {feedback.data?.length === 0 && (
-        <p className="m-auto text-gray-400">No feedback has been submitted yet.</p>
+      {visibleFeedback?.length === 0 && (
+        <p className="m-auto text-gray-400">
+          No {filter === "all" ? "" : `${filter} `}feedback has been submitted yet.
+        </p>
       )}
-      {feedback.data && feedback.data.length > 0 && (
+      {visibleFeedback && visibleFeedback.length > 0 && (
         <ul className="mt-3 max-h-80 overflow-y-auto pr-1">
-          {feedback.data.slice(0, 8).map((item) => (
+          {visibleFeedback.slice(0, 8).map((item) => (
             <FeedbackItem key={item.feedback_id} feedback={item} />
           ))}
         </ul>

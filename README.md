@@ -6,6 +6,7 @@
 3. Create a `.env` file in the root of the `wayfinding-admin-ui` directory with the following content:
    ```
    VITE_API_BASE_URL=/api/v1
+   APP_BASE=/admin/ (or / in development)
    ```
 4. Run `npm run dev` to start the development server. The backend needs to be running (in Docker or locally).
 5. Navigate to `http://localhost:5172` in your browser to access the admin UI.

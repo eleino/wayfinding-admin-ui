@@ -1,11 +1,24 @@
 import apiClient from "./client";
-import type { Feedback, FeedbackStatus } from "@apptypes/feedback";
+import type {
+  Feedback,
+  FeedbackStatus,
+  GeneralFeedback,
+  PathFeedback,
+} from "@apptypes/feedback";
 
-export const fetchGeneralFeedback = async (
-  status: FeedbackStatus,
-): Promise<Feedback[]> => {
-  const response = await apiClient.get(`feedback/general?status=${status}`);
-  return response.json();
+type GeneralFeedbackResponse = Omit<GeneralFeedback, "feedback_type">;
+type PathFeedbackResponse = Omit<PathFeedback, "feedback_type">;
+
+export const fetchGeneralFeedback = async (): Promise<Feedback[]> => {
+  const response = await apiClient.get("feedback/general");
+  const feedback = await response.json<GeneralFeedbackResponse[]>();
+  return feedback.map((item) => ({ ...item, feedback_type: "general" }));
+};
+
+export const fetchPathFeedback = async (): Promise<Feedback[]> => {
+  const response = await apiClient.get("feedback/paths");
+  const feedback = await response.json<PathFeedbackResponse[]>();
+  return feedback.map((item) => ({ ...item, feedback_type: "path" }));
 };
 
 export const updateFeedbackStatus = async (
