@@ -136,7 +136,7 @@ export const ShowPath = (props: {
     );
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="w-full max-w-5xl">
       <Link
         to="/paths"
         search={{

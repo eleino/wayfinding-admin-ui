@@ -8,7 +8,7 @@ import {
   copyImage,
 } from "@api/images";
 
-const IMAGE_LIST_STALE_TIME = 5 * 60 * 1000; // controls how often the image list may be refetched due to stale data
+const IMAGE_LIST_STALE_TIME = 10 * 60 * 1000; // controls how often the image list may be refetched due to stale data
 const IMAGE_LIST_GC_TIME = 30 * 60 * 1000; // controls how long the image list is kept cached
 
 type UploadImageParams = {

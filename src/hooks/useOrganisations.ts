@@ -37,15 +37,16 @@ export const useGetOrganisationById = (id: number|null, options = {}) => {
   });
   // Update the siteList in the selection store whenever the query data changes
   useEffect(() => {
-    if (query.data) {
-      useSelectionStore.setState({
-        siteList: query.data.sites.map((site) => ({
+    if (id && query.data) {
+      useSelectionStore.getState().setSiteList(
+        id,
+        query.data.sites.map((site) => ({
           id: Number(site.id),
           name: site.name,
         })),
-      });
+      );
     }
-  }, [query.data]);
+  }, [id, query.data]);
   return query;
 };
 

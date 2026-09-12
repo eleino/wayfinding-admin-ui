@@ -132,7 +132,7 @@ export const EditStep = (props: {
         </Field>
         <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
           <button
-            className={`bg-${allowRearranging ? "gray-300 border border-border-grey" : "lab-blue cursor-pointer"} text-white px-4 py-1 rounded`}
+            className={`${allowRearranging ? "bg-sidebar-grey border border-border-grey" : "bg-lab-blue cursor-pointer"} text-white px-4 py-1 rounded`}
             onClick={() => setIsInstructionModalOpen(true)}
             disabled={allowRearranging}
             type="button"

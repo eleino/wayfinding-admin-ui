@@ -12,8 +12,11 @@ vi.mock("./PathUsageChart", () => ({
 describe("PathUsage", () => {
   beforeEach(() => {
     useSelectionStore.setState({
+      siteId: 10,
       buildingId: 100,
-      buildingList: [{ id: 100, name: "Main Building" }],
+      buildingListsBySiteId: {
+        10: [{ id: 100, name: "Main Building" }],
+      },
     });
   });
 

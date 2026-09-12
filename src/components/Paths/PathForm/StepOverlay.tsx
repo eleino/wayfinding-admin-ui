@@ -245,7 +245,7 @@ export const StepOverlay = (props: StepOverlayProps) => {
             Adjust overlay position and rotation
           </h2>
           <div className="mt-5 grid grid-cols-[auto_auto] items-center gap-3 md:gap-5 md:grid-cols-[auto_minmax(18rem,25rem)_minmax(10rem,1fr)]">
-            <div className="flex flex-col items-center justify-center h-full gap-4 md:col-start-1 md:row-start-1 md:writing-vertical-lr">
+            <div className="flex flex-col items-center justify-center h-full gap-4 col-start-1 row-start-1 md:writing-vertical-lr">
               <NumberSlider
                 label="Rotation X"
                 value={overlayField.input!.rotation_x_deg!}
