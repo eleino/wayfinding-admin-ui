@@ -77,17 +77,6 @@ export const ShowLocation = (props: {
     return <div>Error loading location details: {locationData.error.message}</div>;
   }
 
-  /* TODO: implement saving recent locations, and listing them somewhere for easy access
-   const recentLocationIds = getRecentLocationIds();
-  if (locationId) {
-    if (recentLocationIds.includes(locationId)) {
-      // Move the locationId to the end to mark it as most recently accessed
-      const index = recentLocationIds.indexOf(locationId);
-      recentLocationIds.splice(index, 1);
-    }
-    recentLocationIds.push(locationId);
-    saveRecentLocationIds(recentLocationIds);
-  } */
   if (locationId && !locationData.isLoading && location) {
     return (
       <div>

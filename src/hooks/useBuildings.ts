@@ -17,15 +17,16 @@ export const useGetBuildings = (siteId: number | null, options = {}) => {
     ...options,
   });
   useEffect(() => {
-    if (query.data) {
-      useSelectionStore.setState({
-        buildingList: query.data.map((building) => ({
+    if (siteId && query.data) {
+      useSelectionStore.getState().setBuildingList(
+        siteId,
+        query.data.map((building) => ({
           id: Number(building.id),
           name: building.name,
         })),
-      });
+      );
     }
-  }, [query.data]);
+  }, [siteId, query.data]);
   return query;
 };
 

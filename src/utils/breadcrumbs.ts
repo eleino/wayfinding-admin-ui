@@ -14,8 +14,14 @@ export interface BreadcrumbItem {
 export const buildBreadcrumbs = (basePath: string, search: SearchParams, currentPageLabel?: string) => {
     const store = useSelectionStore.getState();
     const matchedOrg = store.orgList.find((org) => org.id === search.orgId);
-    const matchedSite = store.siteList.find((site) => site.id === search.siteId);
-    const matchedBuilding = store.buildingList.find((building) => building.id === search.buildingId);
+    const matchedSite = search.orgId
+        ? store.siteListsByOrgId[search.orgId]?.find((site) => site.id === search.siteId)
+        : undefined;
+    const matchedBuilding = search.siteId
+        ? store.buildingListsBySiteId[search.siteId]?.find(
+            (building) => building.id === search.buildingId,
+        )
+        : undefined;
 
     return [
         {

@@ -26,8 +26,13 @@ const PathUsageState = ({
 );
 
 export const PathUsage = () => {
+  const siteId = useSelectionStore((state) => state.siteId);
   const buildingId = useSelectionStore((state) => state.buildingId);
-  const building = useSelectionStore((state) => state.buildingList.find((b) => b.id === buildingId));
+  const building = useSelectionStore((state) =>
+    siteId
+      ? state.buildingListsBySiteId[siteId]?.find((item) => item.id === buildingId)
+      : undefined,
+  );
   const savedPaths = useSelectionStore((state) => state.pathList);
   const { startDate, endDate } = getPast30DaysDateRange();
   const metrics = useGetAllPathMetrics(buildingId ?? null, startDate, endDate);

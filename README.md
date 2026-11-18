@@ -1,5 +1,7 @@
 # Wayfinding Admin UI
 
+More information and images of the running application can be found in my [thesis](https://urn.fi/URN:NBN:fi:amk-2026091926625).
+
 ## Installation
 1. Clone the repository and navigate to the `wayfinding-admin-ui` directory.
 2. Run `npm install` to install the dependencies.
